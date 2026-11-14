@@ -90,6 +90,17 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   LightGBM benchmark features are raw state (score/runs needed, balls left, wickets in hand, par), with
   monotone constraints on everything except par and max_balls.
 
+- D28 (14 Nov, P2, implementation detail): Validation bands (04): low = below the innings median LI,
+  medium = median to the pressure cut, pressure = pressure but not crunch, crunch = top 5% overall. Dead balls
+  sit in the low band (spec does not exclude them from validation). Pressure-minus-routine uses routine balls
+  (dead excluded). The F2 example is the IPL 2026 completed, full-length chase with the highest mean LI
+  (match 50375). The top-15 leverage table keeps one row per distinct state.
+
+- D29 (14 Nov, P2): F4 (usual definition vs leverage) shows chase balls only; the all-innings and
+  first-innings rows stay in outputs/naive_vs_leverage.csv. Why: in the first innings the comparison is
+  partly circular (our first-innings pressure is mostly powerplay, the usual definition there is overs 16–20),
+  which inflates "misses 77% of our pressure balls" (99% in innings 1, 54% in chases). Rejected: all innings.
+
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2): First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected
   48/45/7 from the prototype). Cause: the first-innings model values a run almost equally through the innings,
