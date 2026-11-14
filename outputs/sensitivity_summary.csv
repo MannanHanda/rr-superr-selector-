@@ -1,0 +1,25 @@
+variant,discipline,players_rated,top10_overlap,spearman_vs_headline,dropped_out,came_in
+V1 cut at 80th pct,bat,99,8,0.920,Abhishek Sharma; Virat Kohli,Naman Dhir; Glenn Maxwell
+V1 cut at 80th pct,bowl,103,8,0.968,Blessing Muzarabani; Mahedi Hasan,Varun Chakravarthy; Mohammad Nawaz
+V2 cut at 70th pct,bat,99,9,0.952,Kamindu Mendis,Namboori Tilak Varma
+V2 cut at 70th pct,bowl,103,9,0.953,Mahedi Hasan,Mohammad Nawaz
+V3 global top-20% cut,bat,99,5,0.609,Josh Inglis; Kamindu Mendis; Abhishek Sharma; Rajat Patidar; Tim David,Reeza Hendricks; Yashasvi Jaiswal; Ryan Rickelton; Prabhsimran Singh; Pathum Nissanka
+V3 global top-20% cut,bowl,103,6,0.917,Mustafizur Rahman; Blessing Muzarabani; Mahedi Hasan; Josh Hazlewood,Nathan Ellis; Lungi Ngidi; Mohammad Nawaz; Wanindu Hasaranga
+V4 weights 100/0/0,bat,99,8,0.961,Kamindu Mendis; Shreyas Iyer,Harry Brook; Finn Allen
+V4 weights 100/0/0,bowl,103,7,0.850,Mujeeb Ur Rahman; Blessing Muzarabani; Mahedi Hasan,Lungi Ngidi; Mohammad Nawaz; Abrar Ahmed
+V5 weights 40/20/40,bat,99,10,0.985,,
+V5 weights 40/20/40,bowl,103,9,0.901,Jasprit Bumrah,Gudakesh Motie
+V6 weights 34/33/33,bat,99,8,0.963,Josh Inglis; Abhishek Sharma,Naman Dhir; Rinku Singh
+V6 weights 34/33/33,bowl,103,7,0.816,Mahedi Hasan; Jasprit Bumrah; Sunil Narine,Harshit Rana; Shamar Joseph; Gudakesh Motie
+V7 no recency decay,bat,99,7,0.931,Kamindu Mendis; Shreyas Iyer; Virat Kohli,Namboori Tilak Varma; Suryakumar Yadav; Rinku Singh
+V7 no recency decay,bowl,103,9,0.950,Mustafizur Rahman,Kuldeep Yadav
+V8 one-year half-life,bat,99,9,0.973,Kamindu Mendis,Harry Brook
+V8 one-year half-life,bowl,103,8,0.969,Mahedi Hasan; Josh Hazlewood,Nathan Ellis; Mohammad Nawaz
+V9 IPL balls only,bat,79,8,0.694,Kamindu Mendis; Tim David,Suryakumar Yadav; Finn Allen
+V9 IPL balls only,bowl,84,6,0.879,Mujeeb Ur Rahman; Blessing Muzarabani; Mahedi Hasan; Josh Hazlewood,Trent Boult; Lungi Ngidi; Matheesha Pathirana; Harpreet Brar
+"V10 tiers equal, no offsets",bat,99,9,0.971,Shreyas Iyer,Harry Brook
+"V10 tiers equal, no offsets",bowl,103,9,0.987,Mahedi Hasan,Nathan Ellis
+V11 no run/wicket split,bat,99,10,0.984,,
+V11 no run/wicket split,bowl,103,9,0.980,Blessing Muzarabani,Mohammad Nawaz
+V12 level = raw WPA,bat,99,7,0.906,Josh Inglis; Abhishek Sharma; Rajat Patidar,Namboori Tilak Varma; Rinku Singh; Glenn Maxwell
+V12 level = raw WPA,bowl,103,5,0.684,Mahedi Hasan; Blessing Muzarabani; Mustafizur Rahman; Jasprit Bumrah; Krunal Pandya,Harshit Rana; Wanindu Hasaranga; Shamar Joseph; Gudakesh Motie; Lockie Ferguson

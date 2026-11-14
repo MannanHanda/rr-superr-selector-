@@ -1,0 +1,13 @@
+discipline,predictor,n,spearman,lo90,hi90
+bat,(1) full rating,59,0.0802,-0.1600,0.2986
+bat,(2) pressure level (shrunk),59,0.0037,-0.2198,0.2063
+bat,(3) raw pressure Impact,59,0.2502,0.0276,0.4426
+bat,(4) shift alone (raw),59,0.2652,0.0549,0.4606
+bat,(5) usual approach (death / RRR>10 SR or econ),59,0.1811,-0.0420,0.3885
+bat,(extra) usual level (shrunk),59,-0.0397,-0.2554,0.1573
+bowl,(1) full rating,55,0.2401,0.0074,0.4247
+bowl,(2) pressure level (shrunk),55,0.3575,0.1454,0.5489
+bowl,(3) raw pressure Impact,55,0.2740,0.0559,0.4672
+bowl,(4) shift alone (raw),55,-0.0859,-0.2764,0.1276
+bowl,(5) usual approach (death / RRR>10 SR or econ),55,0.1923,-0.0402,0.4023
+bowl,(extra) usual level (shrunk),55,0.3455,0.1079,0.5316

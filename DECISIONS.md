@@ -121,6 +121,15 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   match weights; n = effective matches, m from beta-binomial moments, clamped to 10–60. z-scores use the
   population SD over the eligible pool.
 
+- D32 (14 Nov, P2, implementation details for 07): `rate()` split into sums + `rate_from_sums()` so the
+  bootstrap uses the identical formula on sparse player x match sums (un-resampled run matches 06 to 3e-14).
+  Bootstrap resamples all matches with ball data, the same draws for both lists. Sensitivity variants re-rank
+  the headline eligible pool (held fixed so overlaps are comparable); priors and k are re-estimated per
+  variant; a player with no pressure or routine balls under a variant (e.g. no IPL balls in V9) is left
+  unranked and counts as outside the top 10. Time split: players need >= 75 live pressure balls (IPL +
+  T20I_full) in both periods; the late outcome is raw pressure Impact with tier weights but no recency
+  decay; the usual-approach predictor uses economy with its sign flipped so higher = better for both lists.
+
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2): First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected
   48/45/7 from the prototype). Cause: the first-innings model values a run almost equally through the innings,
@@ -128,6 +137,18 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   Proceeding unchanged; revisit after 06 to check first-innings death specialists are not treated unfairly
   (compare with variant V3 and their first-innings vs chase pressure ball counts). Spec 1.4 numbers to be
   corrected before the report.
+- Q4 (14 Nov, P2): The pressure shift and consistency components are mostly noise but keep their full weight,
+  because each component is z-scored after shrinkage. Bowlers' shift has k_D = 3,811 balls (shrunk SD 0.5 per
+  100 balls, vs 3.7 for pressure level); the consistency m hit the 60 cap in both lists (data implies ~78 bat,
+  ~99 bowl). Ranking on pressure level alone keeps 8/10 batters and 7/10 bowlers (outputs/sensitivity_summary.csv,
+  V4). Picks that depend on these components: Mendis, Iyer (bat); Mujeeb, Muzarabani, Mahedi Hasan (bowl).
+- Q5 (14 Nov, P2): The time split contradicts D14 for batters (outputs/time_split.csv; 59 batters, 55 bowlers).
+  Spearman with 2025–26 raw pressure Impact: batters — full rating 0.08 (90% CI −0.16 to 0.30), shrunk pressure
+  level 0.00, raw pressure Impact 0.25 (0.03 to 0.44), raw shift 0.27, usual approach 0.18, usual level −0.04.
+  Bowlers — rating 0.24, shrunk pressure level 0.36 (0.15 to 0.55), raw 0.27, usual level 0.35, usual approach
+  0.19. So "usual level + shrunk shift" works for bowlers but not batters, where routine form does not predict
+  pressure form (possibly a role effect: batters' pressure and routine balls come in different roles).
+  Bootstrap: only 3 batters (Sooryavanshi, Klaasen, Arya) and no bowler are top 10 in >= 80% of resamples.
 
 ## Closed questions
 - Q1 (closed 14 Nov): Rank purely on data; nobody is excluded or moved for being an RR player or a likely

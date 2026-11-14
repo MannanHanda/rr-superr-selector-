@@ -48,6 +48,7 @@ class Params:
     tiers: tuple | None = None          # restrict to these tiers (V9)
     years: tuple | None = None          # restrict to these years (time split)
     split_parts: bool = True            # shrink run and wicket parts separately (V11 = False)
+    level: str = "impact"               # "wpa" (V12): pressure level = shrunk raw WPA per pressure ball
     k_cap: float = 5000.0
     m_range: tuple = (10.0, 60.0)
 
@@ -275,6 +276,11 @@ def estimate_eb(sums: pd.DataFrame, cons: pd.DataFrame, pool: pd.Index, p: Param
         k, tau2, guard = _k(raw, n_R, sigma2, p.k_cap)
         eb[f"U_{part}"] = {"prior": prior, "sigma2": sigma2, "tau2": tau2, "k": k, "guard": guard, "n_players": len(s)}
 
+    if p.level == "wpa":
+        prior, sigma2 = _pooled_var(s, "P", "wpa")
+        k, tau2, guard = _k(s["P_w_wpa"] / s["P_w"], n_P, sigma2, p.k_cap)
+        eb["P_wpa"] = {"prior": prior, "sigma2": sigma2, "tau2": tau2, "k": k, "guard": guard, "n_players": len(s)}
+
     mP, s2P = _pooled_var(s, "P", "x_tot")
     mR, s2R = _pooled_var(s, "R", "x_tot")
     d_raw = s["P_w_x_tot"] / s["P_w"] - s["R_w_x_tot"] / s["R_w"]
@@ -302,10 +308,20 @@ def rate(pms: pd.DataFrame, disc: str, rated: pd.Index, pool: pd.Index, p: Param
     sums, cons = player_sums(pms, disc), consistency_sums(pms, disc)
     if eb is None:
         eb = estimate_eb(sums, cons, pool, p)
+    return rate_from_sums(sums, cons, rated, p, eb), eb
+
+
+def rate_from_sums(sums: pd.DataFrame, cons: pd.DataFrame, rated: pd.Index, p: Params, eb: dict) -> pd.DataFrame:
+    """The rating formula on per-player sums (also used directly by the 07 bootstrap).
+    A player with no balls of a kind (possible in a resample or a variant) gets the prior for that part."""
     t = sums.reindex(rated)
     c = cons.reindex(rated)
-    n_R = t["R_w"] ** 2 / t["R_w2"]
-    n_P = t["P_w"] ** 2 / t["P_w2"]
+    n_R = (t["R_w"] ** 2 / t["R_w2"]).fillna(0.0)
+    n_P = (t["P_w"] ** 2 / t["P_w2"]).fillna(0.0)
+
+    def sh(raw, n, e):
+        return shrink(raw, n, e["k"], e["prior"]).fillna(e["prior"])
+
     out = pd.DataFrame(index=rated)
     out["n_P"], out["n_R"] = n_P, n_R
     out["P_raw"] = t["P_w_x_tot"] / t["P_w"]
@@ -313,18 +329,18 @@ def rate(pms: pd.DataFrame, disc: str, rated: pd.Index, pool: pd.Index, p: Param
     out["D_raw"] = out["P_raw"] - out["R_raw"]
     if p.split_parts:
         for part, lab in (("x_run", "run"), ("x_wkt", "wkt")):
-            e = eb[f"U_{part}"]
             out[f"R_{lab}_raw"] = t[f"R_w_{part}"] / t["R_w"]
-            out[f"U_{lab}"] = shrink(out[f"R_{lab}_raw"], n_R, e["k"], e["prior"])
+            out[f"U_{lab}"] = sh(out[f"R_{lab}_raw"], n_R, eb[f"U_{part}"])
         out["U"] = out["U_run"] + out["U_wkt"]
     else:
-        e = eb["U_x_tot"]
-        out["U"] = shrink(out["R_raw"], n_R, e["k"], e["prior"])
-    e = eb["D"]
-    out["D_hat"] = shrink(out["D_raw"], n_P, e["k"], e["prior"])
-    out["P_hat"] = out["U"] + out["D_hat"]
+        out["U"] = sh(out["R_raw"], n_R, eb["U_x_tot"])
+    out["D_hat"] = sh(out["D_raw"], n_P, eb["D"])
+    if p.level == "wpa":
+        out["P_hat"] = sh(t["P_w_wpa"] / t["P_w"], n_P, eb["P_wpa"])
+    else:
+        out["P_hat"] = out["U"] + out["D_hat"]
     e = eb["C"]
-    out["c_matches"] = c["c_matches"]
+    out["c_matches"] = c["c_matches"].fillna(0)
     out["C_raw"] = c["c_raw"]
     out["C_hat"] = (c["c_neff"] * c["c_raw"] + e["k"] * e["prior"]) / (c["c_neff"] + e["k"])
     out["C_hat"] = out["C_hat"].fillna(e["prior"])
@@ -338,4 +354,4 @@ def rate(pms: pd.DataFrame, disc: str, rated: pd.Index, pool: pd.Index, p: Param
     out = out.sort_values(["rating", "P_hat"], ascending=False)
     out["rank"] = np.arange(1, len(out) + 1)
     out.index.name = "player_id"
-    return out, eb
+    return out
