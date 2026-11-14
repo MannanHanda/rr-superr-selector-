@@ -1,0 +1,13 @@
+discipline,tier,part,n_players,raw_offset_per_ball,applied_offset_per_ball,used
+bat,T20I_full,x_run,58,0.05592959681875216,0.05592959681875216,True
+bat,T20I_full,x_wkt,58,-0.010663944711708654,-0.010663944711708654,True
+bat,Emerging,x_run,0,,0.0,False
+bat,Emerging,x_wkt,0,,0.0,False
+bat,T20I_associate,x_run,0,,0.0,False
+bat,T20I_associate,x_wkt,0,,0.0,False
+bowl,T20I_full,x_run,66,-0.012640577745335764,-0.012640577745335764,True
+bowl,T20I_full,x_wkt,66,0.02762358098261364,0.02762358098261364,True
+bowl,Emerging,x_run,1,0.14565853507910514,0.0,False
+bowl,Emerging,x_wkt,1,0.08957183760718529,0.0,False
+bowl,T20I_associate,x_run,0,,0.0,False
+bowl,T20I_associate,x_wkt,0,,0.0,False

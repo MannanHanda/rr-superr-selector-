@@ -101,6 +101,20 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   partly circular (our first-innings pressure is mostly powerplay, the usual definition there is overs 16–20),
   which inflates "misses 77% of our pressure balls" (99% in innings 1, 54% in chases). Rejected: all innings.
 
+- D30 (14 Nov, P2, implementation details for 05):
+  (a) Tier offsets are computed and applied separately for the run and wicket parts of Impact (they sum to
+  the spec's single offset), because 06 shrinks the two parts separately. Players' per-tier means are
+  unweighted. Result: T20I_full +4.5 (bat) and +1.5 (bowl) Impact per 100 balls, from 58 and 66 players;
+  Emerging and associate offsets are 0 (fewer than 15 players qualify).
+  (b) Plain stats (SR, economy, dot %, boundary %, balls per dismissal/wicket) are unweighted counts over
+  IPL + T20I_full balls, so cricket readers can check them against public records; "all" columns include
+  dead balls. Impact, runs above expected and WPA use all tiers with ball weights.
+  (c) Ball counts for bowlers (eligibility, ">= 3 pressure balls" for a pressure match) are legal balls;
+  Impact for bowlers is averaged per delivery (wides and no-balls included), per spec 2.1.
+  (d) Runs above expected: league mean runs per ball in the same discipline x innings x phase x flag x tier,
+  live balls only (bowler runs per delivery for bowlers).
+  (e) Pool sizes with the spec thresholds: 99 batters, 103 bowlers; no threshold change needed.
+
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2): First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected
   48/45/7 from the prototype). Cause: the first-innings model values a run almost equally through the innings,
