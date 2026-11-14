@@ -115,6 +115,12 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   live balls only (bowler runs per delivery for bowlers).
   (e) Pool sizes with the spec thresholds: 99 batters, 103 bowlers; no threshold change needed.
 
+- D31 (14 Nov, P2, implementation details for 06): Shared rating code moved to src/lib_rating.py (05 now
+  uses it; its outputs are byte-identical). EB pool = >= 200 live balls and >= 60 live pressure balls, all
+  tiers. k for the shift uses the pressure-ball variance (spec form n_P / (n_P + k_D)). Consistency uses
+  match weights; n = effective matches, m from beta-binomial moments, clamped to 10–60. z-scores use the
+  population SD over the eligible pool.
+
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2): First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected
   48/45/7 from the prototype). Cause: the first-innings model values a run almost equally through the innings,
