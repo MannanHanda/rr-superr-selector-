@@ -346,6 +346,7 @@ Report the players who stay top 10 in at least 10 of 12 variants as "core picks"
 
 - **Role card per pick**: main phase (largest share of balls), usual batting position, batting hand, pace or
   spin and bowling type, share of pressure balls in innings 1 vs 2, `ipl_2026_team`.
+- (Changed in build, D33: IPL 2025–26 pressure balls, and only cells where all ten teams have >= 30 balls.)
 - **RR's pressure weaknesses**: on IPL 2026 pressure balls, total credited Impact per 100 balls for each team
   in each cell — batting: phase × position group (1–3, 4–7); bowling: phase × pace/spin. Rank RR among the ten
   teams in every cell; the cells where RR rank 8th–10th are the needs. Output `outputs/rr_needs.csv` (T7).

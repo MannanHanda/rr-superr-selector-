@@ -130,6 +130,13 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   T20I_full) in both periods; the late outcome is raw pressure Impact with tier weights but no recency
   decay; the usual-approach predictor uses economy with its sign flipped so higher = better for both lists.
 
+- D33 (14 Nov, P2): RR needs (08) use IPL 2025–26 pressure balls, not 2026 only, and a cell is judged only if
+  all ten teams have >= 30 pressure balls in it; the other cells are listed as "too thin to judge". Why: with
+  2026 only, 3 of 12 cells lacked some teams and only 3 had every team on 30+ balls (RR death / top order had
+  6 balls). Result: 6 usable cells, 2 needs (middle overs / top-order batting, middle overs / pace bowling,
+  both RR 8th of 10). Rejected: role cards only (loses the RR angle); leverage-weighted Impact on all balls
+  (a second definition of pressure in the same report). Role cards use IPL + T20I_full balls in 2025–26.
+
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2): First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected
   48/45/7 from the prototype). Cause: the first-innings model values a run almost equally through the innings,
