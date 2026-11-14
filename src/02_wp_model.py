@@ -60,11 +60,7 @@ COLS = [
 def load() -> pd.DataFrame:
     b = pd.read_parquet(PROC / "balls.parquet", columns=COLS)
     b["w"] = 10 - b["wickets_before"]
-    b["scored"] = (
-        b["innings"].isin([1, 2])
-        & b["status"].isin(["completed", "tie_super_over"])
-        & ~(b["match_id"].isin(lib_wp.DLS_NO_TARGET) & (b["innings"] == 2))
-    )
+    b["scored"] = lib_wp.scored_mask(b)
     b["train"] = (
         b["scored"]
         & b["use_for_model"].astype(bool)

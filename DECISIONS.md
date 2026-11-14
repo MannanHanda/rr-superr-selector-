@@ -90,6 +90,14 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   LightGBM benchmark features are raw state (score/runs needed, balls left, wickets in hand, par), with
   monotone constraints on everything except par and max_balls.
 
+## Open questions (Phase 2)
+- Q3 (14 Nov, P2): First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected
+  48/45/7 from the prototype). Cause: the first-innings model values a run almost equally through the innings,
+  while a wicket costs ~13 expected runs at over 2 and ~4 at over 18, so the biggest swings come early.
+  Proceeding unchanged; revisit after 06 to check first-innings death specialists are not treated unfairly
+  (compare with variant V3 and their first-innings vs chase pressure ball counts). Spec 1.4 numbers to be
+  corrected before the report.
+
 ## Closed questions
 - Q1 (closed 14 Nov): Rank purely on data; nobody is excluded or moved for being an RR player or a likely
   retention. The RR-fit section labels each pick's current franchise and lists ranks 11–15 as alternates.

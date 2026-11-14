@@ -19,6 +19,16 @@ SEED = 42
 DLS_NO_TARGET = [20182, 23674, 24822, 28334]
 
 
+def scored_mask(balls) -> "pd.Series":
+    """Scored balls (spec 1.1): innings 1-2 of completed and tied matches, minus innings 2 of the
+    4 DLS games with no revised target. Super overs and no-result/abandoned matches are excluded."""
+    return (
+        balls["innings"].isin([1, 2])
+        & balls["status"].isin(["completed", "tie_super_over"])
+        & ~(balls["match_id"].isin(DLS_NO_TARGET) & (balls["innings"] == 2))
+    )
+
+
 def _arr(x) -> np.ndarray:
     return np.asarray(x, dtype=float)
 
