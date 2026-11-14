@@ -21,15 +21,15 @@ Indicative only: two IPL seasons (2025-26) of pressure balls per team. A cell is
 
 ## Batters: role cards
 
-- 1. Vaibhav Sooryavanshi — LHB, usually bats 2 (top order (1-3)); main phase powerplay (PO 67% / MID 31% / DE 2%); 81% of pressure balls in the first innings; already at RR; no direct RR need cell.
+- 1. Vaibhav Sooryavanshi — LHB, usually bats 2 (top order (1-3)); main phase powerplay (PO 67% / MID 31% / DE 2%); 81% of pressure balls in the first innings; already at RR; **fits RR need: middle / top order (1-3)**.
 - 2. Priyansh Arya — LHB, usually bats 1 (top order (1-3)); main phase powerplay (PO 79% / MID 21% / DE 0%); 78% of pressure balls in the first innings; at another franchise (Punjab Kings); no direct RR need cell.
 - 3. Heinrich Klaasen — RHB, usually bats 4 (middle order (4-7)); main phase middle (PO 7% / MID 68% / DE 26%); 50% of pressure balls in the first innings; at another franchise (Sunrisers Hyderabad); no direct RR need cell.
 - 4. Tim David — RHB, usually bats 5 (middle order (4-7)); main phase middle (PO 10% / MID 55% / DE 35%); 29% of pressure balls in the first innings; at another franchise (Royal Challengers Bengaluru); no direct RR need cell.
 - 5. Rajat Patidar — RHB, usually bats 4 (middle order (4-7)); main phase middle (PO 16% / MID 64% / DE 20%); 67% of pressure balls in the first innings; at another franchise (Royal Challengers Bengaluru); no direct RR need cell.
-- 6. Virat Kohli — RHB, usually bats 2 (top order (1-3)); main phase powerplay (PO 47% / MID 47% / DE 6%); 66% of pressure balls in the first innings; at another franchise (Royal Challengers Bengaluru); no direct RR need cell.
+- 6. Virat Kohli — RHB, usually bats 2 (top order (1-3)); main phase powerplay (PO 47% / MID 47% / DE 6%); 66% of pressure balls in the first innings; at another franchise (Royal Challengers Bengaluru); **fits RR need: middle / top order (1-3)**.
 - 7. Abhishek Sharma — LHB, usually bats 2 (top order (1-3)); main phase powerplay (PO 67% / MID 30% / DE 3%); 82% of pressure balls in the first innings; at another franchise (Sunrisers Hyderabad); no direct RR need cell.
 - 8. Shreyas Iyer — RHB, usually bats 4 (middle order (4-7)); main phase middle (PO 18% / MID 61% / DE 20%); 50% of pressure balls in the first innings; at another franchise (Punjab Kings); no direct RR need cell.
-- 9. Josh Inglis — RHB, usually bats 3 (top order (1-3)); main phase powerplay (PO 57% / MID 40% / DE 3%); 57% of pressure balls in the first innings; at another franchise (Lucknow Super Giants); no direct RR need cell.
+- 9. Josh Inglis — RHB, usually bats 3 (top order (1-3)); main phase powerplay (PO 57% / MID 40% / DE 3%); 57% of pressure balls in the first innings; at another franchise (Lucknow Super Giants); **fits RR need: middle / top order (1-3)**.
 - 10. Kamindu Mendis — LHB, usually bats 5 (middle order (4-7)); main phase middle (PO 7% / MID 69% / DE 23%); 57% of pressure balls in the first innings; at another franchise (Sunrisers Hyderabad); no direct RR need cell.
 
 Alternates (ranks 11-15):
@@ -38,7 +38,7 @@ Alternates (ranks 11-15):
 - 12. Harry Brook — RHB, usually bats 4 (middle order (4-7)); main phase middle (PO 22% / MID 60% / DE 17%); 38% of pressure balls in the first innings; no IPL 2026 team; no direct RR need cell.
 - 13. Rinku Singh — LHB, usually bats 6 (middle order (4-7)); main phase middle (PO 7% / MID 49% / DE 44%); 41% of pressure balls in the first innings; at another franchise (Kolkata Knight Riders); no direct RR need cell.
 - 14. Naman Dhir — RHB, usually bats 6 (middle order (4-7)); main phase middle (PO 19% / MID 45% / DE 36%); 52% of pressure balls in the first innings; at another franchise (Mumbai Indians); no direct RR need cell.
-- 15. Prabhsimran Singh — RHB, usually bats 2 (top order (1-3)); main phase powerplay (PO 63% / MID 36% / DE 2%); 62% of pressure balls in the first innings; at another franchise (Punjab Kings); no direct RR need cell.
+- 15. Prabhsimran Singh — RHB, usually bats 2 (top order (1-3)); main phase powerplay (PO 63% / MID 36% / DE 2%); 62% of pressure balls in the first innings; at another franchise (Punjab Kings); **fits RR need: middle / top order (1-3)**.
 
 ## Bowlers: role cards
 
@@ -56,7 +56,7 @@ Alternates (ranks 11-15):
 Alternates (ranks 11-15):
 
 - 11. Mohammad Nawaz — Slow left-arm orthodox (Spin); main phase middle (PO 14% / MID 80% / DE 6%); 22% of pressure balls in the first innings; no IPL 2026 team; no direct RR need cell.
-- 12. Nathan Ellis — Right-arm medium (Pace); main phase death (PO 24% / MID 31% / DE 45%); 37% of pressure balls in the first innings; at another franchise (Chennai Super Kings); no direct RR need cell.
+- 12. Nathan Ellis — Right-arm medium (Pace); main phase death (PO 24% / MID 31% / DE 45%); 37% of pressure balls in the first innings; at another franchise (Chennai Super Kings); **fits RR need: middle / Pace**.
 - 13. Wanindu Hasaranga — Right-arm Leg-Break (Spin); main phase middle (PO 3% / MID 87% / DE 10%); 27% of pressure balls in the first innings; at another franchise (Lucknow Super Giants); no direct RR need cell.
 - 14. Harpreet Brar — Slow left-arm orthodox (Spin); main phase middle (PO 27% / MID 67% / DE 7%); 39% of pressure balls in the first innings; at another franchise (Punjab Kings); no direct RR need cell.
 - 15. Kuldeep Yadav — Left-arm Chinaman (Spin); main phase middle (PO 0% / MID 83% / DE 17%); 42% of pressure balls in the first innings; at another franchise (Delhi Capitals); no direct RR need cell.

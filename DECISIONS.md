@@ -137,6 +137,11 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   both RR 8th of 10). Rejected: role cards only (loses the RR angle); leverage-weighted Impact on all balls
   (a second definition of pressure in the same report). Role cards use IPL + T20I_full balls in 2025–26.
 
+- D34 (14 Nov, P2): A pick "fits" an RR need cell if its role (position group, or pace/spin) matches and at
+  least 30% of its 2025–26 balls fall in that cell's phase. Why: the main-phase-only rule missed top-order
+  batters who bat through the middle overs (Kohli 47% middle overs, but a tie with powerplay broke the other
+  way). Rejected: main phase only.
+
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2): First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected
   48/45/7 from the prototype). Cause: the first-innings model values a run almost equally through the innings,

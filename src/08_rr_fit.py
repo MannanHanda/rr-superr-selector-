@@ -13,8 +13,9 @@ Outputs (outputs/): rr_needs.csv   IPL 2025-26 pressure-ball Impact per 100 ball
 
 Cells use IPL 2025-26 pressure balls (D33: one season is too thin). A cell is usable only if all ten teams
 have >= 30 pressure balls in it; other cells are listed as "too thin to judge". RR "needs" = usable cells where
-RR rank 8th-10th of the ten teams. Indicative only. A pick "fits" if its role card (main phase x position
-group, or main phase x pace/spin) sits in a need cell. The ranking itself is untouched (Q1).
+RR rank 8th-10th of the ten teams. Indicative only. A pick "fits" a need cell if its role (position group,
+or pace/spin) matches and at least 30% of its 2025-26 balls fall in that cell's phase (D34). The ranking
+itself is untouched (Q1).
 Exits with code 1 if any acceptance check fails.
 """
 
@@ -37,6 +38,7 @@ RR = "Rajasthan Royals"
 NEED_RANKS = (8, 9, 10)
 NEEDS_YEARS = (2025, 2026)
 MIN_CELL_BALLS = 30
+FIT_MIN_PHASE_SHARE = 0.30
 ROLE_YEARS = (2025, 2026)
 PHASES = ["powerplay", "middle", "death"]
 FILE = {"bat": "batters", "bowl": "bowlers"}
@@ -102,6 +104,7 @@ def role_cards(d: pd.DataFrame, picks: pd.DataFrame, disc: str, players: pd.Data
         main_phase = phase_share.idxmax()
         card = {
             "player_id": pid, "rank": int(r["rank"]), "player": r["player_name"],
+            **{f"share_{p}": phase_share[p] for p in PHASES},
             "ipl_2026_team": r["ipl_2026_team"] if pd.notna(r["ipl_2026_team"]) else "no IPL 2026 team",
             "main_phase": main_phase,
             "phase_mix": " / ".join(f"{p[:2].upper() if p != 'middle' else 'MID'} {100 * phase_share[p]:.0f}%"
@@ -153,7 +156,12 @@ def main() -> None:
         ratings = pd.read_csv(OUTPUTS / f"ratings_{FILE[disc]}.csv", index_col="player_id")
         picks = ratings[ratings["rank"] <= 15]
         c = role_cards(d, picks, disc, players)
-        c["fits_need"] = [(disc, ph, ro) in need_cells for ph, ro in zip(c["main_phase"], c["role"])]
+        # fits (D34): role matches a need cell and >= 30% of the player's balls fall in that cell's phase
+        c["fit_cells"] = [
+            ", ".join(f"{ph} / {ro}" for (dd, ph, ro) in sorted(need_cells)
+                      if dd == disc and ro == r["role"] and r[f"share_{ph}"] >= FIT_MIN_PHASE_SHARE)
+            for _, r in c.iterrows()]
+        c["fits_need"] = c["fit_cells"] != ""
         c["status"] = c["ipl_2026_team"].map(status)
         cards[disc] = c
         lines += [f"## {FILE[disc].capitalize()}: role cards", ""]
@@ -162,7 +170,7 @@ def main() -> None:
                 lines += ["", f"Alternates (ranks 11-15):", ""]
             extra = (f"{r['batting_hand']}, usually bats {r['usual_position']:.0f} ({r['role']})" if disc == "bat"
                      else f"{r['bowling_type']} ({r['role']})")
-            fit = (f"**fits RR need: {r['main_phase']} / {r['role']}**" if r["fits_need"]
+            fit = (f"**fits RR need: {r['fit_cells']}**" if r["fits_need"]
                    else "no direct RR need cell")
             lines.append(f"- {r['rank']}. {r['player']} — {extra}; main phase {r['main_phase']} ({r['phase_mix']}); "
                          f"{r['pressure_share_inn1_pct']:.0f}% of pressure balls in the first innings; "
@@ -197,7 +205,7 @@ def main() -> None:
         print(f"\nTop-10 {FILE[disc]}: {int(c['fits_need'].sum())} fit a need cell; "
               f"{int((c['status'] == 'already at RR').sum())} already at RR; "
               f"{int((c['status'] == 'no IPL 2026 team').sum())} with no IPL 2026 team")
-        print(c[["rank", "player", "main_phase", "role", "fits_need", "status"]].to_string(index=False))
+        print(c[["rank", "player", "main_phase", "role", "fit_cells", "status"]].to_string(index=False))
     print()
     print(check_df.assign(**{"pass": check_df["pass"].map({True: "PASS", False: "FAIL"})}).to_string(index=False))
     print("\nWrote rr_needs.csv, rr_fit.md")
