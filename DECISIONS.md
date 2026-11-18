@@ -378,6 +378,9 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   (headline 2/5/3), 5 survive (6), 8 IPL (8). 3.1 now gives the full reason for one shift (real but small run
   signal; no forecast gain; less stable bowling list); Tables 1-2 show each pick's V14 rank; finding 3 is one
   claim; Ngidi's and Mustafizur's lines give their V14 rank.
+- D58 (18 Nov, red-team round 4 fix 2, wording only): one "places 8-12" statement on page 1; the Cap
+  note limited to bowlers' overall and wicket-part shifts; one signed number format in 5.2; Appendix D
+  summarises D46-D57.
 
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2) [CLOSED by D41]: First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected
