@@ -344,6 +344,12 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   probability, not "matches won". One statement on close places (8-12). The 3.1 chance range names the
   weighted sample it was computed on. 3.3 states the T20I offset's direction in words. Appendix D summarises
   D46-D53.
+- D54 (18 Nov, red-team round 3 fix 3, presentation only): page 1 replaces "How sure we are" with "What we
+  stand behind" (picks top 10 in >= 90% of resamples, core picks, picks that survive losing their best match,
+  batters also top 10 when chasing, IPL-only overlap) followed by what is less sure. Table 2 says that for
+  bowlers the pressure level, chase-only and IPL-only ranks rest mainly on usual level. Bumrah's line explains
+  his pressure-ball record (fewer wickets, runs still saved against par); Rashid, Hazlewood and Ellis lines give
+  their IPL-only rank. Why: the narrative listed caveats without saying what it is confident about.
 
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2) [CLOSED by D41]: First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected

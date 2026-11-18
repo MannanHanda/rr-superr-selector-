@@ -129,7 +129,7 @@ Rating: 50 = average eligible player; higher is better. Team = IPL 2026 franchis
   <li><b>Under pressure, level matters more than nerve.</b> Bowlers show no measurable difference in how they respond to pressure (the data cannot tell their shifts apart from noise), and a bowler's usual level is the best guide to his later pressure form: rated on 2022&ndash;24, it correlates {{ts.bowl_ulevel|.2f}} with 2025&ndash;26 pressure Impact. Batters do differ (shrunk shifts {{pool.bat_shift_min|+.0f}} to {{pool.bat_shift_max|+.0f}} per 100 balls), but no measure we tried predicts their later pressure form clearly, so the batting list records who has delivered (section 5.2).</li>
 </ol>
 </div>
-<p class="small">How sure we are: {{conf.bat_secure|int}} batters and {{conf.bowl_secure|int}} bowlers are secure; {{conf.bat_marginal|int}} and {{conf.bowl_marginal|int}} are marginal. {{mc.bat_stay|int}} of the 10 batters and {{mc.bowl_stay|int}} of the 10 bowlers stay in the top 10 without their best pressure match (5.1). Every number in this report is read from a file the pipeline writes to <code>outputs/</code>.</p>
+<p class="small"><b>What we stand behind.</b> {{sb.names90}} are top 10 in at least 90% of {{p.n_boot|int}} match resamples. {{sens.bat_core|int}} batters and {{sens.bowl_core|int}} bowlers are top 10 under at least {{p.core_min|int}} of {{p.n_variants|int}} versions of the method. {{mc.bat_stay|int}} of the 10 batters and {{mc.bowl_stay|int}} of the 10 bowlers stay in the top 10 without their best pressure match. {{sb.bat_chase_names}} are also top 10 when chasing. {{sb.bat_ipl_top10|int}} of the 10 batters and {{sb.bowl_ipl_top10|int}} of the 10 bowlers are also top 10 on IPL balls alone; the others lean on T20I evidence, flagged (&#9873;) where it is thin. <b>Less sure:</b> {{conf.bat_marginal|int}} batters and {{conf.bowl_marginal|int}} bowlers are marginal, and places 8&ndash;12 in each list cannot be told apart. Every number in this report is read from a file the pipeline writes to <code>outputs/</code>.</p>
 
 <!-- ============================================================ 1. PRESSURE -->
 <section class="main" id="s1">
@@ -269,6 +269,7 @@ Rating: 50 = average eligible player; higher is better. Team = IPL 2026 franchis
 
 <section class="main" id="s4b">
 <h3>Table 2. Top 10 bowlers</h3>
+<p class="small">For bowlers, pressure level, chase-only rank and IPL-only rank all rest mainly on usual level, because bowlers' pressure shifts are within chance (3.1). The pressure-specific evidence is in the raw pressure Impact, the runs saved against par and the plain stats.</p>
 <div class="tablewrap">{{table:top10_bowl}}</div>
 <h4>Rating components (Impact per 100 balls; consistency %, eligible bowlers' average {{cons.bowl_pool|.0f}}%). "Chase-only rank" for bowlers = when defending a target.</h4>
 {{table:comp_bowl}}
@@ -382,16 +383,16 @@ bat|Virat Kohli|Lifts under pressure (shift {{bat7.D_hat|+.1f}}): {{bat7.pressur
 bat|Rajat Patidar|All {{bat8.elig_pressure_balls|int}} pressure balls in the IPL; out less often under pressure, but {{bat8.chase_pressure_rank|ord}} when chasing.
 bat|Shreyas Iyer|{{bat9.C_rank|ord}} on consistency (share of pressure matches in which he added win probability) and {{bat9.chase_pressure_rank|ord}} when chasing; {{bat9.ipl_pressure_balls|int}} of {{bat9.elig_pressure_balls|int}} pressure balls in the IPL. Marginal.
 bat|Josh Inglis|Same output under pressure as usual (shift {{bat10.D_hat|+.1f}}); evidence split between IPL ({{bat10.ipl_pressure_balls|int}} balls) and T20Is. Marginal.
-bowl|Jasprit Bumrah|{{bowl1.P_rank|ord}} on pressure level: saves {{bowl1.pressure_rae_per100|.0f}} runs per 100 pressure balls against par, though fewer than on routine balls; dot % rises under pressure and he is {{bowl1.chase_pressure_rank|ord}} when defending a target. Consistency share only {{bowl1.C_rank|ord}}.
+bowl|Jasprit Bumrah|{{bowl1.U_rank|ord}} on usual level, so {{bowl1.P_rank|ord}} on pressure level. On pressure balls he still saves {{bowl1.pressure_rae_per100|.0f}} runs per 100 against par and his dot % rises, but he takes fewer wickets (one every {{bowl1.pressure_balls_per_wicket|.0f}} balls against {{bowl1.routine_balls_per_wicket|.0f}}), so his raw pressure Impact ({{bowl1.P_raw|+.1f}}) sits {{bowl1.P_gap_se|abs.1f}} chance ranges below his usual level: a gap chance alone produces about {{eb.bowl1_expected_gaps|.0f}} times among {{pool.bowl|int}} bowlers. Consistency share only {{bowl1.C_rank|ord}}.
 bowl|Sunil Narine|Top 10 in {{bowl2.n_variants_top10|int}} of {{p.n_variants|int}} variants; economy falls under pressure; all {{bowl2.elig_pressure_balls|int}} pressure balls in the IPL.
 bowl|Mustafizur Rahman|Death and new-ball seamer; economy holds and dot % rises under pressure. {{bowl3.ipl_pressure_balls|int}} of {{bowl3.elig_pressure_balls|int}} pressure balls in the IPL.
 bowl|Lungi Ngidi|Placed on his usual level ({{bowl4.U_rank|ord}}): bowlers' pressure shifts cannot be told apart from noise, so pressure level follows usual level. On pressure balls alone he concedes {{bowl4.pressure_rae_per100|abs.0f}} runs per 100 more than par, is {{bowl4.C_rank|ord}} of {{bowl4.pool_size|int}} on consistency and has {{bowl4.ipl_pressure_balls|int}} IPL pressure balls. The least supported bowling pick.
 bowl|Bhuvneshwar Kumar|{{bowl5.elig_pressure_balls|int}} pressure balls over {{bowl5.c_matches|int}} matches; economy and dot % both improve under pressure; {{bowl5.C_rank|ord}} on consistency.
-bowl|Rashid Khan|{{bowl6.chase_pressure_rank|ord}} in the pool when defending a target; economy falls under pressure; {{bowl6.C_rank|ord}} on consistency.
-bowl|Josh Hazlewood|New-ball bowler whose dot % rises under pressure, but runs saved against par fall to {{bowl7.pressure_rae_per100|+.0f}} per 100 pressure balls; his place rests on his usual level and a wicket every {{bowl7.pressure_balls_per_wicket|.0f}} pressure balls. {{bowl7.chase_pressure_rank|ord}} when defending a target.
+bowl|Rashid Khan|{{bowl6.chase_pressure_rank|ord}} in the pool when defending a target; economy falls under pressure; {{bowl6.C_rank|ord}} on consistency. {{bowl6.ipl_only_rank|ord}} on IPL balls alone, so his place leans on T20I evidence.
+bowl|Josh Hazlewood|New-ball bowler whose dot % rises under pressure, but runs saved against par fall to {{bowl7.pressure_rae_per100|+.0f}} per 100 pressure balls; his place rests on his usual level and a wicket every {{bowl7.pressure_balls_per_wicket|.0f}} pressure balls. {{bowl7.chase_pressure_rank|ord}} when defending a target; {{bowl7.ipl_only_rank|ord}} on IPL balls alone.
 bowl|Krunal Pandya|Economy {{bowl8.pressure_economy|.2f}} on pressure balls against {{bowl8.routine_economy|.2f}} routine, all in the IPL; {{bowl8.C_rank|ord}} on consistency.
 bowl|Mohammad Nawaz|Middle-overs spinner, {{bowl9.chase_pressure_rank|ord}} when defending; no IPL balls, all evidence from T20Is.
-bowl|Nathan Ellis|Economy holds under pressure; mainly a death bowler who also bowls in the middle overs. Marginal.
+bowl|Nathan Ellis|Economy holds under pressure; mainly a death bowler who also bowls in the middle overs. {{bowl10.ipl_only_rank|ord}} on IPL balls alone ({{bowl10.ipl_pressure_balls|int}} IPL pressure balls). Marginal.
 </script>
 </body>
 </html>

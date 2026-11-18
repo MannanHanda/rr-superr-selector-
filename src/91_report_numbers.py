@@ -289,6 +289,25 @@ def picks_table() -> pd.DataFrame:
     return pd.concat(out, ignore_index=True)
 
 
+def names(xs) -> str:
+    xs = list(xs)
+    return xs[0] if len(xs) == 1 else ", ".join(xs[:-1]) + " and " + xs[-1]
+
+
+def stand_behind_numbers(N: dict, picks: pd.DataFrame) -> None:
+    """D54: what the report is most confident about, for page 1."""
+    top = picks[picks["rank"] <= 10].sort_values(["discipline", "rank"])
+    sure = top[top["share_top10"] >= 0.90]
+    N["sb.names90"] = names(sure["player_name"])
+    N["sb.n90"] = len(sure)
+    bat = top[top["discipline"] == "bat"]
+    N["sb.bat_chase_names"] = names(bat.loc[bat["chase_pressure_rank"] <= 10, "player_name"])
+    N["sb.bat_chase_n"] = int((bat["chase_pressure_rank"] <= 10).sum())
+    for disc in ("bat", "bowl"):
+        t = top[top["discipline"] == disc]
+        N[f"sb.{disc}_ipl_top10"] = int((t["ipl_only_rank"] <= 10).sum())
+
+
 def match_consistency_numbers(N: dict) -> None:
     """D52: picks that stay top 10 without their best pressure match, and picks above the pool's share of
     pressure matches with positive Impact."""
@@ -383,6 +402,7 @@ def main() -> None:
     auction_numbers(N, picks)
     chance_numbers(N, picks)
     match_consistency_numbers(N)
+    stand_behind_numbers(N, picks)
     for k, v in list(N.items()):
         if isinstance(v, (np.integer,)):
             N[k] = int(v)
