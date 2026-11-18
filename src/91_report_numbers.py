@@ -305,6 +305,14 @@ def picks_table() -> pd.DataFrame:
         t = t.join(b[["rank_p5", "rank_p95", "share_top10"]]).join(s[["n_variants_top10"]])
         t["ipl_only_rank"] = s["V9 IPL balls only"].reindex(t.index)  # D50
         t["v14_rank"] = s["V14 shift split runs/wickets"].reindex(t.index)  # D57
+        # D60: runs against par on IPL balls alone, pressure and routine (same definition as the all-tier figure)
+        pm = pd.read_parquet(PROC / "player_match_stats.parquet", columns=["discipline", "player_id", "flag",
+                                                                          "comp_tier", "w", "w_rae"])
+        pm = pm[(pm["discipline"] == disc) & (pm["comp_tier"] == "IPL") & pm["player_id"].isin(t.index)]
+        g = pm.groupby(["player_id", "flag"])[["w", "w_rae"]].sum()
+        for flag in ("pressure", "routine"):
+            x = g.xs(flag, level="flag") if flag in g.index.get_level_values("flag") else g.iloc[:0]
+            t[f"ipl_{flag}_rae_per100"] = (100 * x["w_rae"] / x["w"]).reindex(t.index)
         mc = pd.read_csv(OUTPUTS / "match_consistency.csv")  # D59: rank without his best pressure match
         mc = mc[mc["discipline"] == disc].set_index("rank")["rank_without_best_match"]
         t["mc_rank"] = t["rank"].map(mc)
@@ -327,6 +335,15 @@ def picks_table() -> pd.DataFrame:
 def names(xs) -> str:
     xs = list(xs)
     return xs[0] if len(xs) == 1 else ", ".join(xs[:-1]) + " and " + xs[-1]
+
+
+def ipl_rae_numbers(N: dict) -> None:
+    """D60: how far runs against par moves by chance over 100 IPL balls (SD of runs per ball / 10 x 100)."""
+    b = pd.read_parquet(PROC / "balls.parquet", columns=["innings", "comp_tier", "is_ball_faced", "batter_runs",
+                                                         "bowler_runs"])
+    b = b[(b["comp_tier"] == "IPL") & b["innings"].isin([1, 2])]
+    N["ipl.bat_rae_se100"] = 10 * b.loc[b["is_ball_faced"] == 1, "batter_runs"].std()
+    N["ipl.bowl_rae_se100"] = 10 * b["bowler_runs"].std()
 
 
 def v14_numbers(N: dict) -> None:
@@ -464,6 +481,7 @@ def main() -> None:
     match_consistency_numbers(N)
     stand_behind_numbers(N, picks)
     v14_numbers(N)
+    ipl_rae_numbers(N)
     for k, v in list(N.items()):
         if isinstance(v, (np.integer,)):
             N[k] = int(v)

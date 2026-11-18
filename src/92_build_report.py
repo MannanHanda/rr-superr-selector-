@@ -144,13 +144,21 @@ def role_cell(r, disc: str) -> str:
     return f"{esc(r['bowling_type'])}; {esc(r['main_phase'])}"
 
 
+def ipl_pair(r) -> str:
+    """D60: runs against par on IPL balls alone, pressure / routine."""
+    a, b = r["ipl_pressure_rae_per100"], r["ipl_routine_rae_per100"]
+    return f"{signed(a, 0)} / {signed(b, 0)}" if pd.notna(a) and pd.notna(b) else "&ndash;"
+
+
 def stats_cell(r, disc: str) -> str:
     if disc == "bat":
         return (f"Runs v par {signed(r['pressure_rae_per100'], 0)} / {signed(r['routine_rae_per100'], 0)}<br>"
+                f"IPL only {ipl_pair(r)}<br>"
                 f"SR {r['pressure_SR']:.0f} / {r['routine_SR']:.0f}<br>"
                 f"Balls/out {r['pressure_balls_per_dismissal']:.0f} / {r['routine_balls_per_dismissal']:.0f}<br>"
                 f"Bdry % {r['pressure_boundary_pct']:.0f} / {r['routine_boundary_pct']:.0f}")
     return (f"Runs saved v par {signed(r['pressure_rae_per100'], 0)} / {signed(r['routine_rae_per100'], 0)}<br>"
+            f"IPL only {ipl_pair(r)}<br>"
             f"Econ {r['pressure_economy']:.2f} / {r['routine_economy']:.2f}<br>"
             f"Dot % {r['pressure_dot_pct']:.0f} / {r['routine_dot_pct']:.0f}<br>"
             f"Balls/wkt {r['pressure_balls_per_wicket']:.0f} / {r['routine_balls_per_wicket']:.0f}")

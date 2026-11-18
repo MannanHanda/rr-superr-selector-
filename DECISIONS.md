@@ -385,6 +385,11 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   (secure or probable, top 10 when chasing, top 10 without their best pressure match) and the picks who
   drop out without their best match; the latter's lines give that rank. Names generated in 91 from
   outputs/, so they cannot drift from the tables.
+- D60 (18 Nov, red-team round 4 fix 4, no ranking change): Tables 1-2 show each pick's runs against par
+  on IPL balls alone (pressure / routine), same definition as the all-tier figure (D30d, weighted), with
+  the chance range over 100 IPL balls (SD of runs per ball x 10) in the table note. Shows, e.g., Mustafizur
+  -30 on 103 IPL pressure balls and Rashid +21 on 331. Why: the bowling list is the weaker half on IPL
+  evidence; IPL readers should see each pick's IPL pressure record directly.
 
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2) [CLOSED by D41]: First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected
