@@ -1,226 +1,193 @@
-# REDTEAM (round 3): judge read of reports/report.html
+# REDTEAM (round 4): judge read of reports/report.html
 
-Reviewed 18 Nov 2026, about 11:20 UTC, after D50–D51 (commit 24c3670). Read: the task brief (CLAUDE.md,
-"The task") and `reports/report.html`, including all 8 figures and an 11-page A4 print. Scored on what the
-report shows. Caveat: this reviewer wrote the round-1 and round-2 fixes, so read every score as perhaps half a
-point generous. Earlier rounds: `git show 5caaa66:docs/REDTEAM.md` (round 1) and
-`git show 24c3670:docs/REDTEAM.md` (round 2).
+Reviewed 18 Nov 2026, about 13:25 UTC, after D52–D56 (commit dd27e3e). Read: the task brief (CLAUDE.md,
+"The task") and `reports/report.html`, including its figures and a 10-page A4 print. Scored on what the report
+shows. Caveat: this reviewer wrote every fix since round 1, so treat each score as perhaps half a point generous.
+Earlier rounds are in git: round 1 `5caaa66`, round 2 `24c3670`, round 3 `319648b`
+(`git show <commit>:docs/REDTEAM.md`).
 
 Constraint on the fixes (owner, D51): the report ranks who performs best under pressure. No fix below adds RR
-recommendations, squad fit or availability content.
+recommendations, squad fit or availability content. Owner decisions already taken are not re-opened: data-only
+ranking (Q1), no IPL-ball minimum (D38), single pressure shift in the headline (D56).
 
 ## Scores
 
-| Criterion | Round 1 | Round 2 | Round 3 |
-|---|---|---|---|
-| 1. Pressure definition | 7.5 | 8 | 8 |
-| 2. Performance measurement | 7 | 7.5 | 7.5 |
-| 3. Fair comparisons | 7.5 | 7.5 | 8 |
-| 4. Evidence for the top 10 | 6.5 | 7.5 | 7.5 |
-| 5. Reliability and limitations | 8 | 8.5 | 8.5 |
-| 6. Clarity and reproducibility | 7 | 7.5 | 8 |
-| 7. How convincing the picks are for RR | 5 | 6.5 | 6.5 |
-| **Total** | **48.5** | **53** | **54 / 70** |
+| Criterion | R1 | R2 | R3 | R4 |
+|---|---|---|---|---|
+| 1. Pressure definition | 7.5 | 8 | 8 | 8.5 |
+| 2. Performance measurement | 7 | 7.5 | 7.5 | 7.5 |
+| 3. Fair comparisons | 7.5 | 7.5 | 8 | 8 |
+| 4. Evidence for the top 10 | 6.5 | 7.5 | 7.5 | 8 |
+| 5. Reliability and limitations | 8 | 8.5 | 8.5 | 9 |
+| 6. Clarity and reproducibility | 7 | 7.5 | 8 | 8 |
+| 7. How convincing the picks are for RR | 5 | 6.5 | 6.5 | 6.5 |
+| **Total** | **48.5** | **53** | **54** | **55.5 / 70** |
 
-Criterion 7 is now judged on whether the picks convince as IPL pressure performers, since the report
-deliberately gives no squad advice.
+What moved: match importance is now handled (1); the match-after-match test, the pooled knockout check and V14
+in the time split strengthen 4 and 5. What held 2 back: the new run/wicket finding opened a tension the report
+does not yet close (below).
 
-## 1. Pressure definition: 8
+## 1. Pressure definition: 8.5
 
-Good: a WP model with formulas and coefficients on the page, leverage in one line, a first-innings weight
-(0.53) measured from the data, like-for-like validation, and 1.4 now agrees with finding 3.
+Good: a WP model with coefficients, leverage in one line, a measured first-innings weight, like-for-like
+validation, and a match-importance paragraph backed by data (knockout balls average LI 1.04 against 1.00).
 
-**Biggest weakness: match importance is missing.** Knockouts, finals and World Cup games are never mentioned.
-Pressure is entirely in-match leverage, so a league game and a final with the same scoreboard carry the same
-pressure. "Which situations?" is the first thing a cricket judge checks, and "what about knockouts?" is the
-obvious follow-up. The first-innings issue ("pressure" is mostly the new ball) is still there, but the report
-now handles it openly with the 0.53 weight, the chase-only rank and variants V3 and V13.
+**Biggest weakness: first-innings "pressure" is still mostly the new ball** (98% of first-over balls qualify),
+and the like-for-like evidence that pressure changes outcomes sits in chases. It is handled openly (0.53 weight,
+chase-only rank, V3 and V13), but a reader cannot see at a glance which picks the choice affects most.
 
-**Fix (30–45 min):** a short paragraph in 1.3 saying why tournament stakes are not part of LI: LI measures how
-much one ball can swing this match, and a knockout raises the cost of losing, not the swing of a ball. Give the
-number of knockout matches in the data. If the numbers allow, add a small descriptive table of the top 10's
-pressure Impact in knockout matches, labelled as too small to rank on. It needs a small script, since every
-number must come from `outputs/`.
+**Fix (10 min):** add one line to 1.3 naming the picks whose pressure balls are mostly first-innings: Allen
+97%, Abhishek 82%, Sooryavanshi 81%, Arya 78% and Ngidi 79%. Point to their chase-only ranks in Tables 1–2.
 
 ## 2. Performance measurement: 7.5
 
-Good: Impact (WPA ÷ stake, centred on the situation), runs against par, the raw and estimated pressure figures
-side by side, and "never the drop alone".
+Good: Impact defined one way everywhere, runs against par, raw and estimated pressure Impact side by side, and
+the shift tested on runs and wickets separately, as the usual level is.
 
-**Biggest weakness: the finding that shapes the whole bowling list rests on a test that mixes runs and
-wickets.** Section 3.1 shrinks the usual level's run and wicket parts separately "because wickets take far
-longer to settle" (bowlers: k = 255 balls for runs, 980 for wickets), but the pressure shift is shrunk on total
-Impact. The wicket part's noise could hide a real difference in run-saving under pressure. If so, "bowlers show
-no measurable difference" (finding 3, and the reason the bowling list ranks on level) is an artefact of how the
-test was set up. A statistician on the panel can see this from 3.1 alone.
+**Biggest weakness: the report found a real pressure signal for bowlers, then keeps a method that cannot see it,
+with half the reason on the page.** Section 3.1 says bowlers differ in run-saving under pressure (1.22 times
+chance) but not in wickets. Yet three of the top four bowlers save far fewer runs against par under pressure
+than usual:
 
-**Fix (15 min to test; adopting it is the owner's call):** estimate the between-bowler spread (τ²) of the
-run-part shift alone, as is already done for the total.
-- If it is at or below zero, add one clause to 3.1: "tested on runs and wickets separately; neither shows a
-  spread beyond chance". The headline finding gets stronger.
-- If it is clearly above zero, splitting the shift the way the usual level is split is a method change that
-  re-ranks both lists. Adopt it only with at least 2 hours left to re-check the lists, the "why" lines and the
-  dropdowns. Otherwise state it in 5.4 as an open question.
+| Bowler | Runs saved against par, pressure / routine |
+|---|---|
+| #1 Bumrah | +17 / +35 |
+| #3 Mustafizur | +4 / +24 |
+| #4 Ngidi | −15 / +14 |
 
-## 3. Fair comparisons: 8
-
-Good: shrinkage with k on the page, the eligibility funnel, measured offsets kept apart from judgment weights,
-flags that now catch thin IPL evidence, and an IPL-only rank for every pick.
-
-**Biggest weakness: all full-member T20Is form one tier with one constant offset**, so matches against the
-weakest full members count the same as India v Australia. This matters most for the bowling list: on IPL balls
-alone (V9) only 6 of the 10 bowlers stay top 10. The four who drop out lean on T20I evidence whose opposition
-mix is never shown: Rashid (39th on IPL balls alone), Ellis (18th), Hazlewood (14th) and Nawaz (no IPL balls).
-
-**Fix (45–60 min, descriptive, no ranking change):** for the T20I-heavy picks, show the share of their T20I
-pressure balls against the stronger full members, with "stronger" defined from the data (for example, the top 8
-full members by T20I win rate in this period). Alternatively, add a sensitivity row that re-rates without T20Is
-against the weakest four full members.
-
-## 4. Evidence for the top 10: 7.5
-
-Good: a rank interval, top-10 share, runs against par, raw pressure Impact and a "why" line for every pick, and
-section 4.3 answering "where is X?" without hand-picked names.
-
-**Biggest weakness: for bowlers, every rank column measures level.** Pressure level, chase-only rank and
-IPL-only rank are all built on the shrunk estimate, which for bowlers sits close to usual level (3.1). The only
-pressure-specific evidence in Table 2 is raw pressure Impact, runs against par and the plain stats. For #1
-Bumrah those are mixed:
-- raw pressure Impact −0.0 ± 5.3, against +11.8 usual
-- 30 balls per wicket under pressure, against 18 on routine balls
-- 74th of 109 on consistency
-- but +17 runs saved per 100 pressure balls against par
-
-A cricket judge reading Table 2 will ask why he is #1 under pressure. The answer is in 3.1, two sections
-earlier, not in his row.
-
-**Fix (15 min):** put the answer in his row: "first on level; on pressure balls he concedes little (+17 runs
-saved against par) but takes fewer wickets (30 balls per wicket against 18), a gap of the size chance produces
-about 3 times among 109 bowlers". Add to the Table 2 caption: "for bowlers, chase-only and IPL-only ranks also
-rest mainly on usual level".
-
-## 5. Reliability and limitations: 8.5
-
-Good: match bootstrap with confidence bands, a time split with a noise ceiling and four variants, 13
-sensitivity variants, the case for the rating over simpler measures, and a frank limitations list.
-
-**Biggest weakness: the brief's key word, "consistently", is the least-evidenced idea per pick.** "Consistency
-across matches" is a named brief item, and the brief asks for the players who "deliver most consistently when
-it matters". Per pick, the report offers only the rank interval and a pointer to
-`outputs/top10_match_detail.csv`. The consistency component is built on raw WPA, which 5.3 itself calls
-"dominated by a handful of last-over balls". Its effective weight is 11–13%, and the bowling picks sit at
-42–48% against a 44% average (Bumrah 74th, Ngidi 98th). A judge looking for "who delivers match after match"
-cannot find a per-pick answer in the report.
+The stated reason for keeping one total shift is that counting run-saving "does not predict 2025–26 better
+(0.21 against 0.19)". That is numerically a small improvement, so the sentence reads as wrong. The stronger
+reason — the split makes the bowling list less stable — is not on the page. And Ngidi's line still says
+"bowlers' pressure shifts cannot be told apart from noise", which 3.1 now contradicts.
 
 **Fix:** the ONE change below.
 
+## 3. Fair comparisons: 8
+
+Good: shrinkage with k on the page, the funnel, measured offsets with their direction in words, flags for thin
+IPL evidence, an IPL-only rank for every pick.
+
+**Biggest weakness (unchanged from round 3): all full-member T20Is form one tier with one offset.** Matches
+against the weakest full members count the same as India v Australia. Only 6 of 10 bowlers stay top 10 on IPL
+balls alone, and the four who don't lean on T20I evidence whose opposition mix is never shown: Rashid (39th),
+Ellis (18th), Hazlewood (14th) and Nawaz (no IPL balls).
+
+**Fix (45–60 min, descriptive):** for the T20I-heavy picks, show the share of their T20I pressure balls against
+the stronger full members, defined from the data (for example, the top 8 by T20I win rate in the period).
+Alternatively, add a sensitivity row that re-rates without T20Is against the weakest four full members.
+
+## 4. Evidence for the top 10: 8
+
+Good: every pick has a rank interval, runs against par, raw pressure Impact with a chance range, an IPL-only
+rank, a "why" line, and now a match-after-match row.
+
+**Biggest weakness: the weak end of the batting list is counted, never named.** Page 1 says "6 of the 10 batters
+stay in the top 10 without their best pressure match", but not who doesn't. The four who drop out are Tim David
+(13th), Patidar (11th, also 57th chasing), Iyer (15th) and Inglis (15th). They sit in the 5–10 range, and three
+of them are already marginal. A judge has to cross-read two tables to find this.
+
+**Fix (10 min):** name them in page 1's "Less sure" line. Add "drops to Nth without his best pressure match" to
+those four "why" lines, generated from `outputs/match_consistency.csv`.
+
+## 5. Reliability and limitations: 9
+
+Good: match bootstrap with bands, a time split with a noise ceiling and five variants, 14 sensitivity variants,
+match-after-match, a pooled knockout check and frank limitations.
+
+**Biggest weakness: the batting list "is not a forecast", but the report never says which batting picks rest on
+the most evidence.** The checks exist; they are just spread out. Three batters pass all of them: Sooryavanshi,
+Abhishek Sharma and Kohli are each secure or probable, top 10 when chasing, and still top 10 without their best
+match.
+
+**Fix (10 min):** one sentence in "What we stand behind": "Three batters pass every check (secure or probable,
+top 10 when chasing, still top 10 without their best match): Sooryavanshi, Abhishek Sharma and Kohli." Generate
+the names from `outputs/` so they cannot drift.
+
 ## 6. Clarity and reproducibility: 8
 
-Good: a glossary, formulas with coefficients, numbered evidence tables, a public repo, a run order, 11 pages.
+Good: a glossary, formulas, 10 pages, numbered evidence tables, a public repo.
 
-**Biggest weakness: two definitions on the page are wrong or inconsistent.**
-- **Impact.** The glossary says "WPA ÷ LI", where LI is the normalised leverage (average ball = 1). But 2.1
-  divides by "leverage of the ball", which 1.2 defines as the spread of possible WP changes, in WP points. The
-  two differ by a constant factor, so a reader cannot tell which one produced "+20 per 100 balls" and the ±6
-  cap. The cap only makes sense for the spread, so the glossary is the one to fix.
-- **Consistency.** Page 1 calls it the "share of pressure matches won for the team", and Iyer's line says "won
-  for his side". It is the share of pressure matches in which the player's WPA on pressure balls was positive,
-  not matches won.
+**Biggest weakness: page 1 and 3.1 have become harder to read.**
+- **Finding 3 fuses two claims.** "Players differ in how their run-scoring and run-saving respond…", then
+  "Batters do differ…" repeats it, and "does not improve (0.21 against 0.19)" reads as an error.
+- **Page 1 repeats itself.** "Places 8–12 cannot be told apart" appears twice.
+- **One block in 3.1 is too long.** The bowling paragraph is about 250 words in a single block.
+- **Stale notes.** The "Cap" note still says bowlers' shifts show "almost no real spread"; that is true for the
+  total and wicket parts, not the run part. Appendix D stops at D53 and says "four variants".
+- **Mixed number format.** "0.03 to +0.43" mixes signed and unsigned numbers.
 
-**Fix (15 min):** define Impact once, the same way everywhere: "WPA ÷ the ball's leverage (the spread of
-possible WP changes, in WP points)". Replace "won for the team/his side" with "in which he added win
-probability". While there, remove the forced page breaks that leave pages 4, 8 and 10 half empty, which takes
-the report to about 9 pages.
+**Fix (20–30 min):**
+- Rewrite finding 3 as one claim: players differ in run-scoring and run-saving under pressure, not in wickets,
+  but those differences barely carry over, so level is the best guide.
+- Keep one "places 8–12" line on page 1.
+- Split 3.1's bowling paragraph into two short paragraphs ("taken as a whole" / "split into runs and wickets").
+- Correct the Cap note.
+- Extend Appendix D to D56.
+- Use one number format.
 
 ## 7. How convincing the picks are for RR: 6.5
 
-Judged on the picks as IPL pressure performers. Good: names you might expect, IPL pressure balls per pick, ⚑
-flags and IPL-only ranks.
+Judged on the picks as IPL pressure performers; the report deliberately gives no squad advice.
 
-**Biggest weakness: the bowling list is the weaker half for an IPL reader.**
-- Only 6 of the 10 bowlers are also top 10 on IPL balls alone.
-- #4 Ngidi is called "the least supported bowling pick" in his own row (15 runs per 100 above par under
-  pressure, 71 IPL pressure balls).
-- #9 Nawaz has no IPL balls.
+**Biggest weakness: the bowling list has no IPL-specific pressure evidence per pick.** Only 6 of 10 bowlers are
+also top 10 on IPL balls alone. Rashid is 39th on IPL balls, Nawaz has none, and Ngidi has 71 IPL pressure
+balls. The tables show IPL ball counts and an IPL-only rank, but not how each bowler actually performed on IPL
+pressure balls.
 
-The batting list holds up better (8 of 10 are also top 10 on IPL balls alone), but three of its picks are
-mainly new-ball, first-innings batters with weak chase records: Arya (51st chasing), Patidar (57th) and Allen
-(97% first-innings, 38 IPL pressure balls).
-
-**Fix (10 min, evidence only):** add one sentence on page 1: "8 of the 10 batters and 6 of the 10 bowlers are
-also top 10 on IPL balls alone; the other picks lean on T20I evidence (flags and IPL-only ranks in Tables
-1–2)". Name the IPL-only rank in the Rashid, Ellis and Hazlewood lines. The deeper cost is a data-only list that
-includes a bowler with no IPL balls. That follows from decisions the report already states (data-only ranking,
-Q1; no IPL-ball minimum, D38) and is not re-opened here.
-
-## Other things a judge will catch (minutes each)
-
-- Page 1 says "Places 8–12 in each list cannot be told apart". The "How sure we are" line and 5.1 say "places
-  9–10 are close to coin-flips against 11–12". Pick one.
-- Section 3.3 never states the offset's direction in words, for example: "the same batters score 4.6 Impact per
-  100 balls more in full-member T20Is than in the IPL, so 4.6 is taken off".
-- Appendix D stops at D45. It doesn't summarise D46–D51: the names table, the time-split variants, the raw-Impact
-  display, and the removal of the RR section.
-- About a third of page 1 is empty. That is room for one small figure (F6 or F7) if wanted, since judges skim
-  page 1 first.
-- Accuracy note, not visible to a judge: 3.1 says "over a typical 251 pressure balls … ±6.7". 251 is the raw
-  median count, but ±6.7 was computed on the median weighted (effective) sample, which is smaller. Say "over a
-  typical bowler's weighted sample", or quote the effective count.
+**Fix (30 min, evidence only):** add each bowler's runs saved against par on IPL pressure balls only, as one line
+in his "why" text or a column in the components table, from a small addition to the 09 tables. An RR reader can
+then see the IPL pressure record directly. The deeper cost, a data-only list that includes a bowler with no IPL
+balls, follows from decisions already taken and is not re-opened here.
 
 ## Would this make the top 16 out of 10,000?
 
-Possibly; my estimate stays at 25–35%. On rigour and transparency it is very likely in the top 1%. Few entries
-will publish a calibrated WP model with coefficients, measured stakes, shrinkage, a match bootstrap, a time
-split with a noise ceiling and 13 variants.
+Possibly; my estimate rises slightly, to about 30–35%. On rigour and transparency it is very likely in the top
+1%. It is now unusually complete on the brief's own items:
+- pressure, with stakes and match importance
+- performance, against par and usual level
+- fair comparisons
+- per-pick evidence, including match after match
+- reliability, from five angles
 
 What still caps it:
-1. **The bowling list ranks level.** By the report's own finding, its pressure-specific evidence is thin, and
-   the #1 bowler's pressure-ball record is average in Impact terms.
-2. **"Consistently" is under-evidenced.** It is the brief's key word, and the least-evidenced idea per pick.
-3. **Three batting picks are new-ball, first-innings batters** who rank low when chasing.
-4. **The narrative undercuts itself without saying what it stands behind.** It is full of honest caveats: "the
-   least supported bowling pick", "not a forecast", "cannot be told apart", "no measurable difference". That
-   rigour is a strength, but page 1 should also say once, plainly, what the report *is* confident about. For
-   example: four picks are top 10 in over 90% of resamples; 5 batters and 8 bowlers are top 10 under at least
-   10 of 13 versions of the method; and Sooryavanshi, Abhishek Sharma, Kohli and Iyer are top 10 when chasing as
-   well.
+1. **The bowling list's story has a visible seam.** The report finds bowlers do differ in run-saving under
+   pressure, while three of its top four bowlers save fewer runs under pressure than usual.
+2. **IPL evidence for bowlers is thin.** The bowling list is the weaker half on IPL-only evidence.
+3. **Hedging.** Some caveats repeat, and finding 3 is hard to parse on first read.
+
+This is a guess; I have not seen the field or the marking scheme, and I am biased as the author of the fixes.
 
 ## The ONE change
 
-**Show, per pick, that he delivers match after match.** Add one compact table (or dot chart) in 5.1 and one
-sentence on page 1. For every top-10 pick, plus #11–12, show:
-1. **His rank with his single best pressure match removed**, all other players unchanged and priors and k held
-   fixed, as in the bootstrap.
-2. **The share of his pressure matches with positive Impact**, against the pool average. This gives an
-   Impact-based view of consistency alongside the WPA-based component.
-3. **His best match's share of his total pressure Impact.**
+**Close the loop on the bowlers' run-saving finding, with no ranking change.**
+1. **Measure the stability cost.** Run the bootstrap and the match-after-match test for the V14 lists as well
+   (07 and 09 with `split_shift=True`). The report can then state the stability cost with pipeline numbers
+   instead of only the forecast test. From the trial run in D56: under V14 the bowling list would be 2 secure /
+   3 probable / 5 marginal (headline 2 / 5 / 3), only 4 of 10 would survive losing their best match (headline 9),
+   and only 4 of 10 would be top 10 on IPL balls alone (headline 6).
+2. **Show the V14 rank per pick.** Add a "Rank if run-saving shift counted (V14)" column to both components
+   tables, from `outputs/sensitivity.csv`, so a reader sees exactly which picks depend on the choice.
+3. **Rewrite the reasoning in 3.1 and finding 3.** "Bowlers' run-saving does change under pressure, but the
+   change is small next to chance. Counting it reorders the list without predicting the next two seasons better
+   (0.21 against 0.19, well within noise) and makes the list less stable (numbers above), so the headline keeps
+   one shift, fixed before any ranking was seen."
+4. **Fix Ngidi's line** to say "bowlers' overall pressure shifts".
 
-The page-1 sentence would read: "N of the 10 batters and M of the 10 bowlers stay in the top 10 without their
-best pressure match."
-
-Why this change: it answers the brief's key phrase directly, per pick, with a test any cricket judge
-understands ("not a one-match wonder"), and it changes no ranking. It takes about an hour, because the bootstrap
-in `07_reliability.py` already holds per-player, per-match sums, so removing one match is a small change to
-those sums.
-
-Gate: if some picks drop out of the top 10 without their best match, say so plainly. That is still the honest
-answer to "most consistently".
+Why this one: it removes the one place where the report's findings and its picks visibly disagree. It turns the
+owner's D56 decision into a reasoned, evidenced choice. It also touches the brief's core phrase, "compared with
+their usual level". About an hour. No ranking change.
 
 ## Top 5 fixes, in priority order
 
-1. **The ONE change:** per-pick match-after-match evidence (rank without the best match, Impact-based match
-   share, best-match share) and a page-1 sentence. About 1 hour; no ranking change.
-2. **Accuracy (criterion 6):** Impact defined the same way in the glossary, 1.2 and 2.1; "won for the team/his
-   side" replaced; the offset direction stated in words; "8–12" and "9–10" aligned. About 15 minutes.
-3. **Bowler evidence in the rows, plus page 1 (criteria 4 and 7):**
-   - Bumrah's line explains his pressure-ball record.
-   - The Table 2 caption says bowlers' chase-only and IPL-only ranks rest on level.
-   - The Rashid, Ellis and Hazlewood lines give their IPL-only rank.
-   - Page 1 gets the IPL-only overlap sentence and a positive "what we stand behind" line.
-
-   About 30 minutes.
-4. **Match importance (criterion 1):** a paragraph on why knockouts are not part of LI, with the count of
-   knockout matches, plus a descriptive knockout table for the top 10 if the numbers allow. About 30–45 minutes.
-5. **Shift test and layout (criterion 2):** test the run and wicket parts of the shift separately (15 minutes).
-   It either strengthens finding 3 in one clause or raises a method question for the owner. Also remove the
-   forced page breaks (10 minutes).
+1. **The ONE change:** V14 stability numbers from the pipeline, a per-pick V14 rank column, the reasoning
+   rewritten in 3.1 and finding 3, and Ngidi's line corrected. About 1 hour.
+2. **Wording pass (criterion 6):** finding 3 as one claim, with "does not improve" changed to "barely changes,
+   within noise"; one "places 8–12" on page 1; 3.1 split into two paragraphs; the Cap note corrected; Appendix D
+   to D56; one number format. About 20–30 minutes.
+3. **Name the evidence on page 1 (criteria 4 and 5):** the "Less sure" line names the batting picks who drop out
+   without their best match (David, Patidar, Iyer, Inglis). Add a line naming the three batters who pass every
+   check (Sooryavanshi, Abhishek Sharma, Kohli). Both are generated from `outputs/`. About 15 minutes.
+4. **IPL pressure record for bowlers (criterion 7):** runs saved against par on IPL pressure balls, per bowling
+   pick. About 30 minutes.
+5. **T20I opposition check (criterion 3)** and the 1.3 line naming first-innings-heavy picks (criterion 1).
+   About 1 hour and 10 minutes.
