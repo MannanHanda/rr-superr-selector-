@@ -174,6 +174,14 @@ pressure_minus_routine_within_cell,1,death,pressure-routine,boundary_pct,-0.6901
 pressure_minus_routine_crude,1,death,pressure-routine,boundary_pct,-7.210622448893816,-10.338023219516774,-4.3031877801043015,353.0
 pressure_minus_routine_within_cell,1,death,pressure-routine,wicket_pct,-1.4340934265781786,-3.418080334353004,0.5971101064310422,353.0
 pressure_minus_routine_crude,1,death,pressure-routine,wicket_pct,-2.90994527618295,-4.969491083732925,-0.9971809852620718,353.0
+pressure_minus_routine_within_cell,1,all,pressure-routine,SR,5.89527879564986,1.4924847340582976,10.30309432322536,24986.0
+pressure_minus_routine_crude,1,all,pressure-routine,SR,-22.59280615498711,-24.52693575250911,-20.37349506132425,24986.0
+pressure_minus_routine_within_cell,1,all,pressure-routine,dot_pct,-0.8956481835555802,-2.1572235720598387,0.3474697172544582,24986.0
+pressure_minus_routine_crude,1,all,pressure-routine,dot_pct,12.877488789554082,12.13422708008074,13.57634053417887,24986.0
+pressure_minus_routine_within_cell,1,all,pressure-routine,boundary_pct,1.4089455301613365,0.5165648805415173,2.2758478171465346,24986.0
+pressure_minus_routine_crude,1,all,pressure-routine,boundary_pct,-0.6254198868109712,-1.0682556644990913,-0.14829921382792358,24986.0
+pressure_minus_routine_within_cell,1,all,pressure-routine,wicket_pct,-0.9923532655805709,-1.4650787692393408,-0.5285695517482204,24986.0
+pressure_minus_routine_crude,1,all,pressure-routine,wicket_pct,-2.0146866891684803,-2.255915771197137,-1.7631112589587596,24986.0
 pressure_minus_routine_within_cell,2,powerplay,pressure-routine,SR,-5.122920799198494,-9.872178600990283,0.19250401148506763,5862.0
 pressure_minus_routine_crude,2,powerplay,pressure-routine,SR,-12.442738527606178,-16.92352086629269,-7.754363331563643,5862.0
 pressure_minus_routine_within_cell,2,powerplay,pressure-routine,dot_pct,0.5035544723905617,-0.9734502106134032,1.8723336350699455,5862.0
@@ -198,3 +206,11 @@ pressure_minus_routine_within_cell,2,death,pressure-routine,boundary_pct,-0.4101
 pressure_minus_routine_crude,2,death,pressure-routine,boundary_pct,-0.07986243153322026,-1.4316689819049153,1.1693618353894366,5442.0
 pressure_minus_routine_within_cell,2,death,pressure-routine,wicket_pct,0.679542006101492,-0.18060969600255966,1.5830313609008055,5442.0
 pressure_minus_routine_crude,2,death,pressure-routine,wicket_pct,1.2834544163272386,0.40696608991813576,2.1421824847174493,5442.0
+pressure_minus_routine_within_cell,2,all,pressure-routine,SR,-5.561175496906708,-8.163486567777644,-2.816634412373817,22612.0
+pressure_minus_routine_crude,2,all,pressure-routine,SR,-5.940912989635905,-8.421453027401936,-3.2315781228033695,22612.0
+pressure_minus_routine_within_cell,2,all,pressure-routine,dot_pct,0.6624030868450035,-0.14199123669844393,1.4600680114975515,22612.0
+pressure_minus_routine_crude,2,all,pressure-routine,dot_pct,-1.0555735392139776,-1.9954946076197826,-0.27017411727742285,22612.0
+pressure_minus_routine_within_cell,2,all,pressure-routine,boundary_pct,-1.2223923222436361,-1.8051815385107166,-0.6595576693576098,22612.0
+pressure_minus_routine_crude,2,all,pressure-routine,boundary_pct,-2.1964736667169307,-2.7547879151478423,-1.6064654441080484,22612.0
+pressure_minus_routine_within_cell,2,all,pressure-routine,wicket_pct,0.03834496043304732,-0.2813719843267592,0.3439666858139939,22612.0
+pressure_minus_routine_crude,2,all,pressure-routine,wicket_pct,0.6186692970763228,0.30182761690200516,0.910982472064448,22612.0

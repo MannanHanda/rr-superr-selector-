@@ -413,6 +413,12 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   Params.drop_t20i_teams; batting/bowling team ids added to BALL_COLS). Keeps 9/10 batters (Inglis 11th) and
   8/10 bowlers (Rashid 17th, Nawaz 13th; Mustafizur 7th). Shown in 3.3 and Rashid's line. The headline
   keeps every tier, as decided (D20, D38). Core picks are now counted over 15 variants (8 bat, 9 bowl).
+- D66 (18 Nov, red-team round 5 fix 5): 04 adds a pooled "all phases" row per innings to the like-for-like
+  validation (same precision-weighted over x wickets cells, same bootstrap draws; the other 199 rows are
+  unchanged). Chase: SR -5.6 (90% interval -8.2 to -2.8), boundary % -1.2 (-1.8 to -0.7); first innings:
+  SR +5.9 (+1.5 to +10.3). Finding 2 now leads with the pooled chase figure and says first-innings batters
+  score faster; 1.4 gives both pooled figures. 5.1 says why two consistency measures appear (WPA outcome
+  view in the rating; situation-adjusted Impact share in the match-after-match test).
 
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2) [CLOSED by D41]: First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected

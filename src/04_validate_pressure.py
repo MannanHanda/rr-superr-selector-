@@ -130,8 +130,8 @@ def within_cell(d: pd.DataFrame) -> pd.DataFrame:
     cells = wide["legal"].columns.droplevel("is_pressure").unique()
     rows = []
     for inn in (1, 2):
-        for ph in PHASES:
-            keep = [cl for cl in cells if cl[0] == inn and cl[1] == ph]
+        for ph in PHASES + ["all"]:  # D66: "all" pools the over x wickets cells of every phase
+            keep = [cl for cl in cells if cl[0] == inn and (ph == "all" or cl[1] == ph)]
             if not keep:
                 continue
             P = {st: tot[st][[(*cl, True) for cl in keep if (*cl, True) in tot[st].columns]] for st in stats}
