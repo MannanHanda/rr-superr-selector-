@@ -305,6 +305,9 @@ def picks_table() -> pd.DataFrame:
         t = t.join(b[["rank_p5", "rank_p95", "share_top10"]]).join(s[["n_variants_top10"]])
         t["ipl_only_rank"] = s["V9 IPL balls only"].reindex(t.index)  # D50
         t["v14_rank"] = s["V14 shift split runs/wickets"].reindex(t.index)  # D57
+        mc = pd.read_csv(OUTPUTS / "match_consistency.csv")  # D59: rank without his best pressure match
+        mc = mc[mc["discipline"] == disc].set_index("rank")["rank_without_best_match"]
+        t["mc_rank"] = t["rank"].map(mc)
         # D50: one standard error of chance on raw pressure Impact (per 100 balls), and the gap to usual level
         eb = pd.read_csv(OUTPUTS / "eb_params.csv").set_index(["discipline", "quantity"])
         t["P_raw_se"] = 100 * np.sqrt(eb.loc[(disc, "D"), "sigma2"] / t["n_P"])
@@ -346,6 +349,14 @@ def stand_behind_numbers(N: dict, picks: pd.DataFrame) -> None:
     N["sb.n90"] = len(sure)
     bat = top[top["discipline"] == "bat"]
     N["sb.bat_chase_names"] = names(bat.loc[bat["chase_pressure_rank"] <= 10, "player_name"])
+    # D59: batters who pass every check, and picks who drop out without their best pressure match
+    allc = bat[(bat["share_top10"] >= 0.5) & (bat["chase_pressure_rank"] <= 10) & (bat["mc_rank"] <= 10)]
+    N["sb.bat_allchecks_names"] = names(allc["player_name"])
+    N["sb.bat_allchecks_n"] = len(allc)
+    for disc in ("bat", "bowl"):
+        t = top[(top["discipline"] == disc) & (top["mc_rank"] > 10)]
+        N[f"sb.{disc}_drop_names"] = names(t["player_name"]) if len(t) else "nobody"
+        N[f"sb.{disc}_drop_n"] = len(t)
     N["sb.bat_chase_n"] = int((bat["chase_pressure_rank"] <= 10).sum())
     for disc in ("bat", "bowl"):
         t = top[top["discipline"] == disc]

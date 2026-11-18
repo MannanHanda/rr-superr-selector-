@@ -381,6 +381,10 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
 - D58 (18 Nov, red-team round 4 fix 2, wording only): one "places 8-12" statement on page 1; the Cap
   note limited to bowlers' overall and wicket-part shifts; one signed number format in 5.2; Appendix D
   summarises D46-D57.
+- D59 (18 Nov, red-team round 4 fix 3, wording only): page 1 names the batters who pass every check
+  (secure or probable, top 10 when chasing, top 10 without their best pressure match) and the picks who
+  drop out without their best match; the latter's lines give that rank. Names generated in 91 from
+  outputs/, so they cannot drift from the tables.
 
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2) [CLOSED by D41]: First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected
