@@ -30,7 +30,7 @@
     .tablewrap { overflow-x: auto; }
   }
   section.main { break-before: auto; }
-  #s1, #s4 { break-before: page; }  /* D56: fewer half-empty pages */
+  #s1 { break-before: page; }  /* D56: fewer half-empty pages */
   h2 { break-after: avoid; }
   h1 { font-size: 19pt; line-height: 1.15; margin: 0 0 2mm; letter-spacing: -0.01em; }
   h2 { font-size: 13.5pt; margin: 0 0 2.5mm; padding-bottom: 1.5mm; border-bottom: 2px solid var(--ink); }
@@ -68,6 +68,7 @@
   table.mini { width: auto; }
   table.tiny { font-size: 7.4pt; }
   table.defs td:first-child { font-weight: 600; white-space: nowrap; }
+  table.keytab { margin-top: 0; }  /* D64 */
   table.compdef td:nth-child(2) { white-space: nowrap; }
   table.top10 { font-size: 7.2pt; line-height: 1.25; }
   table.top10 td { padding: 0.7mm 1.4mm; }
@@ -259,7 +260,7 @@ Rating: 50 = average eligible player; higher is better. Team = IPL 2026 franchis
     <li><b>Era and competition:</b> par is set per competition tier and season, so a 190 in IPL 2026 is judged against IPL 2026, including the deeper batting since the Impact Player rule.</li>
     <li><b>Situation:</b> Impact is centred on innings, over group and pressure flag (2.1).</li>
     <li><b>Venue:</b> not adjusted; the data has anonymous venue ids only.</li>
-    <li><b>Opposition:</b> no explicit adjustment beyond competition tier (see limitations).</li>
+    <li><b>Opposition:</b> no explicit adjustment beyond competition tier; 3.3 checks how much of each pick's T20I evidence comes against the weakest full members.</li>
   </ul></div>
 </div>
 </section>
@@ -267,7 +268,18 @@ Rating: 50 = average eligible player; higher is better. Team = IPL 2026 franchis
 <!-- ============================================================ 4. EVIDENCE -->
 <section class="main" id="s4">
 <h2>4. Evidence for the top 10 <span class="brief">Brief item: results, comparisons, tables and charts</span></h2>
-<p class="small"><b>How to read the tables.</b> Rank interval = 5th&ndash;95th percentile rank over {{p.n_boot|int}} match resamples; the percentage below it is the share of resamples in which the player is top 10 (coloured by confidence band). Pressure balls count all tiers; the IPL share is in brackets. Pressure / routine = the plain metric on pressure balls / on routine balls. &#9873; = high variance: an eligibility count within {{p.flag_margin_pct|.0f}}% of its minimum, at least {{p.flag_season_pct|.0f}}% of pressure balls in one season, or fewer than {{p.flag_ipl_min|int}} IPL pressure balls. IPL-only rank = the rating's rank on IPL balls alone (variant V9). V14 rank = the rank if the shift's run and wicket parts were shrunk separately, so run-saving under pressure counts (3.1). Raw pressure Impact &plusmn; chance = the player's unshrunk Impact on pressure balls, &plusmn; one standard error from chance (3.1). Runs v par = runs scored (batters) or saved (bowlers) per 100 balls against the league average for the same innings, phase, competition tier and pressure flag, weighted like Impact: a situation-adjusted check on the plain stats below it. IPL only = the same on IPL balls alone, so an IPL reader can see each pick's IPL record directly; on 100 balls, chance alone moves it by about &plusmn;{{ipl.bat_rae_se100|.0f}} runs (batters) or &plusmn;{{ipl.bowl_rae_se100|.0f}} (bowlers), so read small IPL samples (the IPL count is in brackets under Pressure balls) with care.</p>
+<p class="small"><b>How to read Tables 1&ndash;2.</b></p>
+<table class="defs tiny keytab"><tbody>
+<tr><td>Rank interval</td><td>5th&ndash;95th percentile rank over {{p.n_boot|int}} match resamples; the % below it is the share of resamples in which the player is top 10, coloured by confidence band.</td></tr>
+<tr><td>Pressure balls (IPL)</td><td>Pressure balls in all tiers; the IPL count in brackets.</td></tr>
+<tr><td>Pressure / routine</td><td>The same measure on pressure balls / on routine balls.</td></tr>
+<tr><td>Runs v par</td><td>Runs scored (batters) or saved (bowlers) per 100 balls against the league average for the same innings, phase, competition tier and pressure flag, weighted like Impact.</td></tr>
+<tr><td>IPL only</td><td>Runs v par on IPL balls alone; over 100 balls, chance alone moves it by about &plusmn;{{ipl.bat_rae_se100|.0f}} runs, so read small IPL counts with care.</td></tr>
+<tr><td>&#9873;</td><td>High variance: an eligibility count within {{p.flag_margin_pct|.0f}}% of its minimum, at least {{p.flag_season_pct|.0f}}% of pressure balls in one season, or fewer than {{p.flag_ipl_min|int}} IPL pressure balls.</td></tr>
+<tr><td>Raw pressure Impact &plusmn; chance</td><td>The player's unshrunk Impact on pressure balls, &plusmn; one standard error from chance (3.1).</td></tr>
+<tr><td>IPL-only rank</td><td>The rating's rank on IPL balls alone (variant V9).</td></tr>
+<tr><td>V14 rank</td><td>The rank if the shift's run and wicket parts were shrunk separately, so run-saving under pressure counts (3.1).</td></tr>
+</tbody></table>
 
 <h3>Table 1. Top 10 batters</h3>
 <div class="tablewrap">{{table:top10_bat}}</div>
@@ -314,7 +326,7 @@ Rating: 50 = average eligible player; higher is better. Team = IPL 2026 franchis
 <h3>5.3 Sensitivity: {{p.n_variants|int}} other ways to build the ranking</h3>
 <div class="pair">
   <div>{{table:sensitivity}}</div>
-  <div><p class="small">Each variant changes one choice and re-ranks the same pool. {{sens.bat_core|int}} batters and {{sens.bowl_core|int}} bowlers stay top 10 in at least {{p.core_min|int}} of {{p.n_variants|int}} variants ("core picks"; the "Variants top 10" column in section 4). The biggest changes come from a single league-wide pressure cut (V3, which in practice rates chases only), ranking on raw WP added instead of Impact (V12), dropping the recency weights (V7) and IPL balls only (V9). Counting both innings' pressure balls equally (V13) keeps {{sens.bat_v13_overlap|int}} of 10 batters and {{sens.bowl_v13_overlap|int}} of 10 bowlers; splitting the shift into runs and wickets (V14) keeps {{sens.bat_v14_overlap|int}} and {{sens.bowl_v14_overlap|int}}.</p>
+  <div><p class="small">Each variant changes one choice and re-ranks the same pool. {{sens.bat_core|int}} batters and {{sens.bowl_core|int}} bowlers stay top 10 in at least {{p.core_min|int}} of {{p.n_variants|int}} variants ("core picks"; the "Variants top 10" column in section 4). The biggest changes come from a single league-wide pressure cut (V3, which in practice rates chases only), ranking on raw WP added instead of Impact (V12), dropping the recency weights (V7) and IPL balls only (V9); for bowlers, splitting the shift into runs and wickets (V14) changes the order as much as any (rank correlation {{sens.bowl_v14_corr|.2f}}). Counting both innings' pressure balls equally (V13) keeps {{sens.bat_v13_overlap|int}} of 10 batters and {{sens.bowl_v13_overlap|int}} of 10 bowlers; splitting the shift into runs and wickets (V14) keeps {{sens.bat_v14_overlap|int}} and {{sens.bowl_v14_overlap|int}}.</p>
   <p class="small"><b>Consistency across matches.</b> Raw pressure WPA is dominated by a handful of last-over balls, so it can disagree with Impact. For bowlers it does: {{bowl1.player_name}}'s pressure WPA is {{bowl1.total_pressure_wpa|+.2f}} wins in total and {{bowl1.total_without_best|+.2f}} without his best match, although he saves {{bowl1.pressure_rae_per100|.0f}} runs per 100 pressure balls against par; {{bowl4.player_name}}'s is {{bowl4.total_pressure_wpa|+.2f}}. Every pick's three best and three worst pressure matches are in <code>outputs/top10_match_detail.csv</code>.</p></div>
 </div>
 
@@ -326,7 +338,7 @@ Rating: 50 = average eligible player; higher is better. Team = IPL 2026 franchis
   <li><b>First-innings pressure is mostly the new ball</b>, and the first-innings WP model is weaker (AUC {{wp.auc_1|.2f}}). The chase-only rank in section 4 shows who also holds up when chasing.</li>
   <li><b>Last ball of a chase.</b> After the exact play-out, the model is still slightly pessimistic there on average ({{wp.last_ball_dwp|+.1f}} WP points per ball, standard error {{wp.last_ball_se|.1f}}, {{wp.last_ball_n|int}} balls).</li>
   <li><b>Role effects.</b> Centring removes most of the effect of where a player bats; the correlation between batters' role mix and their shift falls from {{cent.bat_corr_before|.2f}} to {{cent.bat_corr_after|.2f}}, not to zero.</li>
-  <li><b>No venue or opposition adjustment.</b> Venue names are missing (anonymous ids only), and opposition strength is only handled through competition tiers.</li>
+  <li><b>No venue or opposition adjustment.</b> Venue names are missing (anonymous ids only), and opposition strength is only handled through competition tiers. A descriptive check in 3.3 shows where it may matter: {{opp.max_name}} has {{opp.max_pct|.0f}}% of his full-member T20I pressure balls against the two weakest full members (eligible average {{opp.bowl_pool_pct|.0f}}%).</li>
   <li><b>DLS and short games.</b> {{d.dls_no_target|int}} DLS games have no revised target, so their chases are not scored; DLS games are left out of fitting; other revised targets are taken from the data.</li>
   <li><b>Accounting simplifications.</b> Byes and leg-byes sit inside the run part for both batter and bowler. Super overs are excluded; {{d.tied|int}} tied matches are scored with a level finish worth 0.5.</li>
 </ul>
@@ -376,7 +388,7 @@ python src/92_build_report.py      # this report (reports/report.html)</pre>
 <tr><td>D18&ndash;D21, D38</td><td>Empirical-Bayes shrinkage; eligibility minimums on all tiers; measured tier offsets plus fixed relevance weights; two-year recency half-life. Rejected: an IPL-ball minimum; weights alone.</td></tr>
 <tr><td>D22</td><td>No explicit opposition adjustment (circular and thin). Stated as a limitation.</td></tr>
 <tr><td>D23, D39&ndash;D40, D42&ndash;D44</td><td>Reliability: match bootstrap with confidence bands, time split reported as found with a noise ceiling, within-cell validation, match-level detail and high-variance flags.</td></tr>
-<tr><td>D46&ndash;D57</td><td>Presentation and checks, no ranking change: names readers expect (4.3); time split on five variants; raw pressure Impact with its chance range, an IPL-only rank and a V14 rank in Tables 1&ndash;2; flags for thin IPL evidence; the match-after-match test (5.1); knockouts (1.3); consistent definitions; the shift tested on runs and wickets, with the split kept as variant V14 because it does not predict better and makes the bowling list less stable (3.1). The report ranks who performs best under pressure and makes no recommendations to RR (D51).</td></tr>
+<tr><td>D46&ndash;D63</td><td>Presentation and checks, no ranking change: names readers expect (4.3); IPL-only runs against par and a T20I opposition check (3.3) for every pick; page 1 names who passes every check; time split on five variants; raw pressure Impact with its chance range, an IPL-only rank and a V14 rank in Tables 1&ndash;2; flags for thin IPL evidence; the match-after-match test (5.1); knockouts (1.3); consistent definitions; the shift tested on runs and wickets, with the split kept as variant V14 because it does not predict better and makes the bowling list less stable (3.1). The report ranks who performs best under pressure and makes no recommendations to RR (D51).</td></tr>
 <tr><td>Q1&ndash;Q2</td><td>Data-only ranking (no RR adjustment); super overs excluded.</td></tr>
 </tbody>
 </table>

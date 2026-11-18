@@ -245,6 +245,7 @@ def rating_numbers(N: dict) -> None:
         ss = pd.read_csv(OUTPUTS / "sensitivity_summary.csv").set_index(["variant", "discipline"])
         N[f"sens.{disc}_v13_overlap"] = int(ss.loc[("V13 innings weighted equally", disc), "top10_overlap"])  # D45
         N[f"sens.{disc}_v14_overlap"] = int(ss.loc[("V14 shift split runs/wickets", disc), "top10_overlap"])  # D56
+        N[f"sens.{disc}_v14_corr"] = float(ss.loc[("V14 shift split runs/wickets", disc), "spearman_vs_headline"])
         sv = pd.read_csv(OUTPUTS / "sensitivity.csv")
         sv = sv[sv["discipline"] == disc].set_index("headline_rank")
         N[f"sens.{disc}1_v14_rank"] = int(sv.loc[1, "V14 shift split runs/wickets"])

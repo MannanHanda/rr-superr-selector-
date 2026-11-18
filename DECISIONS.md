@@ -404,6 +404,10 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
 - D63 (18 Nov, red-team round 5 fix 2, wording only): Rashid's line explains his IPL-only rank (39th):
   his routine IPL overs are at par (-1 runs per 100; IPL-only usual level 50th of 86), and the rating
   leans on level, although he saves +21 per 100 on IPL pressure balls.
+- D64 (18 Nov, red-team round 5 fix 3, wording and layout only): the Tables 1-2 reading note becomes a
+  one-line-per-term key; only section 1 is forced onto a new page (page 8 was ~85% empty); 5.3 names V14
+  among the bowlers' biggest changes (rank correlation 0.80); 3.4 and the limitations point to the 3.3
+  opposition check; Appendix D summarises D46-D63.
 
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2) [CLOSED by D41]: First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected
