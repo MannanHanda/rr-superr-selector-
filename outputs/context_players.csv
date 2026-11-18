@@ -1,0 +1,37 @@
+player_id,discipline,group,rank,player_name,ipl_2026_team,team_short,ipl_recent_balls,rating,share_top10,confidence,P_hat,P_rank,D_hat,D_rank,C_hat,C_rank,chase_pressure_rank,ipl_pressure_balls,furthest_behind_on,gap_rating_points,pool_size
+23450,bat,most_used,20,Sai Sudharsan,Gujarat Titans,GT,943,52.6953,0.0920,marginal,4.7568,20,-0.7356,61,53.0771,20,25,349,pressure level,-2.0418,105
+6288,bat,most_used,38,Shubman Gill,Gujarat Titans,GT,866,50.9301,0.0240,marginal,3.7523,26,-5.2851,97,51.6534,39,13,414,pressure level,-2.8050,105
+818,bat,most_used,24,Mitchell Marsh,Lucknow Super Giants,LSG,728,52.1859,0.0700,marginal,4.7105,21,-2.2194,77,51.8918,36,23,351,pressure level,-2.0772,105
+953,bat,most_used,18,Lokesh Rahul,Delhi Capitals,DC,700,53.1721,0.1330,marginal,6.3389,15,-0.5484,54,49.3877,76,24,487,consistency,-1.1282,105
+813,bat,most_used,32,Jos Buttler,Gujarat Titans,GT,675,51.4581,0.0470,marginal,4.1826,24,-2.9137,85,50.8233,51,33,372,pressure level,-2.4780,105
+7216,bat,most_used,14,Prabhsimran Singh,Punjab Kings,PBKS,672,54.1098,0.2320,marginal,6.3785,14,1.2420,27,52.4591,29,16,434,pressure level,-0.8106,105
+6819,bat,most_used,16,Yashasvi Jaiswal,Rajasthan Royals,RR,630,53.6989,0.1930,marginal,5.3901,19,1.5774,23,53.8654,13,10,410,pressure level,-1.5612,105
+1699,bat,most_used,12,Suryakumar Yadav,Mumbai Indians,MI,610,54.5585,0.3260,marginal,7.6098,9,-2.5202,80,52.9574,22,2,391,consistency,-0.3987,105
+4117,bat,most_used,17,Ishan Kishan,Sunrisers Hyderabad,SRH,562,53.4283,0.1850,marginal,5.4482,18,-0.5326,53,53.9394,12,55,373,pressure level,-1.5168,105
+7260,bat,most_used,48,Dhruv Jurel,Rajasthan Royals,RR,546,49.8597,0.0030,marginal,0.8303,58,1.6072,21,52.0015,35,54,248,pressure level,-5.0244,105
+50284,bat,rr,1,Vaibhav Sooryavanshi,Rajasthan Royals,RR,449,64.4719,0.9860,secure,20.3827,1,-2.7841,84,54.2007,8,1,128,shift,-0.3085,105
+6819,bat,rr,16,Yashasvi Jaiswal,Rajasthan Royals,RR,630,53.6989,0.1930,marginal,5.3901,19,1.5774,23,53.8654,13,10,410,pressure level,-1.5612,105
+6423,bat,rr,26,Riyan Parag,Rajasthan Royals,RR,432,52.0733,0.0790,marginal,3.5720,30,3.2940,7,51.3540,42,61,227,pressure level,-2.9418,105
+7260,bat,rr,48,Dhruv Jurel,Rajasthan Royals,RR,546,49.8597,0.0030,marginal,0.8303,58,1.6072,21,52.0015,35,54,248,pressure level,-5.0244,105
+2436,bat,rr,57,Dasun Shanaka,Rajasthan Royals,RR,46,49.4097,0.0080,marginal,0.2712,65,2.9850,10,50.8227,52,62,37,pressure level,-5.4486,105
+4409,bat,rr,69,Sam Curran,Rajasthan Royals,RR,84,48.7078,0.0050,marginal,0.2994,64,1.1094,31,48.7184,82,77,175,pressure level,-5.4276,105
+3297,bat,rr,72,Shimron Hetmyer,Rajasthan Royals,RR,233,48.5347,0.0040,marginal,-0.2814,73,-0.0558,44,50.9214,50,70,131,pressure level,-5.8686,105
+152,bat,rr,73,Ravindra Jadeja,Rajasthan Royals,RR,419,48.5150,0.0000,marginal,-0.8793,77,3.6490,6,50.2128,59,74,199,pressure level,-6.3228,105
+5944,bowl,most_used,63,Mohammed Siraj,Gujarat Titans,GT,714,49.5484,0.0000,marginal,-0.1507,63,-0.0724,13,42.9337,78,63,602,pressure level,-4.1292,109
+6464,bowl,most_used,29,Arshdeep Singh,Punjab Kings,PBKS,668,51.8122,0.0230,marginal,2.5545,29,-0.7953,97,44.4186,39,28,502,pressure level,-2.0412,109
+3298,bowl,most_used,16,Jofra Archer,Rajasthan Royals,RR,633,53.1441,0.2010,marginal,4.3336,16,-1.0431,104,44.4283,37,20,246,pressure level,-0.6678,109
+7967,bowl,most_used,12,Noor Ahmad,Chennai Super Kings,CSK,606,53.7023,0.3370,marginal,5.1945,13,-0.9521,103,43.8274,55,50,195,consistency,-0.1758,109
+4489,bowl,most_used,53,Prasidh Krishna,Gujarat Titans,GT,588,50.1299,0.0230,marginal,-0.0770,60,-0.0880,15,45.5255,19,15,241,pressure level,-4.0722,109
+7808,bowl,most_used,76,Marco Jansen,Punjab Kings,PBKS,567,48.6016,0.0010,marginal,-0.8157,71,-0.9487,102,41.5568,100,87,346,pressure level,-4.6428,109
+6256,bowl,most_used,13,Varun Chakravarthy,Kolkata Knight Riders,KKR,546,53.5304,0.2680,marginal,4.7410,14,-0.4998,73,44.3145,45,49,304,pressure level,-0.3534,109
+58134,bowl,most_used,87,Digvesh Rathi,Lucknow Super Giants,LSG,546,47.9046,0.0010,marginal,-2.1439,83,-0.1762,25,42.5056,88,77,150,pressure level,-5.6676,109
+36982,bowl,most_used,71,Suyash Sharma,Royal Challengers Bengaluru,RCB,545,48.7980,0.0000,marginal,-0.5576,66,-0.7368,93,41.3605,103,72,185,pressure level,-4.4436,109
+3644,bowl,most_used,15,Kuldeep Yadav,Delhi Capitals,DC,540,53.2656,0.2280,marginal,4.4951,15,-0.4379,64,43.8929,53,27,290,pressure level,-0.5436,109
+3298,bowl,rr,16,Jofra Archer,Rajasthan Royals,RR,633,53.1441,0.2010,marginal,4.3336,16,-1.0431,104,44.4283,37,20,246,pressure level,-0.6678,109
+152,bowl,rr,40,Ravindra Jadeja,Rajasthan Royals,RR,425,51.1773,0.0290,marginal,2.0061,37,-0.2558,40,42.9150,79,78,258,pressure level,-2.4648,109
+7503,bowl,rr,41,Ravi Bishnoi,Rajasthan Royals,RR,378,50.9249,0.0140,marginal,1.5977,40,-1.0513,105,43.9077,52,24,354,pressure level,-2.7798,109
+2411,bowl,rr,59,Sandeep Sharma,Rajasthan Royals,RR,337,49.8085,0.0050,marginal,0.2887,54,-0.5814,82,42.9825,76,6,309,pressure level,-3.7902,109
+1487,bowl,rr,81,Adam Milne,Rajasthan Royals,RR,20,48.2608,0.0020,marginal,-2.4272,85,-0.2057,30,45.3563,22,99,1,pressure level,-5.8866,109
+6806,bowl,rr,90,Tushar Deshpande,Rajasthan Royals,RR,330,47.3611,0.0000,marginal,-2.9720,90,-0.3956,56,43.1646,70,85,282,pressure level,-6.3072,109
+7312,bowl,rr,92,Nandre Burger,Rajasthan Royals,RR,261,46.9389,0.0000,marginal,-3.8934,94,-0.1901,28,44.4083,40,101,135,pressure level,-7.0182,109
+4409,bowl,rr,100,Sam Curran,Rajasthan Royals,RR,72,46.1388,0.0000,marginal,-4.3285,98,-0.4888,71,42.3839,90,59,166,pressure level,-7.3542,109

@@ -284,6 +284,30 @@ def t_recency() -> str:
     return table(df, "compact mini", tuple(df.columns), "Recency weight by season")
 
 
+def t_context(disc: str, group: str) -> str:
+    """RT fix 2 (D46): most-used IPL 2025-26 players outside the top 10, or RR's own eligible players."""
+    c = pd.read_csv(OUTPUTS / "context_players.csv")
+    c = c[(c["discipline"] == disc) & (c["group"] == group)]
+    weak = {"pressure level": lambda r: f"pressure level ({ordinal(r['P_rank'])})",
+            "shift": lambda r: f"shift ({signed(r['D_hat'])}, {ordinal(r['D_rank'])})",
+            "consistency": lambda r: f"consistency ({r['C_hat']:.0f}%, {ordinal(r['C_rank'])})"}
+    cols = {"#": c["rank"], "Player": [esc(x) for x in c["player_name"]]}
+    if group == "most_used":
+        cols["Team"] = [esc(t) if isinstance(t, str) and t else "&ndash;" for t in c["team_short"]]
+        cols["IPL balls 2025&ndash;26"] = c["ipl_recent_balls"].map("{:,.0f}".format)
+    cols.update({
+        "Top-10 share %": (100 * c["share_top10"]).map("{:.0f}".format),
+        "Pressure level": c["P_rank"].map(ordinal),
+        "Chase-only": c["chase_pressure_rank"].map(ordinal),
+        "IPL pressure balls": c["ipl_pressure_balls"].map("{:,.0f}".format),
+    })
+    if group == "most_used":  # half-width RR tables leave it out; there it is almost always pressure level
+        cols["Furthest behind #10 on"] = [weak[r["furthest_behind_on"]](r) for _, r in c.iterrows()]
+    df = pd.DataFrame(cols)
+    num = ("#", "IPL balls 2025&ndash;26", "Top-10 share %", "Pressure level", "Chase-only", "IPL pressure balls")
+    return table(df, "compact tiny ctx", num)
+
+
 def t_sensitivity() -> str:
     s = pd.read_csv(OUTPUTS / "sensitivity_summary.csv")
     piv = s.pivot(index="variant", columns="discipline", values="top10_overlap").reindex(s["variant"].drop_duplicates())
@@ -379,6 +403,8 @@ TABLES = {
     "sensitivity": lambda w: t_sensitivity(), "timesplit": lambda w: t_timesplit(),
     "rr_needs": lambda w: t_rr_needs(), "rr_bat": lambda w: rr_lines("bat"), "rr_bowl": lambda w: rr_lines("bowl"),
     "coverage": lambda w: t_coverage(), "reliance": lambda w: t_match_reliance(),
+    "ctx_bat": lambda w: t_context("bat", "most_used"), "ctx_bowl": lambda w: t_context("bowl", "most_used"),
+    "rr_own_bat": lambda w: t_context("bat", "rr"), "rr_own_bowl": lambda w: t_context("bowl", "rr"),
 }
 
 

@@ -250,6 +250,11 @@ Rating: 50 = average eligible player; higher is better. Team = IPL 2026 franchis
 <h4>Rating components (Impact per 100 balls; consistency %). "Chase-only rank" for bowlers = when defending a target.</h4>
 {{table:comp_bowl}}
 <figure class="w65">{{fig:f6}}<figcaption>Figure 6. Pressure level against usual level, eligible players; top 10 labelled. Points above the dashed line do better under pressure than usual. Source: <code>outputs/ratings_*.csv</code>.</figcaption></figure>
+
+<h3>4.3 Names you might expect</h3>
+<p>A reader will look for the players franchises rely on. So that we do not choose those names ourselves, we take the {{ctx.bat_n|int}} eligible players outside each top 10 with the most IPL balls in 2025&ndash;26 (balls faced, or legal balls bowled) and show where the rating puts them. "Furthest behind #10 on" names the component where the player trails the #10 pick most, after weighting (nominal weight &times; gap in z-score). For {{ctx.bat_n_level|int}} of the batters and {{ctx.bowl_n_level|int}} of the bowlers it is the pressure level itself, not the shift: good players whose Impact on pressure balls is lower than that of the ten above. The closest are {{ctx.bat_best_name}} ({{ctx.bat_best_rank|ord}}, top 10 in {{ctx.bat_best_share|.0f}}% of resamples) and {{ctx.bowl_best_name}} ({{ctx.bowl_best_rank|ord}}, {{ctx.bowl_best_share|.0f}}%). Source: <code>outputs/context_players.csv</code>.</p>
+<h4>Batters: most IPL balls in 2025&ndash;26, outside the top 10</h4>{{table:ctx_bat}}
+<h4>Bowlers: most IPL balls in 2025&ndash;26, outside the top 10</h4>{{table:ctx_bowl}}
 </section>
 
 <!-- ============================================================ 5. RELIABILITY -->
@@ -290,6 +295,9 @@ Rating: 50 = average eligible player; higher is better. Team = IPL 2026 franchis
 <h2>6. How each pick strengthens RR <span class="brief">Optional extra</span></h2>
 <p>We rank purely on the data; nobody is moved up or down for being at RR or likely to be retained. This section describes fit. RR's own IPL 2025&ndash;26 pressure-ball record is compared with the other nine teams in each phase &times; role cell; a cell counts only if every team has enough pressure balls in it, and a <b>need</b> is a cell where RR rank in the bottom three. Two seasons is a small sample, so read this as indicative.</p>
 {{table:rr_needs}}
+<h4>Where RR's own players rank</h4>
+<p class="small">{{ctx.rr_bat_n|int}} RR batters and {{ctx.rr_bowl_n|int}} RR bowlers (IPL 2026 squad) are eligible. {{ctx.rr_bat_top10|int}} batter and {{ctx.rr_bowl_top10|int}} bowlers are in a top 10. The next best are {{ctx.rr_bat_next_name}} ({{ctx.rr_bat_next_rank|ord}} of {{pool.bat|int}} batters, top 10 in {{ctx.rr_bat_next_share|.0f}}% of resamples) and {{ctx.rr_bowl_next_name}} ({{ctx.rr_bowl_next_rank|ord}} of {{pool.bowl|int}} bowlers, {{ctx.rr_bowl_next_share|.0f}}%).</p>
+<div class="two"><div>{{table:rr_own_bat}}</div><div>{{table:rr_own_bowl}}</div></div>
 <p class="small">A pick "fills" a need if his role matches the cell (batting position group, or pace / spin) and a substantial share of his recent balls fall in that phase. Picks already at RR: {{top10.bat_rr|int}} batter, {{top10.bowl_rr|int}} bowlers.</p>
 <h4>Batters (ranks 11&ndash;15 in grey are the alternates)</h4>{{table:rr_bat}}
 <h4>Bowlers</h4>{{table:rr_bowl}}

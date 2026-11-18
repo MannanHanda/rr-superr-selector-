@@ -35,9 +35,7 @@ SRC = ROOT / "src"
 PROC = ROOT / "data" / "processed"
 OUTPUTS = ROOT / "outputs"
 FILE = {"bat": "batters", "bowl": "bowlers"}
-IPL_SHORT = {"Rajasthan Royals": "RR", "Punjab Kings": "PBKS", "Sunrisers Hyderabad": "SRH",
-             "Royal Challengers Bengaluru": "RCB", "Lucknow Super Giants": "LSG", "Kolkata Knight Riders": "KKR",
-             "Mumbai Indians": "MI", "Gujarat Titans": "GT", "Chennai Super Kings": "CSK", "Delhi Capitals": "DC"}
+IPL_SHORT = lr.IPL_SHORT
 
 
 def module(name: str):
@@ -216,6 +214,20 @@ def rating_numbers(N: dict) -> None:
         N[f"sens.{disc}_core"] = int(s["core_pick"].sum())
         ss = pd.read_csv(OUTPUTS / "sensitivity_summary.csv").set_index(["variant", "discipline"])
         N[f"sens.{disc}_v13_overlap"] = int(ss.loc[("V13 innings weighted equally", disc), "top10_overlap"])  # D45
+        cx = pd.read_csv(OUTPUTS / "context_players.csv")  # D46
+        cx = cx[cx["discipline"] == disc]
+        mu, rr = cx[cx["group"] == "most_used"], cx[cx["group"] == "rr"]
+        best = mu.loc[mu["share_top10"].idxmax()]
+        N[f"ctx.{disc}_n"] = len(mu)
+        N[f"ctx.{disc}_best_name"], N[f"ctx.{disc}_best_rank"] = best["player_name"], int(best["rank"])
+        N[f"ctx.{disc}_best_share"] = 100 * best["share_top10"]
+        N[f"ctx.{disc}_n_level"] = int((mu["furthest_behind_on"] == "pressure level").sum())
+        N[f"ctx.{disc}_n_top30"] = int((mu["rank"] <= 30).sum())
+        N[f"ctx.rr_{disc}_n"] = len(rr)
+        N[f"ctx.rr_{disc}_top10"] = int((rr["rank"] <= 10).sum())
+        nxt = rr[rr["rank"] > 10].iloc[0]
+        N[f"ctx.rr_{disc}_next_name"], N[f"ctx.rr_{disc}_next_rank"] = nxt["player_name"], int(nxt["rank"])
+        N[f"ctx.rr_{disc}_next_share"] = 100 * nxt["share_top10"]
         b = pd.read_csv(OUTPUTS / f"bootstrap_ranks_{FILE[disc]}.csv")
         for k in (11, 12):
             N[f"boot.{disc}_share_{k}"] = 100 * b.loc[b["headline_rank"] == k, "share_top10"].iloc[0]

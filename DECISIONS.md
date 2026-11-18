@@ -270,6 +270,18 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   0.54 / 0.48 (were 0.52 / 0.53). Within noise, but the change did not improve persistence and the
   report's bowler claim is softened to "partly repeats". Core picks: 5 bat, 8 bowl (10 of 13 variants).
 
+- D46 (18 Nov, RT fix 2): The report shows (a) the 10 eligible players outside each top 10 with the most IPL
+  2025-26 balls (balls faced; legal balls bowled) and (b) every eligible player in RR's IPL 2026 squad, with
+  rank, top-10 share, pressure-level rank, chase-only rank, IPL pressure balls and the component on which each
+  is furthest behind the #10 pick (nominal weight x z-score gap). Written by 09 to `context_players.csv`.
+  Why: a reader's first question is "where is X?"; the brief asks for rankings from data, "not reputation
+  alone". IPL usage is a data stand-in for reputation, so no names are chosen by hand. Rejected: a hand-picked
+  list of stars (open to cherry-picking); the top 10 by the usual death / RRR > 10 stat (overlaps our lists:
+  Arya, Sooryavanshi, David, Allen and Patidar are all in its top 8). Result: closest batters Suryakumar 12th
+  (33%), Prabhsimran 14th; bowlers Noor Ahmad 12th (34%), Varun 13th; Gill 38th, Buttler 32nd, Siraj 63rd,
+  Arshdeep 29th. RR: 8 batters and 8 bowlers eligible; only Sooryavanshi is in a top 10; next Jaiswal and
+  Archer, both 16th. No ranking changed.
+
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2) [CLOSED by D41]: First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected
   48/45/7 from the prototype). Cause: the first-innings model values a run almost equally through the innings,

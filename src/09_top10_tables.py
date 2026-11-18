@@ -10,6 +10,8 @@ Inputs  (data/processed/): player_match_stats.parquet, balls.parquet, matches.pa
 Outputs (outputs/): top10_batters.md, top10_bowlers.md   T3 / T4: top 20 shown, top 10 in bold
                     top10_match_detail.csv                three best / worst pressure matches per pick (D43)
                     final_top10_batters.csv, final_top10_bowlers.csv   the submission lists
+                    context_players.csv   D46: the 10 eligible players with the most IPL 2025-26 balls
+                                          outside each top 10, and every eligible RR player
 
 Confidence band (D39) from the share of 1,000 match resamples in which the player is top 10:
 secure >= 80%, probable 50-80%, marginal < 50%. Order inside a band is the point estimate only.
@@ -139,6 +141,50 @@ def final_table(pms: pd.DataFrame, disc: str, r: pd.DataFrame) -> pd.DataFrame:
     }).reset_index()
 
 
+CONTEXT_N = 10  # most-used IPL 2025-26 players shown outside each top 10 (D46)
+COMPONENTS = {"P_hat": "pressure level", "D_hat": "shift", "C_hat": "consistency"}
+
+
+def ipl_recent_balls(disc: str) -> pd.Series:
+    """IPL balls faced (batters) or legal balls bowled (bowlers) in 2025-26: how much franchises used a player."""
+    key, cnt = ("striker_id", "is_ball_faced") if disc == "bat" else ("bowler_id", "is_legal")
+    b = pd.read_parquet(PROC / "balls.parquet", columns=["innings", "year", "comp_tier", key, cnt])
+    b = b[b["innings"].isin([1, 2]) & (b["comp_tier"] == "IPL") & b["year"].isin(lr.RECENT_YEARS)]
+    return b.groupby(key)[cnt].sum()
+
+
+def context_players(r: pd.DataFrame, disc: str) -> pd.DataFrame:
+    """D46: (a) the CONTEXT_N eligible players outside the top 10 with the most IPL 2025-26 balls, a data
+    stand-in for "names a reader expects"; (b) every eligible player in RR's IPL 2026 squad. For each, the rating
+    component on which the player is furthest behind the #10 pick (nominal weight x z-score gap)."""
+    r = r.assign(ipl_recent_balls=ipl_recent_balls(disc).reindex(r.index).fillna(0))
+    for col in COMPONENTS:
+        r[f"{col}_rank"] = r[col].rank(ascending=False, method="min")
+    tenth = r[r["rank"] == 10].iloc[0]
+    w = dict(zip(COMPONENTS, lr.Params().weights))
+    gap = pd.DataFrame({c: w[c] * (r[f"z_{c}"] - tenth[f"z_{c}"]) for c in COMPONENTS})
+    most_used = r[r["rank"] > 10].sort_values("ipl_recent_balls", ascending=False).head(CONTEXT_N).index
+    rr = r[r["ipl_2026_team"] == "Rajasthan Royals"].sort_values("rank").index
+    out = []
+    for group, ids in (("most_used", most_used), ("rr", rr)):
+        t = r.loc[ids]
+        out.append(pd.DataFrame({
+            "discipline": disc, "group": group, "rank": t["rank"].astype(int), "player_name": t["player_name"],
+            "ipl_2026_team": t["ipl_2026_team"].fillna("none"),
+            "team_short": t["ipl_2026_team"].map(lr.IPL_SHORT).fillna(""),
+            "ipl_recent_balls": t["ipl_recent_balls"].astype(int), "rating": t["rating"],
+            "share_top10": t["share_top10"], "confidence": t["confidence"],
+            "P_hat": t["P_hat"], "P_rank": t["P_hat_rank"].astype(int), "D_hat": t["D_hat"],
+            "D_rank": t["D_hat_rank"].astype(int), "C_hat": t["C_hat"], "C_rank": t["C_hat_rank"].astype(int),
+            "chase_pressure_rank": t["chase_pressure_rank"].astype(int),
+            "ipl_pressure_balls": t["ipl_pressure_balls"].astype(int),
+            "furthest_behind_on": gap.loc[ids].idxmin(axis=1).map(COMPONENTS),
+            "gap_rating_points": 10 * gap.loc[ids].min(axis=1),
+            "pool_size": len(r),
+        }))
+    return pd.concat(out).reset_index()
+
+
 def load(disc: str, pms: pd.DataFrame) -> pd.DataFrame:
     r = pd.read_csv(OUTPUTS / f"ratings_{FILE[disc]}.csv", index_col="player_id")
     b = pd.read_csv(OUTPUTS / f"bootstrap_ranks_{FILE[disc]}.csv", index_col="player_id")
@@ -203,12 +249,14 @@ def band_note(r: pd.DataFrame) -> str:
 
 
 def main() -> None:
-    checks, details = [], []
+    checks, details, contexts = [], [], []
     pms = pd.read_parquet(PROC / "player_match_stats.parquet")
     ctx = match_context()
     for disc in ("bat", "bowl"):
         r = load(disc, pms)
         md = match_detail(pms, disc, r[r["rank"] <= 10], ctx)
+        cp = context_players(r, disc)
+        contexts.append(cp)
         details.append(md)
         fin = final_table(pms, disc, r)
         fin.to_csv(OUTPUTS / f"final_top10_{FILE[disc]}.csv", index=False)
@@ -240,7 +288,15 @@ def main() -> None:
             (f"{LABEL[disc]}: pressure-match counts agree with the consistency count (06)",
              "", bool((md.groupby("rank")["pressure_matches"].first()
                        == top.set_index("rank")["c_matches"].reindex(md["rank"].unique())).all())),
+            (f"{LABEL[disc]}: {CONTEXT_N} most-used players outside the top 10; every eligible RR player listed",
+             f"{(cp['group'] == 'most_used').sum()} / {(cp['group'] == 'rr').sum()} rows",
+             bool((cp.loc[cp["group"] == "most_used", "rank"] > 10).all()
+                  and (cp["group"] == "most_used").sum() == CONTEXT_N
+                  and (cp["group"] == "rr").sum() == int((r["ipl_2026_team"] == "Rajasthan Royals").sum()))),
         ]
+        print(f"\n{LABEL[disc]}: most-used IPL 2025-26 players outside the top 10, then RR's eligible players")
+        print(cp[["group", "rank", "player_name", "ipl_recent_balls", "share_top10", "P_rank", "D_hat", "C_rank",
+                  "chase_pressure_rank", "furthest_behind_on"]].round(2).to_string(index=False))
         sm = md.drop_duplicates("rank").set_index("rank")
         print(f"\n{LABEL[disc]} pressure WPA: total, without best match, best match share")
         print(sm[["player", "pressure_matches", "total_pressure_wpa", "total_without_best_match",
@@ -250,11 +306,12 @@ def main() -> None:
                    "elig_pressure_balls", "ipl_pressure_balls", "pressure_share_inn1", "chase_pressure_rank",
                    "chase_pressure_balls"]].round(2).to_string(index=False))
     pd.concat(details, ignore_index=True).to_csv(OUTPUTS / "top10_match_detail.csv", index=False, float_format="%.4f")
+    pd.concat(contexts, ignore_index=True).to_csv(OUTPUTS / "context_players.csv", index=False, float_format="%.4f")
     check_df = pd.DataFrame(checks, columns=["check", "value", "pass"])
     print()
     print(check_df.assign(**{"pass": check_df["pass"].map({True: "PASS", False: "FAIL"})}).to_string(index=False))
     print("\nWrote top10_batters.md, top10_bowlers.md, top10_match_detail.csv, final_top10_batters.csv, "
-          "final_top10_bowlers.csv")
+          "final_top10_bowlers.csv, context_players.csv")
     if not check_df["pass"].all():
         sys.exit(1)
 

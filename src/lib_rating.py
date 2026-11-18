@@ -33,6 +33,9 @@ PRESSURE_MATCH_MIN_BALLS = 3
 EB_POOL = {"total": 200, "pressure": 60}
 
 OVER_GROUPS = ([0, 2, 6, 10, 15, 18, 20], ["1-2", "3-6", "7-10", "11-15", "16-18", "19-20"])
+IPL_SHORT = {"Rajasthan Royals": "RR", "Punjab Kings": "PBKS", "Sunrisers Hyderabad": "SRH",
+             "Royal Challengers Bengaluru": "RCB", "Lucknow Super Giants": "LSG", "Kolkata Knight Riders": "KKR",
+             "Mumbai Indians": "MI", "Gujarat Titans": "GT", "Chennai Super Kings": "CSK", "Delhi Capitals": "DC"}
 
 BALL_COLS = ["match_id", "innings", "innings_ball_num", "overid", "phase", "comp_tier", "year", "striker_id", "bowler_id",
              "is_ball_faced", "is_legal", "striker_out", "is_bowler_wicket", "batter_runs", "bowler_runs",
