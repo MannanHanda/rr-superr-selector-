@@ -183,7 +183,9 @@ def time_split_numbers(N: dict) -> None:
     t = pd.read_csv(OUTPUTS / "time_split.csv")
     keys = {"(1) full rating": "rating", "(2) pressure level (shrunk)": "level", "(3) raw pressure Impact": "raw",
             "(4) shift alone (raw)": "shift", "(5) usual approach (death / RRR>10 SR or econ)": "usual",
-            "(extra) usual level (shrunk)": "ulevel", "(extra) consistency (shrunk)": "cons"}
+            "(extra) usual level (shrunk)": "ulevel", "(extra) consistency (shrunk)": "cons",
+            "(variant) V3 chases only (global cut)": "v3", "(variant) V4 pressure level only": "v4",
+            "(variant) V12 level = raw WPA": "v12", "(variant) V13 innings weighted equally": "v13"}
     for _, r in t.iterrows():
         k = f"ts.{r['discipline']}_{keys[r['predictor']]}"
         N[k], N[k + "_lo"], N[k + "_hi"] = r["spearman"], r["lo90"], r["hi90"]
@@ -281,6 +283,21 @@ def picks_table() -> pd.DataFrame:
     return pd.concat(out, ignore_index=True)
 
 
+def wp_coefficients(N: dict) -> None:
+    """D49: fitted coefficients of the two regressions, for the formula box in 1.1."""
+    import pickle
+    with open(PROC / "wp_models.pkl", "rb") as fh:
+        m = pickle.load(fh)
+    N["wp.erem120"] = m["erem120"]
+    for tag, key in (("f", "first"), ("c", "chase")):
+        N[f"wp.{tag}0"] = float(m[key].intercept_[0])
+        for i, v in enumerate(m[key].coef_[0], start=1):
+            N[f"wp.{tag}{i}"] = float(v)
+    eb = pd.read_csv(OUTPUTS / "eb_params.csv")
+    for disc in ("bat", "bowl"):
+        N[f"cons.{disc}_pool"] = 100 * eb.loc[(eb["discipline"] == disc) & (eb["quantity"] == "C"), "prior"].iloc[0]
+
+
 def ordinal(n: int) -> str:
     n = int(round(n))
     return f"{n}{'th' if 10 <= n % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')}"
@@ -327,6 +344,7 @@ def main() -> None:
     validation_numbers(N)
     rating_numbers(N)
     time_split_numbers(N)
+    wp_coefficients(N)
     picks = picks_table()
     auction_numbers(N, picks)
     for k, v in list(N.items()):

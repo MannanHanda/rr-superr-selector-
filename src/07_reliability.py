@@ -50,6 +50,14 @@ N_BOOT_PLAYERS = 1000
 TIME_MIN_PRESSURE = 75
 N_CEILING_SPLITS = 200
 EARLY, LATE = (2022, 2023, 2024), (2025, 2026)
+# D48: the same time split for four existing variants' full ratings, against the same headline outcome
+TS_VARIANTS = {
+    "(variant) V3 chases only (global cut)": dict(global_share=0.20),
+    "(variant) V4 pressure level only": dict(weights=(1.0, 0.0, 0.0)),
+    "(variant) V12 level = raw WPA": dict(level="wpa"),
+    "(variant) V13 innings weighted equally": dict(stake_weight=False),
+}
+N_TS_BASE = 7  # predictors (1)-(5) and the two extras
 CORE_MIN_VARIANTS = 10
 FILE = {"bat": "batters", "bowl": "bowlers"}
 LABEL = {"bat": "Batters", "bowl": "Bowlers"}
@@ -218,6 +226,10 @@ def time_split(d: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
             "(extra) usual level (shrunk)": early["U"],
             "(extra) consistency (shrunk)": early["C_hat"],
         }
+        for name, kw in TS_VARIANTS.items():
+            vp = lr.variant(years=EARLY, anchor_year=2024, **kw)
+            ve = lr.build_pms(d, vp)[0] if REBUILD & set(kw) else pe
+            preds[name] = lr.rate(ve, disc, ids, lr.eb_pool(ve, disc), vp)[0]["rating"]
         for name, x in preds.items():
             n, rho, lo, hi = spearman_ci(x.reindex(ids), y, rng)
             rows.append({"discipline": disc, "predictor": name, "n": n, "spearman": rho, "lo90": lo, "hi90": hi})
@@ -277,7 +289,9 @@ def fig_intervals(br: dict) -> Path:
             c = ORANGE if is_top else MUTED
             ax.plot([r["rank_p5"], r["rank_p95"]], [yy, yy], color=c, lw=2, solid_capstyle="round")
             ax.scatter([r["headline_rank"]], [yy], s=18, color=c, edgecolors="white", lw=0.8, zorder=3)
-            ax.text(r["rank_p95"] + 1, yy, f"{100 * r['share_top10']:.0f}%", fontsize=6, color=INK2, va="center")
+            sh = 100 * r["share_top10"]  # D49: one decimal if rounding would cross the 50% or 80% band edge
+            lab = f"{sh:.1f}%" if (round(sh) >= 50) != (sh >= 50) or (round(sh) >= 80) != (sh >= 80) else f"{sh:.0f}%"
+            ax.text(r["rank_p95"] + 1, yy, lab, fontsize=6, color=INK2, va="center")
         ax.axvline(10.5, color=INK2, lw=0.8, ls=":")
         ax.set_yticks(y, [f"{int(k)}. {n}" for k, n in zip(t["headline_rank"], t["player_name"])], fontsize=6.5)
         ax.set_xlim(0, max(45, t["rank_p95"].max() + 6))
@@ -294,8 +308,8 @@ def fig_intervals(br: dict) -> Path:
 
 
 def fig_time_split(ts: pd.DataFrame, ceil: pd.DataFrame) -> Path:
-    fig, axes = plt.subplots(1, 2, figsize=(7.5, 3.9), sharey=True)
     order = list(dict.fromkeys(ts["predictor"]))
+    fig, axes = plt.subplots(1, 2, figsize=(7.5, 1.6 + 0.33 * len(order)), sharey=True)
     y = np.arange(len(order))[::-1]
     for ax, disc in zip(axes, ("bat", "bowl")):
         t = ts[ts["discipline"] == disc].set_index("predictor").reindex(order)
@@ -304,6 +318,9 @@ def fig_time_split(ts: pd.DataFrame, ceil: pd.DataFrame) -> Path:
         ax.errorbar(t["spearman"], y, xerr=[t["spearman"] - t["lo90"], t["hi90"] - t["spearman"]],
                     fmt="none", ecolor=INK2, elinewidth=0.8, capsize=2)
         ax.axvline(0, color=INK2, lw=0.8)
+        n_var = sum(p.startswith("(variant)") for p in order)
+        if n_var:  # separate our predictors from the variants' full ratings
+            ax.axhline(n_var - 0.5, color=GRID, lw=1.0)
         c = float(ceil.set_index("discipline").loc[disc, "max_attainable_correlation"])
         ax.axvline(c, color=ORANGE, lw=1.2, ls="--")
         ax.text(c, y.max() + 0.6, f" noise ceiling {c:.2f}", fontsize=6.5, color=ORANGE, va="bottom", ha="left")
@@ -313,9 +330,12 @@ def fig_time_split(ts: pd.DataFrame, ceil: pd.DataFrame) -> Path:
         style(ax)
     fig.supxlabel("Spearman correlation with 2025-26 raw pressure Impact", fontsize=8, color=INK2)
     axes[0].set_yticks(y, order, fontsize=7)
-    rating = ts[ts["predictor"] == "(1) full rating"].set_index("discipline")["spearman"]
-    fig.suptitle(f"Does 2022-24 predict 2025-26 pressure Impact? Our rating: batters {rating['bat']:.2f}, "
-                 f"bowlers {rating['bowl']:.2f}\n"
+    # D48: title states what holds; the rating's own bars are labelled (1) on the chart
+    bw = ts[ts["discipline"] == "bowl"].set_index("predictor")
+    best = bw["spearman"].idxmax()
+    best_lab = best.split(") ", 1)[1].replace(" (shrunk)", "")
+    fig.suptitle(f"Does 2022-24 predict 2025-26 pressure Impact? Bowlers: {best_lab} does best "
+                 f"({bw.loc[best, 'spearman']:.2f}); batters: no measure clearly does\n"
                  "(bars = 90% interval; dashed = the most any predictor could reach, given outcome noise)",
                  fontsize=10, color=INK, x=0.01, ha="left")
     fig.tight_layout()
@@ -378,7 +398,7 @@ def main() -> None:
     checks += [
         (f"All {len(VARIANTS)} variants present (both lists)", n_var.to_dict().__str__(), bool((n_var == len(VARIANTS)).all())),
         ("Time-split table has n and intervals", f"{len(ts)} rows",
-         bool(ts[["n", "lo90", "hi90"]].notna().all().all() and len(ts) == 14)),
+         bool(ts[["n", "lo90", "hi90"]].notna().all().all() and len(ts) == 2 * (N_TS_BASE + len(TS_VARIANTS)))),
         ("Noise ceiling for both lists", f"{ceil['max_attainable_correlation'].round(2).tolist()}",
          len(ceil) == 2 and ceil["max_attainable_correlation"].notna().all()),
     ]

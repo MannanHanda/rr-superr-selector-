@@ -126,7 +126,7 @@ Rating: 50 = average eligible player; higher is better. Team = IPL 2026 franchis
 <ol>
   <li><b>The usual definition of pressure measures the wrong balls.</b> "Death overs, or a required rate above 10" misses {{naive.chase_missed|.0f}}% of the high-leverage balls in chases, and {{naive.chase_usual_dead_below|.0f}}% of the chase balls it does flag are dead or below-median leverage.</li>
   <li><b>Pressure balls really are different, but not everywhere.</b> Comparing like with like (same over, same wickets down), chasing batters score {{val.w_2_middle_SR_value|abs.0f}} strike-rate points slower on middle-overs pressure balls. In the first innings, "pressure" is mostly the new ball and carries about half the stake, so it counts about half, and each pick's chase-only rank is shown too.</li>
-  <li><b>Bowlers' pressure form partly repeats; batters' does not.</b> Rated on 2022&ndash;24, bowlers' pressure level correlates {{ts.bowl_level|.2f}} with their 2025&ndash;26 pressure Impact (full rating {{ts.bowl_rating|.2f}}); for batters the rating's correlation is {{ts.bat_rating|.2f}}. The bowling list is the firmer of the two; the batting list ranks who has delivered, not a forecast.</li>
+  <li><b>Under pressure, level matters more than nerve.</b> Bowlers show no measurable difference in how they respond to pressure (the data cannot tell their shifts apart from noise), and a bowler's usual level is the best guide to his later pressure form: rated on 2022&ndash;24, it correlates {{ts.bowl_ulevel|.2f}} with 2025&ndash;26 pressure Impact. Batters do differ (shrunk shifts {{pool.bat_shift_min|+.0f}} to {{pool.bat_shift_max|+.0f}} per 100 balls), but no measure we tried predicts their later pressure form clearly, so the batting list records who has delivered (section 5.2).</li>
 </ol>
 </div>
 <p class="small">How sure we are: {{conf.bat_secure|int}} batters and {{conf.bowl_secure|int}} bowlers are secure; {{conf.bat_marginal|int}} and {{conf.bowl_marginal|int}} are marginal, and places 9&ndash;10 are close to coin-flips against 11&ndash;12. Every number in this report is read from a file the pipeline writes to <code>outputs/</code>.</p>
@@ -142,6 +142,12 @@ Rating: 50 = average eligible player; higher is better. Team = IPL 2026 franchis
   <li><b>Chase:</b> a logistic regression on how many runs the chasing side is ahead of an average side with the same balls and wickets left.</li>
   <li><b>Last {{p.late_b|int}} balls of a chase:</b> the regression misjudges the final over, so WP is computed exactly by playing out every remaining ball with league outcome rates for the same runs-per-ball requirement, fully so on the last ball.</li>
 </ul>
+<div class="box">
+<p class="small"><b>The two regressions, as fitted.</b> σ is the logistic function; b = balls left, w = wickets in hand, r = runs needed. E(b, w) is the expected remaining runs of an average side, a Poisson regression on b and w, made never to fall as wickets in hand rise; f = par &divide; E(120, 10) = par &divide; {{wp.erem120|.0f}} scales it to the competition and season.</p>
+<p class="formula">First innings: WP = σ({{wp.f0|+.3f}} {{wp.f1|+.3f}}·z {{wp.f2|+.3f}}·z·p {{wp.f3|+.3f}}·z·p²),<br>z = (score + f·E(b, w) &minus; par&prime;) &divide; 30, p = 1 &minus; b &divide; B</p>
+<p class="formula">Chase: WP = σ({{wp.c0|+.3f}} {{wp.c1|+.3f}}·u {{wp.c2|+.3f}}·u·ln(b+1) {{wp.c3|+.3f}}·m/30 {{wp.c4|+.3f}}·w/10 {{wp.c5|+.3f}}·b/120 {{wp.c6|+.3f}}·RRR/10),<br>m = f·E(b, w) &minus; r (runs ahead of an average side), u = m &divide; &radic;(b+1)</p>
+<p class="small">B = balls in the innings; par&prime; = par scaled to B for a shortened innings; RRR = required run rate, capped at 36. In the last six balls of a chase the exact play-out is blended in with weight (7 &minus; b)/6. Fitted with scikit-learn on the training matches by <code>src/02_wp_model.py</code>.</p>
+</div>
 <div class="pair">
   <div>{{table:wp}}
   <p class="small">Brier = mean squared error of the predicted probability (lower is better; the constant guess predicts the average win rate). Calibration error = average gap between predicted and actual win rates over ten probability bins, on matches the model never saw ({{p.folds|int}}-fold cross-validation by match).</p></div>
@@ -196,7 +202,7 @@ Rating: 50 = average eligible player; higher is better. Team = IPL 2026 franchis
 <p>Each z-score divides the player's shrunk value by the spread of the <i>raw</i> values across the pool. A component that the data cannot measure well is pulled close to the average by shrinkage (section 3.1), so it ends up with little spread and counts for little. The weights were fixed before any ranking was seen; the effective weights below show how much each component actually moves the ranking.</p>
 <div class="pair">
   <div>{{table:effective}}</div>
-  <div><p class="small"><b>Why level leads.</b> Pressure level is what wins matches and is the best-measured component. The shift is the brief's "compared with their usual level", but it is the difference of two noisy numbers, so for bowlers it is shrunk almost to zero (shrunk shifts range {{pool.bowl_shift_min|+.1f}} to {{pool.bowl_shift_max|+.1f}} per 100 balls, against {{pool.bat_shift_min|+.1f}} to {{pool.bat_shift_max|+.1f}} for batters). <b>Never the drop alone:</b> a player who is poor in every situation has no drop at all, so ranking on the drop would reward him.</p></div>
+  <div><p class="small"><b>Why level leads.</b> Pressure level is what wins matches and is the best-measured component. The shift is the brief's "compared with their usual level", but it is the difference of two noisy numbers, so for bowlers it is shrunk almost to zero (shrunk shifts range {{pool.bowl_shift_min|+.1f}} to {{pool.bowl_shift_max|+.1f}} per 100 balls, against {{pool.bat_shift_min|+.1f}} to {{pool.bat_shift_max|+.1f}} for batters). <b>Never the drop alone:</b> a player who is poor in every situation has no drop at all, so ranking on the drop would reward him. <b>Why bowlers' consistency sits below 50%:</b> two-thirds of a bowler's pressure spells bring no wicket, and without one his match WPA is usually slightly negative; wickets are rare but large. So the average eligible bowler has positive pressure WPA in {{cons.bowl_pool|.0f}}% of pressure matches and the average batter in {{cons.bat_pool|.0f}}%. Read each player against his own list's average.</p></div>
 </div>
 </section>
 
@@ -236,18 +242,18 @@ Rating: 50 = average eligible player; higher is better. Team = IPL 2026 franchis
 <!-- ============================================================ 4. EVIDENCE -->
 <section class="main" id="s4">
 <h2>4. Evidence for the top 10 <span class="brief">Brief item: results, comparisons, tables and charts</span></h2>
-<p class="small"><b>How to read the tables.</b> Rank interval = 5th&ndash;95th percentile rank over {{p.n_boot|int}} match resamples; the percentage below it is the share of resamples in which the player is top 10 (coloured by confidence band). Pressure balls count all tiers; the IPL share is in brackets. Pressure / routine = the plain metric on pressure balls / on routine balls. &#9873; = high variance: an eligibility count within {{p.flag_margin_pct|.0f}}% of its minimum, or at least {{p.flag_season_pct|.0f}}% of pressure balls in one season.</p>
+<p class="small"><b>How to read the tables.</b> Rank interval = 5th&ndash;95th percentile rank over {{p.n_boot|int}} match resamples; the percentage below it is the share of resamples in which the player is top 10 (coloured by confidence band). Pressure balls count all tiers; the IPL share is in brackets. Pressure / routine = the plain metric on pressure balls / on routine balls. &#9873; = high variance: an eligibility count within {{p.flag_margin_pct|.0f}}% of its minimum, or at least {{p.flag_season_pct|.0f}}% of pressure balls in one season. Runs v par = runs scored (batters) or saved (bowlers) per 100 balls against the league average for the same innings, phase, competition tier and pressure flag, weighted like Impact: a situation-adjusted check on the plain stats below it.</p>
 
 <h3>Table 3. Top 10 batters</h3>
 <div class="tablewrap">{{table:top10_bat}}</div>
-<h4>Rating components (Impact per 100 balls; consistency %)</h4>
+<h4>Rating components (Impact per 100 balls; consistency %, eligible batters' average {{cons.bat_pool|.0f}}%)</h4>
 {{table:comp_bat}}
 </section>
 
 <section class="main" id="s4b">
 <h3>Table 4. Top 10 bowlers</h3>
 <div class="tablewrap">{{table:top10_bowl}}</div>
-<h4>Rating components (Impact per 100 balls; consistency %). "Chase-only rank" for bowlers = when defending a target.</h4>
+<h4>Rating components (Impact per 100 balls; consistency %, eligible bowlers' average {{cons.bowl_pool|.0f}}%). "Chase-only rank" for bowlers = when defending a target.</h4>
 {{table:comp_bowl}}
 <figure class="w65">{{fig:f6}}<figcaption>Figure 6. Pressure level against usual level, eligible players; top 10 labelled. Points above the dashed line do better under pressure than usual. Source: <code>outputs/ratings_*.csv</code>.</figcaption></figure>
 
@@ -266,7 +272,8 @@ Rating: 50 = average eligible player; higher is better. Team = IPL 2026 franchis
 <figure class="w70">{{fig:f7}}<figcaption>Figure 7. 90% bootstrap rank intervals, top 20 of each list. Source: <code>outputs/bootstrap_ranks_*.csv</code>.</figcaption></figure>
 
 <h3>5.2 Does pressure form repeat?</h3>
-<p>We rate players on 2022&ndash;24 only and check how well each measure predicts their raw pressure Impact in 2025&ndash;26 (players with at least {{p.time_min_pressure|int}} pressure balls in both periods). Because the 2025&ndash;26 outcome is itself noisy, no predictor could exceed about {{ts.bat_ceiling|.2f}} for batters and {{ts.bowl_ceiling|.2f}} for bowlers (split-half reliability). <b>For bowlers</b>, pressure level ({{ts.bowl_level|.2f}}, 90% interval {{ts.bowl_level_lo|+.2f}} to {{ts.bowl_level_hi|+.2f}}) recovers a fair part of what is recoverable; the full rating ({{ts.bowl_rating|.2f}}, {{ts.bowl_rating_lo|+.2f}} to {{ts.bowl_rating_hi|+.2f}}) less clearly. <b>For batters</b>, the rating shows no persistence ({{ts.bat_rating|+.2f}}, 90% interval {{ts.bat_rating_lo|+.2f}} to {{ts.bat_rating_hi|+.2f}}); raw pressure Impact ({{ts.bat_raw|.2f}}) and the usual death-overs strike rate ({{ts.bat_usual|.2f}}) do slightly better, but their intervals overlap zero and each other. We did not retune the weights on about {{ts.bat_n|int}} players. The batting list is the best evidence of who has delivered, not a forecast.</p>
+<p>We rate players on 2022&ndash;24 only and check how well each measure predicts their raw pressure Impact in 2025&ndash;26 (players with at least {{p.time_min_pressure|int}} pressure balls in both periods). Because the 2025&ndash;26 outcome is itself noisy, no predictor could exceed about {{ts.bat_ceiling|.2f}} for batters and {{ts.bowl_ceiling|.2f}} for bowlers (split-half reliability). <b>For bowlers</b>, pressure level ({{ts.bowl_level|.2f}}, 90% interval {{ts.bowl_level_lo|+.2f}} to {{ts.bowl_level_hi|+.2f}}) recovers a fair part of what is recoverable; the full rating ({{ts.bowl_rating|.2f}}, {{ts.bowl_rating_lo|+.2f}} to {{ts.bowl_rating_hi|+.2f}}) less clearly. The best single guide is the plain usual level ({{ts.bowl_ulevel|.2f}}): a bowler who is good in routine overs is good under pressure. <b>For batters</b>, the rating shows no persistence ({{ts.bat_rating|+.2f}}, 90% interval {{ts.bat_rating_lo|+.2f}} to {{ts.bat_rating_hi|+.2f}}); raw pressure Impact ({{ts.bat_raw|.2f}}) and the usual death-overs strike rate ({{ts.bat_usual|.2f}}) do slightly better, but their intervals overlap zero and each other.</p>
+<p><b>Is that a by-product of our design choices?</b> No. The full ratings of four of the variants in 5.3, rated the same way on 2022&ndash;24, give the same picture: for batters, none clears zero (chases only (V3) {{ts.bat_v3|+.2f}}, pressure level only (V4) {{ts.bat_v4|+.2f}}, raw WP added (V12) {{ts.bat_v12|+.2f}}, both innings weighted equally (V13) {{ts.bat_v13|+.2f}}); for bowlers {{ts.bowl_v3|+.2f}}, {{ts.bowl_v4|+.2f}}, {{ts.bowl_v12|+.2f}} and {{ts.bowl_v13|+.2f}}. The only batting measure whose interval clears zero is the raw shift ({{ts.bat_shift|+.2f}}, {{ts.bat_shift_lo|+.2f}} to {{ts.bat_shift_hi|+.2f}}), and only just, as one of eleven tried on about {{ts.bat_n|int}} players, so we do not build on it. We did not retune the weights. The batting list is the best evidence of who has delivered, not a forecast.</p>
 <figure class="w65">{{fig:f8}}<figcaption>Figure 8. Time split: correlation of each 2022&ndash;24 predictor with 2025&ndash;26 pressure Impact. Source: <code>outputs/time_split.csv</code>, <code>time_split_ceiling.csv</code>.</figcaption></figure>
 
 <h3>5.3 Sensitivity: {{p.n_variants|int}} other ways to build the ranking</h3>
@@ -319,7 +326,7 @@ Rating: 50 = average eligible player; higher is better. Team = IPL 2026 franchis
 <h2>Appendix</h2>
 
 <h3>A. Reproducing the results</h3>
-<p>Code and decision log: <span class="mono">{{REPO_URL}}</span>. Python, Windows PowerShell, run from the repository root with the competition data pack in <code>data/raw/</code>. Every random step uses seed {{p.seed|int}}; each script checks its own outputs and stops on a failure.</p>
+<p>Code and decision log: <a class="mono" href="{{REPO_URL}}">{{REPO_URL}}</a>. Python, Windows PowerShell, run from the repository root with the competition data pack in <code>data/raw/</code>. Every random step uses seed {{p.seed|int}}; each script checks its own outputs and stops on a failure.</p>
 <pre>python src/01_clean.py             # clean, label legal balls, chase targets, tiers
 python src/02_wp_model.py          # win-probability model and calibration (F1)
 python src/03_leverage.py          # leverage, pressure balls, Impact per ball
@@ -371,14 +378,14 @@ bat|Priyansh Arya|{{bat3.D_rank|ord}} in the pool on shift: scores faster under 
 bat|Abhishek Sharma|{{bat4.U_rank|ord}} on usual level; slower under pressure (shift {{bat4.D_hat|+.1f}}) but still {{bat4.P_rank|ord}} on pressure level and {{bat4.chase_pressure_rank|ord}} when chasing.
 bat|Tim David|{{bat5.pressure_share_inn2_pct|.0f}}% of his pressure balls come in chases ({{bat5.chase_pressure_rank|ord}} chasing); close to his usual level under pressure (shift {{bat5.D_hat|+.1f}}).
 bat|Finn Allen|{{bat6.U_rank|ord}} on usual level, but {{bat6.pressure_share_inn1_pct|.0f}}% of pressure balls are first-innings and only {{bat6.ipl_pressure_balls|int}} in the IPL.
-bat|Virat Kohli|Lifts under pressure (shift {{bat7.D_hat|+.1f}}) and is {{bat7.chase_pressure_rank|ord}} on chase-only level, on {{bat7.ipl_pressure_balls|int}} IPL pressure balls.
+bat|Virat Kohli|Lifts under pressure (shift {{bat7.D_hat|+.1f}}): {{bat7.pressure_rae_per100|+.0f}} runs per 100 balls against par on pressure balls, {{bat7.routine_rae_per100|+.0f}} on routine balls; the plain SR is not adjusted for when he bats. Also {{bat7.chase_pressure_rank|ord}} on chase-only level, on {{bat7.ipl_pressure_balls|int}} IPL pressure balls.
 bat|Rajat Patidar|All {{bat8.elig_pressure_balls|int}} pressure balls in the IPL; out less often under pressure, but {{bat8.chase_pressure_rank|ord}} when chasing.
 bat|Shreyas Iyer|{{bat9.C_rank|ord}} on consistency (share of pressure matches won for his side) and {{bat9.chase_pressure_rank|ord}} when chasing; {{bat9.ipl_pressure_balls|int}} of {{bat9.elig_pressure_balls|int}} pressure balls in the IPL. Marginal.
 bat|Josh Inglis|Same output under pressure as usual (shift {{bat10.D_hat|+.1f}}); evidence split between IPL ({{bat10.ipl_pressure_balls|int}} balls) and T20Is. Marginal.
-bowl|Jasprit Bumrah|{{bowl1.P_rank|ord}} on pressure level; dot % rises under pressure and he is {{bowl1.chase_pressure_rank|ord}} when defending a target. Consistency share only {{bowl1.C_rank|ord}}.
+bowl|Jasprit Bumrah|{{bowl1.P_rank|ord}} on pressure level: saves {{bowl1.pressure_rae_per100|.0f}} runs per 100 pressure balls against par, though fewer than on routine balls; dot % rises under pressure and he is {{bowl1.chase_pressure_rank|ord}} when defending a target. Consistency share only {{bowl1.C_rank|ord}}.
 bowl|Sunil Narine|Top 10 in {{bowl2.n_variants_top10|int}} of {{p.n_variants|int}} variants; economy falls under pressure; all {{bowl2.elig_pressure_balls|int}} pressure balls in the IPL.
 bowl|Mustafizur Rahman|Death and new-ball seamer; economy holds and dot % rises under pressure. {{bowl3.ipl_pressure_balls|int}} of {{bowl3.elig_pressure_balls|int}} pressure balls in the IPL.
-bowl|Lungi Ngidi|{{bowl4.U_rank|ord}} on usual level and {{bowl4.chase_pressure_rank|ord}} when defending, but {{bowl4.C_rank|ord}} of {{bowl4.pool_size|int}} on consistency and {{bowl4.ipl_pressure_balls|int}} IPL pressure balls.
+bowl|Lungi Ngidi|Placed on his usual level ({{bowl4.U_rank|ord}}): bowlers' pressure shifts cannot be told apart from noise, so pressure level follows usual level. On pressure balls alone he concedes {{bowl4.pressure_rae_per100|abs.0f}} runs per 100 more than par, is {{bowl4.C_rank|ord}} of {{bowl4.pool_size|int}} on consistency and has {{bowl4.ipl_pressure_balls|int}} IPL pressure balls. The least supported bowling pick.
 bowl|Bhuvneshwar Kumar|{{bowl5.elig_pressure_balls|int}} pressure balls over {{bowl5.c_matches|int}} matches; economy and dot % both improve under pressure; {{bowl5.C_rank|ord}} on consistency.
 bowl|Rashid Khan|{{bowl6.chase_pressure_rank|ord}} in the pool when defending a target; economy falls under pressure; {{bowl6.C_rank|ord}} on consistency.
 bowl|Josh Hazlewood|New-ball bowler whose dot % rises under pressure; {{bowl7.chase_pressure_rank|ord}} when defending a target.

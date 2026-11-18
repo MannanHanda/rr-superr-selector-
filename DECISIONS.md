@@ -291,6 +291,25 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   several high-ranked players cannot be signed. Rejected: moving or removing such players in the ranking (Q1:
   data-only ranking); guessing retentions (unknowable before the retention deadline). The 15-row role-card
   tables are dropped from the report; role cards stay in outputs/rr_fit.md. No ranking changed.
+- D48 (18 Nov, RT fix 4): The time split also scores the full ratings of four existing variants (V3 chases
+  only, V4 level only, V12 raw WPA, V13 innings equal), rated on 2022-24 and tested against the same headline
+  outcome (2025-26 raw pressure Impact, D45 weights) and the same players, so all bars on F8 are comparable.
+  Result (Spearman, bat / bowl): V3 0.09 / 0.13, V4 0.01 / 0.24, V12 0.18 / 0.06, V13 0.01 / 0.24; headline
+  rating 0.03 / 0.19; usual level -0.01 / 0.33; raw shift 0.23 (0.02 to 0.43) / -0.14. No variant fixes
+  batter persistence; for bowlers plain usual level is the best guide. Front-page finding 3 now leads with
+  that ("level matters more than nerve") instead of "the batting list is not a forecast"; 5.2 reports the
+  variants. Weights not retuned (tuning on the test; n ~ 60). Rejected: switching to whichever predictor
+  scored best (11 predictors, overlapping intervals). Adding predictors draws more from the shared seeded
+  random stream, so some intervals moved by 0.01.
+- D49 (18 Nov, RT fix 5, presentation only): (a) Appendix A links the code at REPO_URL (92 constant).
+  (b) Section 1.1 shows both WP regressions with fitted coefficients (91 reads wp_models.pkl). (c) The pool
+  consistency rate is shown with each components table (bat 51%, bowl 44%) and 2.4 explains bowlers' rate:
+  67% of bowlers' pressure spells (>= 3 balls) bring no wicket and only 23% of those have positive WPA (86%
+  with a wicket). (d) Tables 3-4 add runs above / saved against par per 100 balls (pressure / routine), the
+  existing situation-adjusted metric (D30d), so Impact-based text is no longer contradicted by unadjusted SR
+  or economy; the Kohli, Bumrah and Ngidi lines cite it. Ngidi is called the least supported bowling pick
+  (-15 runs per 100 against par on pressure balls). (e) Top-10 shares show one decimal when whole-number
+  rounding would cross a band edge (Patidar 49.8%, marginal). No ranking changed.
 
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2) [CLOSED by D41]: First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected

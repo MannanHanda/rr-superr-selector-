@@ -15,7 +15,7 @@ Tokens in the template:
                               or "ord" (1st, 2nd ...), "int", "name", or "abs" + spec (absolute value)
     {{table:name}}            a table built below from outputs/ CSVs
     {{fig:f1}}                outputs/figures/f1_*.png as an embedded image
-    {{REPO_URL}}              left as is (placeholder for the owner)
+    {{REPO_URL}}              the public code repository (REPO_URL below)
 A block <script type="text/x-why"> holds one line per pick, "bat|Player name|text with tokens"; the build fails
 if any pick in the top 10 has no line or a line names a player who is not in the top 10. The build also fails on
 any token it cannot resolve, so every number in the report comes from a file in outputs/.
@@ -39,7 +39,8 @@ TEMPLATE = ROOT / "reports" / "report_template.html"
 OUT = ROOT / "reports" / "report.html"
 FILE = {"bat": "batters", "bowl": "bowlers"}
 TOKEN = re.compile(r"\{\{([A-Za-z0-9_.:\-]+)(?:\|([^}]*))?\}\}")
-KEEP = {"REPO_URL"}
+KEEP: set = set()
+REPO_URL = "https://github.com/MannanHanda/rr-superr-selector"  # D49; change if the repo name differs
 
 
 # ---------------------------------------------------------------- formatting
@@ -102,10 +103,20 @@ def pick_lookup() -> dict:
     return out
 
 
-VALUES = {**N, **pick_lookup()}
+VALUES = {**N, **pick_lookup(), "REPO_URL": REPO_URL}
 
 
 # ---------------------------------------------------------------- tables
+
+def share_txt(s: float) -> str:
+    """Top-10 share as a percentage; one decimal when whole-number rounding would cross a band edge (D49)."""
+    cuts = [N["p.secure_pct"] / 100, N["p.probable_pct"] / 100]
+
+    def band(x):
+        return sum(x >= c for c in cuts)
+    whole = f"{100 * s:.0f}"
+    return whole if band(float(whole) / 100) == band(s) else f"{100 * s:.1f}"
+
 
 def t_summary(disc: str) -> str:
     f = pd.read_csv(OUTPUTS / f"final_top10_{FILE[disc]}.csv")
@@ -133,10 +144,12 @@ def role_cell(r, disc: str) -> str:
 
 def stats_cell(r, disc: str) -> str:
     if disc == "bat":
-        return (f"SR {r['pressure_SR']:.0f} / {r['routine_SR']:.0f}<br>"
+        return (f"Runs v par {signed(r['pressure_rae_per100'], 0)} / {signed(r['routine_rae_per100'], 0)}<br>"
+                f"SR {r['pressure_SR']:.0f} / {r['routine_SR']:.0f}<br>"
                 f"Balls/out {r['pressure_balls_per_dismissal']:.0f} / {r['routine_balls_per_dismissal']:.0f}<br>"
                 f"Bdry % {r['pressure_boundary_pct']:.0f} / {r['routine_boundary_pct']:.0f}")
-    return (f"Econ {r['pressure_economy']:.2f} / {r['routine_economy']:.2f}<br>"
+    return (f"Runs saved v par {signed(r['pressure_rae_per100'], 0)} / {signed(r['routine_rae_per100'], 0)}<br>"
+            f"Econ {r['pressure_economy']:.2f} / {r['routine_economy']:.2f}<br>"
             f"Dot % {r['pressure_dot_pct']:.0f} / {r['routine_dot_pct']:.0f}<br>"
             f"Balls/wkt {r['pressure_balls_per_wicket']:.0f} / {r['routine_balls_per_wicket']:.0f}")
 
@@ -152,7 +165,7 @@ def t_top10(disc: str, why: dict) -> str:
             "Role": role_cell(r, disc),
             "Rating": f"{r['rating']:.1f}",
             "Rank interval": f"{r['rank_p5']:.0f}&ndash;{r['rank_p95']:.0f}<br>"
-                             f'<span class="conf {r["confidence"]}">{100 * r["share_top10"]:.0f}%</span>',
+                             f'<span class="conf {r["confidence"]}">{share_txt(r["share_top10"])}%</span>',
             "Pressure balls (IPL)": f"{r['elig_pressure_balls']:.0f} ({r['ipl_pressure_balls']:.0f})",
             "Pressure / routine": stats_cell(r, disc),
             "Why": why[(disc, r["player_name"])],
@@ -296,7 +309,7 @@ def t_context(disc: str, group: str) -> str:
         cols["Team"] = [esc(t) if isinstance(t, str) and t else "&ndash;" for t in c["team_short"]]
         cols["IPL balls 2025&ndash;26"] = c["ipl_recent_balls"].map("{:,.0f}".format)
     cols.update({
-        "Top-10 share %": (100 * c["share_top10"]).map("{:.0f}".format),
+        "Top-10 share %": c["share_top10"].map(share_txt),
         "Pressure level": c["P_rank"].map(ordinal),
         "Chase-only": c["chase_pressure_rank"].map(ordinal),
         "IPL pressure balls": c["ipl_pressure_balls"].map("{:,.0f}".format),
@@ -394,7 +407,7 @@ def t_auction(disc: str) -> str:
             route = f'<span class="flag">{esc(notes[x["name"]])}</span>'
         else:
             route = "no IPL 2026 team: in the auction pool if he registers"
-        out.append({"#": x["rank"], "Player": esc(x["name"]), "Top-10 share %": f"{100 * x['share']:.0f}",
+        out.append({"#": x["rank"], "Player": esc(x["name"]), "Top-10 share %": share_txt(x["share"]),
                     "RR need he fits": f"<b>{esc(x['need'])}</b>" if x["need"] else "&ndash;", "Route to RR": route})
     df = pd.DataFrame(out)
     df["#"] = [f"<span class=muted>{k}</span>" if k > 10 else str(k) for k in df["#"]]
