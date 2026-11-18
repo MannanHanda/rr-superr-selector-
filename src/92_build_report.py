@@ -252,7 +252,9 @@ def t_effective() -> str:
 
 def t_eb() -> str:
     e = pd.read_csv(OUTPUTS / "eb_params.csv").set_index(["discipline", "quantity"])
-    lab = {"U_x_run": "Usual level, run part", "U_x_wkt": "Usual level, wicket part", "D": "Pressure shift",
+    lab = {"U_x_run": "Usual level, run part", "U_x_wkt": "Usual level, wicket part",
+           "D": "Pressure shift (as rated)", "D_x_run": "Shift, run part alone (test)",
+           "D_x_wkt": "Shift, wicket part alone (test)",
            "C": "Consistency (pseudo-matches)"}
     rows = []
     for q, l in lab.items():

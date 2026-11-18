@@ -60,6 +60,8 @@ class Params:
     z_scale: str = "raw"                # divide each shrunk component by the SD of its raw values (D37);
                                         # "shrunk" = the old SD of the shrunk values
     stake_weight: bool = True           # D45: weight pressure balls by their innings' median pressure LI
+    split_shift: bool = False           # D56: True (variant V14) shrinks the shift's run and wicket parts
+                                        # separately, as the usual level is; headline keeps one total shift
                                         # (V13 = False, equal innings weight)
 
 
@@ -333,6 +335,17 @@ def estimate_eb(sums: pd.DataFrame, cons: pd.DataFrame, pool: pd.Index, p: Param
     guard = not np.isfinite(k) or k > p.k_cap
     eb["D"] = {"prior": mP - mR, "sigma2": s2P, "tau2": tau2, "k": p.k_cap if guard else k, "guard": guard,
                "n_players": len(s)}
+    # RT3 fix 5: the same test on the shift's run and wicket parts separately (as the usual level is split)
+    for part in ("x_run", "x_wkt"):
+        mPp, s2Pp = _pooled_var(s, "P", part)
+        mRp, s2Rp = _pooled_var(s, "R", part)
+        dp = s[f"P_w_{part}"] / s["P_w"] - s[f"R_w_{part}"] / s["R_w"]
+        noise = (s2Pp / n_P + s2Rp / n_R).mean()
+        t2 = dp.var() - noise
+        kp = s2Pp / t2 if t2 > 0 else np.inf
+        g = not np.isfinite(kp) or kp > p.k_cap
+        eb[f"D_{part}"] = {"prior": mPp - mRp, "sigma2": s2Pp, "tau2": t2, "k": p.k_cap if g else kp, "guard": g,
+                           "n_players": len(s), "var_ratio": dp.var() / noise}
 
     c = cons.loc[cons.index.intersection(pool)]
     cbar = c["c_wpos"].sum() / c["c_w"].sum()
@@ -378,7 +391,13 @@ def rate_from_sums(sums: pd.DataFrame, cons: pd.DataFrame, rated: pd.Index, p: P
         out["U"] = out["U_run"] + out["U_wkt"]
     else:
         out["U"] = sh(out["R_raw"], n_R, eb["U_x_tot"])
-    out["D_hat"] = sh(out["D_raw"], n_P, eb["D"])
+    if p.split_shift:
+        for q, lab in (("x_run", "run"), ("x_wkt", "wkt")):
+            out[f"D_{lab}_raw"] = t[f"P_w_{q}"] / t["P_w"] - t[f"R_w_{q}"] / t["R_w"]
+            out[f"D_{lab}"] = sh(out[f"D_{lab}_raw"], n_P, eb[f"D_{q}"])
+        out["D_hat"] = out["D_run"] + out["D_wkt"]
+    else:
+        out["D_hat"] = sh(out["D_raw"], n_P, eb["D"])
     if p.level == "wpa":
         out["P_hat"] = sh(t["P_w_wpa"] / t["P_w"], n_P, eb["P_wpa"])
     else:

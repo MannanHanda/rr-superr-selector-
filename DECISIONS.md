@@ -358,6 +358,19 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   the report shows only the pooled figures because per-pick samples are 2-64 balls. Rejected: a knockout
   weight on LI (no evidence that a knockout ball carries a bigger swing; 31 matches); per-pick knockout
   figures in the report (noise that reads as evidence).
+- D56 (18 Nov, red-team round 3 fix 5; owner decided): the pressure shift was tested on its run and wicket
+  parts separately (as the usual level is split, D15). Spread beyond chance (variance / chance variance):
+  bowlers runs 1.22 (k 340), wickets 0.87; batters runs 1.17 (k 453), wickets 1.03; totals 0.94 (bowl) and
+  1.18 (bat). So bowlers do differ in run-saving under pressure; the wicket part's noise hid it in the total,
+  and the report's "bowlers show no measurable difference" was wrong as stated. Adopting the split (tried as
+  the headline, then reverted): bowlers 8/10 kept, Bumrah 1st -> 9th, Mujeeb (0 IPL pressure balls) and
+  Harpreet Brar in, Ngidi and Mustafizur out; batters 8/10 (Russell, Brook in; Iyer, Allen out). It made the
+  bowling list less robust (secure/probable/marginal 2/3/5; 6 core; 4 of 10 also top 10 on IPL balls alone;
+  4 of 10 survive losing their best match) and did not predict 2025-26 better (bowl rating 0.21 vs 0.19, level
+  0.27 vs 0.24; bat 0.04 vs 0.03). Owner chose to keep the headline (one total shift, fixed before any ranking
+  was seen) and report the split as variant V14 (lib_rating Params.split_shift; also in the time split). The
+  report now says players differ in run-scoring/run-saving under pressure but not in wickets. Rejected:
+  adopting the split on deadline day (less robust lists, no gain out of sample).
 
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2) [CLOSED by D41]: First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected

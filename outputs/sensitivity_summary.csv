@@ -25,3 +25,5 @@ V12 level = raw WPA,bat,105,5,0.711,Josh Inglis; Abhishek Sharma; Vaibhav Soorya
 V12 level = raw WPA,bowl,109,5,0.443,Lungi Ngidi; Nathan Ellis; Mustafizur Rahman; Jasprit Bumrah; Mohammad Nawaz,Harshit Rana; Wanindu Hasaranga; Mujeeb Ur Rahman; Lockie Ferguson; Axar Patel
 V13 innings weighted equally,bat,105,9,0.945,Shreyas Iyer,Andre Russell
 V13 innings weighted equally,bowl,109,10,0.995,,
+V14 shift split runs/wickets,bat,105,8,0.904,Shreyas Iyer; Finn Allen,Harry Brook; Andre Russell
+V14 shift split runs/wickets,bowl,109,8,0.796,Lungi Ngidi; Mustafizur Rahman,Mujeeb Ur Rahman; Harpreet Brar

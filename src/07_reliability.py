@@ -56,6 +56,7 @@ TS_VARIANTS = {
     "(variant) V4 pressure level only": dict(weights=(1.0, 0.0, 0.0)),
     "(variant) V12 level = raw WPA": dict(level="wpa"),
     "(variant) V13 innings weighted equally": dict(stake_weight=False),
+    "(variant) V14 shift split into runs and wickets": dict(split_shift=True),
 }
 N_TS_BASE = 7  # predictors (1)-(5) and the two extras
 CORE_MIN_VARIANTS = 10
@@ -77,6 +78,7 @@ VARIANTS = {
     "V11 no run/wicket split": dict(split_parts=False),
     "V12 level = raw WPA": dict(level="wpa"),
     "V13 innings weighted equally": dict(stake_weight=False),
+    "V14 shift split runs/wickets": dict(split_shift=True),
 }
 # variants that change the ball-level build (pressure flags, weights, tiers) need new sufficient statistics
 REBUILD = {"pressure_q", "global_share", "half_life", "tiers", "tier_weight", "use_offsets", "stake_weight"}

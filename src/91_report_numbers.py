@@ -212,7 +212,8 @@ def time_split_numbers(N: dict) -> None:
             "(4) shift alone (raw)": "shift", "(5) usual approach (death / RRR>10 SR or econ)": "usual",
             "(extra) usual level (shrunk)": "ulevel", "(extra) consistency (shrunk)": "cons",
             "(variant) V3 chases only (global cut)": "v3", "(variant) V4 pressure level only": "v4",
-            "(variant) V12 level = raw WPA": "v12", "(variant) V13 innings weighted equally": "v13"}
+            "(variant) V12 level = raw WPA": "v12", "(variant) V13 innings weighted equally": "v13",
+            "(variant) V14 shift split into runs and wickets": "v14"}
     for _, r in t.iterrows():
         k = f"ts.{r['discipline']}_{keys[r['predictor']]}"
         N[k], N[k + "_lo"], N[k + "_hi"] = r["spearman"], r["lo90"], r["hi90"]
@@ -243,6 +244,10 @@ def rating_numbers(N: dict) -> None:
         N[f"sens.{disc}_core"] = int(s["core_pick"].sum())
         ss = pd.read_csv(OUTPUTS / "sensitivity_summary.csv").set_index(["variant", "discipline"])
         N[f"sens.{disc}_v13_overlap"] = int(ss.loc[("V13 innings weighted equally", disc), "top10_overlap"])  # D45
+        N[f"sens.{disc}_v14_overlap"] = int(ss.loc[("V14 shift split runs/wickets", disc), "top10_overlap"])  # D56
+        sv = pd.read_csv(OUTPUTS / "sensitivity.csv")
+        sv = sv[sv["discipline"] == disc].set_index("headline_rank")
+        N[f"sens.{disc}1_v14_rank"] = int(sv.loc[1, "V14 shift split runs/wickets"])
         cx = pd.read_csv(OUTPUTS / "context_players.csv")  # D46
         cx = cx[cx["discipline"] == disc]
         mu, rr = cx[cx["group"] == "most_used"], cx[cx["group"] == "rr"]
@@ -358,6 +363,10 @@ def chance_numbers(N: dict, picks: pd.DataFrame) -> None:
         N[f"eb.{disc}_P_se_median"] = 100 * np.sqrt(eb.loc[(disc, "D"), "sigma2"] / r["n_P"].median())
         N[f"eb.{disc}_nP_median"] = r["n_P"].median()  # D53: effective pressure balls after weights
         N[f"eb.{disc}_D_tau2"] = eb.loc[(disc, "D"), "tau2"]
+        for q in ("x_run", "x_wkt"):  # D56: the shift tested on runs and wickets separately
+            N[f"eb.{disc}_D_{q}_ratio"] = eb.loc[(disc, f"D_{q}"), "var_ratio"]
+            N[f"eb.{disc}_D_{q}_k"] = eb.loc[(disc, f"D_{q}"), "k"]
+            N[f"eb.{disc}_D_{q}_guard"] = bool(eb.loc[(disc, f"D_{q}"), "guard"])
     b1 = picks[(picks["discipline"] == "bowl") & (picks["rank"] == 1)].iloc[0]
     N["eb.bowl1_expected_gaps"] = N["pool.bowl"] * 2 * norm.sf(abs(b1["P_gap_se"]))
 

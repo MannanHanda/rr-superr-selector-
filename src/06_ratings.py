@@ -191,7 +191,9 @@ def main() -> None:
         between_ok = all([
             between(t["U_run"], t["R_run_raw"], eb["U_x_run"]["prior"]),
             between(t["U_wkt"], t["R_wkt_raw"], eb["U_x_wkt"]["prior"]),
-            between(t["D_hat"], t["D_raw"], eb["D"]["prior"]),
+            *([between(t["D_run"], t["D_run_raw"], eb["D_x_run"]["prior"]),
+               between(t["D_wkt"], t["D_wkt_raw"], eb["D_x_wkt"]["prior"])] if p.split_shift
+              else [between(t["D_hat"], t["D_raw"], eb["D"]["prior"])]),
             between(t["C_hat"], t["C_raw"], eb["C"]["prior"]),
         ])
         r = to_report_units(t).join(metrics, how="left")
