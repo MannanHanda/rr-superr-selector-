@@ -1,0 +1,121 @@
+discipline,rank,player,kind,order,match_id,date,competition,tier,team,opponent,innings,pressure_balls,pressure_wpa,pressure_matches,total_pressure_wpa,total_without_best_match,best_match_share_of_total
+bat,1,Vaibhav Sooryavanshi,best,1,50140,2026-04-10,IPL 2026,IPL,Rajasthan Royals,Royal Challengers Bengaluru,2,14,0.3626,18,1.1192,0.7566,0.3239
+bat,1,Vaibhav Sooryavanshi,best,2,50357,2026-04-25,IPL 2026,IPL,Rajasthan Royals,Sunrisers Hyderabad,1,14,0.2274,18,1.1192,0.7566,0.3239
+bat,1,Vaibhav Sooryavanshi,best,3,50383,2026-05-17,IPL 2026,IPL,Rajasthan Royals,Delhi Capitals,1,16,0.2108,18,1.1192,0.7566,0.3239
+bat,1,Vaibhav Sooryavanshi,worst,1,54211,2026-10-24,India in New Zealand T20I Series 2026,T20I_full,India,New Zealand,2,8,-0.1845,18,1.1192,0.7566,0.3239
+bat,1,Vaibhav Sooryavanshi,worst,2,50353,2026-04-22,IPL 2026,IPL,Rajasthan Royals,Lucknow Super Giants,1,11,-0.1340,18,1.1192,0.7566,0.3239
+bat,1,Vaibhav Sooryavanshi,worst,3,50390,2026-05-24,IPL 2026,IPL,Rajasthan Royals,Mumbai Indians,1,5,-0.1283,18,1.1192,0.7566,0.3239
+bat,2,Heinrich Klaasen,best,1,15407,2022-06-12,South Africa in India T20I Series 2022,T20I_full,South Africa,India,2,31,0.4688,27,2.0594,1.5906,0.2277
+bat,2,Heinrich Klaasen,best,2,20227,2023-05-04,IPL 2023,IPL,Sunrisers Hyderabad,Kolkata Knight Riders,2,17,0.3747,27,2.0594,1.5906,0.2277
+bat,2,Heinrich Klaasen,best,3,50362,2026-04-29,IPL 2026,IPL,Sunrisers Hyderabad,Mumbai Indians,2,17,0.2998,27,2.0594,1.5906,0.2277
+bat,2,Heinrich Klaasen,worst,1,37941,2024-11-10,India in South Africa T20I Series 2024,T20I_full,South Africa,India,2,3,-0.1948,27,2.0594,1.5906,0.2277
+bat,2,Heinrich Klaasen,worst,2,38795,2024-12-10,Pakistan in South Africa T20I Series 2024,T20I_full,South Africa,Pakistan,1,12,-0.0597,27,2.0594,1.5906,0.2277
+bat,2,Heinrich Klaasen,worst,3,31289,2024-05-21,IPL 2024,IPL,Sunrisers Hyderabad,Kolkata Knight Riders,1,7,-0.0274,27,2.0594,1.5906,0.2277
+bat,3,Priyansh Arya,best,1,40715,2025-04-08,IPL 2025,IPL,Punjab Kings,Chennai Super Kings,1,38,0.6024,20,1.1230,0.5207,0.5364
+bat,3,Priyansh Arya,best,2,50350,2026-04-19,IPL 2026,IPL,Punjab Kings,Lucknow Super Giants,1,13,0.2186,20,1.1230,0.5207,0.5364
+bat,3,Priyansh Arya,best,3,50131,2026-04-03,IPL 2026,IPL,Punjab Kings,Chennai Super Kings,2,7,0.1828,20,1.1230,0.5207,0.5364
+bat,3,Priyansh Arya,worst,1,40766,2025-06-01,IPL 2025,IPL,Punjab Kings,Mumbai Indians,2,5,-0.1366,20,1.1230,0.5207,0.5364
+bat,3,Priyansh Arya,worst,2,40747,2025-05-04,IPL 2025,IPL,Punjab Kings,Lucknow Super Giants,1,4,-0.1346,20,1.1230,0.5207,0.5364
+bat,3,Priyansh Arya,worst,3,43057,2025-05-24,IPL 2025,IPL,Punjab Kings,Delhi Capitals,1,9,-0.1262,20,1.1230,0.5207,0.5364
+bat,4,Abhishek Sharma,best,1,31287,2024-05-19,IPL 2024,IPL,Sunrisers Hyderabad,Punjab Kings,2,17,0.3742,70,1.1258,0.7516,0.3324
+bat,4,Abhishek Sharma,best,2,40763,2025-05-19,IPL 2025,IPL,Sunrisers Hyderabad,Lucknow Super Giants,2,14,0.2445,70,1.1258,0.7516,0.3324
+bat,4,Abhishek Sharma,best,3,48591,2026-01-21,New Zealand in India T20I Series 2026,T20I_full,India,New Zealand,1,20,0.2334,70,1.1258,0.7516,0.3324
+bat,4,Abhishek Sharma,worst,1,54211,2026-10-24,India in New Zealand T20I Series 2026,T20I_full,India,New Zealand,2,8,-0.1840,70,1.1258,0.7516,0.3324
+bat,4,Abhishek Sharma,worst,2,50377,2026-05-12,IPL 2026,IPL,Sunrisers Hyderabad,Gujarat Titans,2,4,-0.1803,70,1.1258,0.7516,0.3324
+bat,4,Abhishek Sharma,worst,3,20214,2023-04-24,IPL 2023,IPL,Sunrisers Hyderabad,Delhi Capitals,2,3,-0.1729,70,1.1258,0.7516,0.3324
+bat,5,Tim David,best,1,29982,2024-02-21,Australia in New Zealand T20I Series 2024,T20I_full,Australia,New Zealand,2,9,1.0241,33,3.2065,2.1824,0.3194
+bat,5,Tim David,best,2,20222,2023-04-30,IPL 2023,IPL,Mumbai Indians,Rajasthan Royals,2,14,0.8116,33,3.2065,2.1824,0.3194
+bat,5,Tim David,best,3,41507,2025-07-25,Australia in West Indies T20I Series 2025,T20I_full,Australia,West Indies,2,14,0.5730,33,3.2065,2.1824,0.3194
+bat,5,Tim David,worst,1,30060,2024-03-24,IPL 2024,IPL,Mumbai Indians,Gujarat Titans,2,10,-0.2989,33,3.2065,2.1824,0.3194
+bat,5,Tim David,worst,2,17763,2022-10-09,England in Australia T20I Series 2022,T20I_full,Australia,England,2,3,-0.2805,33,3.2065,2.1824,0.3194
+bat,5,Tim David,worst,3,17640,2022-10-05,West Indies in Australia T20I Series 2022,T20I_full,Australia,West Indies,2,4,-0.2395,33,3.2065,2.1824,0.3194
+bat,6,Finn Allen,best,1,54213,2026-10-30,India in New Zealand T20I Series 2026,T20I_full,New Zealand,India,1,14,0.1179,25,0.0936,-0.0243,1.2596
+bat,6,Finn Allen,best,2,28963,2024-01-12,Pakistan in New Zealand T20I series 2024,T20I_full,New Zealand,Pakistan,1,15,0.1122,25,0.0936,-0.0243,1.2596
+bat,6,Finn Allen,best,3,54212,2026-10-27,India in New Zealand T20I Series 2026,T20I_full,New Zealand,India,1,16,0.0826,25,0.0936,-0.0243,1.2596
+bat,6,Finn Allen,worst,1,28332,2023-12-27,Bangladesh in New Zealand T20I Series 2023,T20I_full,New Zealand,Bangladesh,1,3,-0.1200,25,0.0936,-0.0243,1.2596
+bat,6,Finn Allen,worst,2,39810,2025-03-21,Pakistan in New Zealand T20I Series 2025,T20I_full,New Zealand,Pakistan,1,3,-0.1118,25,0.0936,-0.0243,1.2596
+bat,6,Finn Allen,worst,3,50139,2026-04-09,IPL 2026,IPL,Kolkata Knight Riders,Lucknow Super Giants,1,8,-0.1024,25,0.0936,-0.0243,1.2596
+bat,7,Virat Kohli,best,1,50355,2026-04-24,IPL 2026,IPL,Royal Challengers Bengaluru,Gujarat Titans,2,17,0.1852,54,1.0724,0.8873,0.1727
+bat,7,Virat Kohli,best,2,28961,2024-01-14,Afghanistan in India T20I Series 2024,T20I_full,India,Afghanistan,2,13,0.1752,54,1.0724,0.8873,0.1727
+bat,7,Virat Kohli,best,3,30061,2024-03-25,IPL 2024,IPL,Royal Challengers Bengaluru,Punjab Kings,2,36,0.1719,54,1.0724,0.8873,0.1727
+bat,7,Virat Kohli,worst,1,14099,2022-03-30,IPL 2022,IPL,Royal Challengers Bengaluru,Kolkata Knight Riders,2,3,-0.1653,54,1.0724,0.8873,0.1727
+bat,7,Virat Kohli,worst,2,20234,2023-05-09,IPL 2023,IPL,Royal Challengers Bengaluru,Mumbai Indians,1,4,-0.1291,54,1.0724,0.8873,0.1727
+bat,7,Virat Kohli,worst,3,16661,2022-09-06,Mens Twenty20 Asia Cup 2022,T20I_full,India,Sri Lanka,1,4,-0.1279,54,1.0724,0.8873,0.1727
+bat,8,Rajat Patidar,best,1,31276,2024-05-09,IPL 2024,IPL,Royal Challengers Bengaluru,Punjab Kings,1,16,0.2061,24,0.7894,0.5834,0.2610
+bat,8,Rajat Patidar,best,2,31280,2024-05-12,IPL 2024,IPL,Royal Challengers Bengaluru,Delhi Capitals,1,19,0.1932,24,0.7894,0.5834,0.2610
+bat,8,Rajat Patidar,best,3,50371,2026-05-07,IPL 2026,IPL,Royal Challengers Bengaluru,Lucknow Super Giants,2,5,0.1660,24,0.7894,0.5834,0.2610
+bat,8,Rajat Patidar,worst,1,50375,2026-05-10,IPL 2026,IPL,Royal Challengers Bengaluru,Mumbai Indians,2,8,-0.1756,24,0.7894,0.5834,0.2610
+bat,8,Rajat Patidar,worst,2,40757,2025-05-23,IPL 2025,IPL,Royal Challengers Bengaluru,Sunrisers Hyderabad,2,16,-0.1649,24,0.7894,0.5834,0.2610
+bat,8,Rajat Patidar,worst,3,30056,2024-03-22,IPL 2024,IPL,Royal Challengers Bengaluru,Chennai Super Kings,1,3,-0.1198,24,0.7894,0.5834,0.2610
+bat,9,Shreyas Iyer,best,1,40766,2025-06-01,IPL 2025,IPL,Punjab Kings,Mumbai Indians,2,35,0.7438,43,1.6499,0.9062,0.4508
+bat,9,Shreyas Iyer,best,2,50356,2026-04-25,IPL 2026,IPL,Punjab Kings,Delhi Capitals,2,29,0.4411,43,1.6499,0.9062,0.4508
+bat,9,Shreyas Iyer,best,3,50404,2026-10-06,West Indies in India T20I Series 2026,T20I_full,India,West Indies,2,17,0.2177,43,1.6499,0.9062,0.4508
+bat,9,Shreyas Iyer,worst,1,50340,2026-06-26,India in Ireland T20I Series 2026,T20I_full,India,Ireland,2,7,-0.2155,43,1.6499,0.9062,0.4508
+bat,9,Shreyas Iyer,worst,2,54211,2026-10-24,India in New Zealand T20I Series 2026,T20I_full,India,New Zealand,2,9,-0.1744,43,1.6499,0.9062,0.4508
+bat,9,Shreyas Iyer,worst,3,14128,2022-04-23,IPL 2022,IPL,Kolkata Knight Riders,Gujarat Titans,2,11,-0.1708,43,1.6499,0.9062,0.4508
+bat,10,Josh Inglis,best,1,41506,2025-07-22,Australia in West Indies T20I Series 2025,T20I_full,Australia,West Indies,2,16,0.3473,26,0.7675,0.4202,0.4526
+bat,10,Josh Inglis,best,2,25157,2023-09-03,Australia in South Africa T20I Series 2023,T20I_full,Australia,South Africa,2,13,0.1990,26,0.7675,0.4202,0.4526
+bat,10,Josh Inglis,best,3,36560,2024-09-06,Australia in Scotland T20I Series 2024,T20I_associate,Australia,Scotland,1,14,0.1951,26,0.7675,0.4202,0.4526
+bat,10,Josh Inglis,worst,1,29982,2024-02-21,Australia in New Zealand T20I Series 2024,T20I_full,Australia,New Zealand,2,18,-0.3524,26,0.7675,0.4202,0.4526
+bat,10,Josh Inglis,worst,2,40724,2025-04-15,IPL 2025,IPL,Punjab Kings,Kolkata Knight Riders,1,6,-0.1393,26,0.7675,0.4202,0.4526
+bat,10,Josh Inglis,worst,3,41977,2025-11-02,India in Australia T20I Series 2025,T20I_full,Australia,India,1,7,-0.1315,26,0.7675,0.4202,0.4526
+bowl,1,Jasprit Bumrah,best,1,40765,2025-05-30,IPL 2025,IPL,Mumbai Indians,Gujarat Titans,2,12,0.3693,44,0.2165,-0.1528,1.7055
+bowl,1,Jasprit Bumrah,best,2,31251,2024-04-18,IPL 2024,IPL,Mumbai Indians,Punjab Kings,2,10,0.2681,44,0.2165,-0.1528,1.7055
+bowl,1,Jasprit Bumrah,best,3,50375,2026-05-10,IPL 2026,IPL,Mumbai Indians,Royal Challengers Bengaluru,2,24,0.2574,44,0.2165,-0.1528,1.7055
+bowl,1,Jasprit Bumrah,worst,1,40722,2025-04-13,IPL 2025,IPL,Mumbai Indians,Delhi Capitals,2,20,-0.3762,44,0.2165,-0.1528,1.7055
+bowl,1,Jasprit Bumrah,worst,2,14107,2022-04-06,IPL 2022,IPL,Mumbai Indians,Kolkata Knight Riders,2,12,-0.3077,44,0.2165,-0.1528,1.7055
+bowl,1,Jasprit Bumrah,worst,3,50368,2026-05-04,IPL 2026,IPL,Mumbai Indians,Lucknow Super Giants,1,12,-0.1479,44,0.2165,-0.1528,1.7055
+bowl,2,Sunil Narine,best,1,40741,2025-04-29,IPL 2025,IPL,Kolkata Knight Riders,Delhi Capitals,2,14,0.5319,30,1.6783,1.1464,0.3169
+bowl,2,Sunil Narine,best,2,31269,2024-05-03,IPL 2024,IPL,Kolkata Knight Riders,Mumbai Indians,2,17,0.3563,30,1.6783,1.1464,0.3169
+bowl,2,Sunil Narine,best,3,31254,2024-04-21,IPL 2024,IPL,Kolkata Knight Riders,Royal Challengers Bengaluru,2,15,0.3307,30,1.6783,1.1464,0.3169
+bowl,2,Sunil Narine,worst,1,20216,2023-04-26,IPL 2023,IPL,Kolkata Knight Riders,Royal Challengers Bengaluru,2,10,-0.1118,30,1.6783,1.1464,0.3169
+bowl,2,Sunil Narine,worst,2,20227,2023-05-04,IPL 2023,IPL,Kolkata Knight Riders,Sunrisers Hyderabad,2,10,-0.0939,30,1.6783,1.1464,0.3169
+bowl,2,Sunil Narine,worst,3,20182,2023-04-01,IPL 2023,IPL,Kolkata Knight Riders,Punjab Kings,1,6,-0.0674,30,1.6783,1.1464,0.3169
+bowl,3,Mustafizur Rahman,best,1,32135,2024-05-10,Zimbabwe in Bangladesh T20I Series 2024,T20I_full,Bangladesh,Zimbabwe,2,24,0.5903,35,0.4235,-0.1668,1.3940
+bowl,3,Mustafizur Rahman,best,2,20135,2023-03-14,England in Bangladesh T20I Series 2023,T20I_full,Bangladesh,England,2,10,0.2462,35,0.4235,-0.1668,1.3940
+bowl,3,Mustafizur Rahman,best,3,17631,2022-09-25,Bangladesh in United Arab Emirates T20I Series 2022,T20I_associate,Bangladesh,United Arab Emirates,2,12,0.1939,35,0.4235,-0.1668,1.3940
+bowl,3,Mustafizur Rahman,worst,1,31257,2024-04-23,IPL 2024,IPL,Chennai Super Kings,Lucknow Super Giants,2,11,-0.6820,35,0.4235,-0.1668,1.3940
+bowl,3,Mustafizur Rahman,worst,2,15548,2022-07-07,Bangladesh in West Indies T20I Series 2022,T20I_full,Bangladesh,West Indies,2,11,-0.2654,35,0.4235,-0.1668,1.3940
+bowl,3,Mustafizur Rahman,worst,3,16655,2022-08-30,Mens Twenty20 Asia Cup 2022,T20I_full,Bangladesh,Afghanistan,2,4,-0.1941,35,0.4235,-0.1668,1.3940
+bowl,4,Lungi Ngidi,best,1,40745,2025-05-03,IPL 2025,IPL,Royal Challengers Bengaluru,Chennai Super Kings,2,14,0.1866,20,-0.6366,-0.8231,
+bowl,4,Lungi Ngidi,best,2,42027,2025-12-09,South Africa in India T20I Series 2025,T20I_full,South Africa,India,1,14,0.1585,20,-0.6366,-0.8231,
+bowl,4,Lungi Ngidi,best,3,50383,2026-05-17,IPL 2026,IPL,Delhi Capitals,Rajasthan Royals,1,12,0.1033,20,-0.6366,-0.8231,
+bowl,4,Lungi Ngidi,worst,1,41971,2025-08-16,South Africa in Australia T20I Series 2025,T20I_full,South Africa,Australia,2,11,-0.7166,20,-0.6366,-0.8231,
+bowl,4,Lungi Ngidi,worst,2,25155,2023-08-30,Australia in South Africa T20I Series 2023,T20I_full,South Africa,Australia,1,12,-0.1689,20,-0.6366,-0.8231,
+bowl,4,Lungi Ngidi,worst,3,40757,2025-05-23,IPL 2025,IPL,Royal Challengers Bengaluru,Sunrisers Hyderabad,1,6,-0.0762,20,-0.6366,-0.8231,
+bowl,5,Bhuvneshwar Kumar,best,1,14159,2022-05-17,IPL 2022,IPL,Sunrisers Hyderabad,Mumbai Indians,2,11,0.6531,74,2.8577,2.2046,0.2285
+bowl,5,Bhuvneshwar Kumar,best,2,31268,2024-05-02,IPL 2024,IPL,Sunrisers Hyderabad,Rajasthan Royals,2,6,0.5451,74,2.8577,2.2046,0.2285
+bowl,5,Bhuvneshwar Kumar,best,3,13523,2022-02-18,West Indies in India T20I Series 2022,T20I_full,India,West Indies,2,12,0.4397,74,2.8577,2.2046,0.2285
+bowl,5,Bhuvneshwar Kumar,worst,1,40735,2025-04-24,IPL 2025,IPL,Royal Challengers Bengaluru,Rajasthan Royals,2,13,-0.5006,74,2.8577,2.2046,0.2285
+bowl,5,Bhuvneshwar Kumar,worst,2,16660,2022-09-04,Mens Twenty20 Asia Cup 2022,T20I_full,India,Pakistan,2,9,-0.3655,74,2.8577,2.2046,0.2285
+bowl,5,Bhuvneshwar Kumar,worst,3,15406,2022-06-09,South Africa in India T20I Series 2022,T20I_full,India,South Africa,2,9,-0.2661,74,2.8577,2.2046,0.2285
+bowl,6,Rashid Khan,best,1,50138,2026-04-08,IPL 2026,IPL,Gujarat Titans,Delhi Capitals,2,7,0.4691,50,2.0637,1.5945,0.2273
+bowl,6,Rashid Khan,best,2,14128,2022-04-23,IPL 2022,IPL,Gujarat Titans,Kolkata Knight Riders,2,14,0.3697,50,2.0637,1.5945,0.2273
+bowl,6,Rashid Khan,best,3,20193,2023-04-09,IPL 2023,IPL,Gujarat Titans,Kolkata Knight Riders,2,13,0.2902,50,2.0637,1.5945,0.2273
+bowl,6,Rashid Khan,worst,1,21586,2023-05-29,IPL 2023,IPL,Gujarat Titans,Chennai Super Kings,2,12,-0.2459,50,2.0637,1.5945,0.2273
+bowl,6,Rashid Khan,worst,2,30072,2024-04-04,IPL 2024,IPL,Gujarat Titans,Punjab Kings,2,21,-0.1345,50,2.0637,1.5945,0.2273
+bowl,6,Rashid Khan,worst,3,20219,2023-04-29,IPL 2023,IPL,Gujarat Titans,Kolkata Knight Riders,1,12,-0.1065,50,2.0637,1.5945,0.2273
+bowl,7,Josh Hazlewood,best,1,40735,2025-04-24,IPL 2025,IPL,Royal Challengers Bengaluru,Rajasthan Royals,2,17,0.9234,47,2.0045,1.0810,0.4607
+bowl,7,Josh Hazlewood,best,2,41969,2025-08-10,South Africa in Australia T20I Series 2025,T20I_full,Australia,South Africa,2,12,0.4654,47,2.0045,1.0810,0.4607
+bowl,7,Josh Hazlewood,best,3,40714,2025-04-07,IPL 2025,IPL,Royal Challengers Bengaluru,Mumbai Indians,2,6,0.3126,47,2.0045,1.0810,0.4607
+bowl,7,Josh Hazlewood,worst,1,40717,2025-04-10,IPL 2025,IPL,Royal Challengers Bengaluru,Delhi Capitals,2,18,-0.4411,47,2.0045,1.0810,0.4607
+bowl,7,Josh Hazlewood,worst,2,14136,2022-04-30,IPL 2022,IPL,Royal Challengers Bengaluru,Gujarat Titans,2,6,-0.3183,47,2.0045,1.0810,0.4607
+bowl,7,Josh Hazlewood,worst,3,50140,2026-04-10,IPL 2026,IPL,Royal Challengers Bengaluru,Rajasthan Royals,2,13,-0.2394,47,2.0045,1.0810,0.4607
+bowl,8,Krunal Pandya,best,1,30076,2024-04-07,IPL 2024,IPL,Lucknow Super Giants,Gujarat Titans,2,16,0.6887,34,1.7942,1.1055,0.3838
+bowl,8,Krunal Pandya,best,2,14135,2022-04-29,IPL 2022,IPL,Lucknow Super Giants,Punjab Kings,2,23,0.4959,34,1.7942,1.1055,0.3838
+bowl,8,Krunal Pandya,best,3,40767,2025-06-03,IPL 2025,IPL,Royal Challengers Bengaluru,Punjab Kings,2,21,0.3057,34,1.7942,1.1055,0.3838
+bowl,8,Krunal Pandya,worst,1,40717,2025-04-10,IPL 2025,IPL,Royal Challengers Bengaluru,Delhi Capitals,2,12,-0.1767,34,1.7942,1.1055,0.3838
+bowl,8,Krunal Pandya,worst,2,20201,2023-04-15,IPL 2023,IPL,Lucknow Super Giants,Punjab Kings,2,18,-0.1359,34,1.7942,1.1055,0.3838
+bowl,8,Krunal Pandya,worst,3,21584,2023-05-24,IPL 2023,IPL,Lucknow Super Giants,Mumbai Indians,1,15,-0.1148,34,1.7942,1.1055,0.3838
+bowl,9,Mohammad Nawaz,best,1,45857,2025-09-07,United Arab Emirates T20I Tri-Series 2025,T20I_full,Pakistan,Afghanistan,2,6,0.4162,23,0.6493,0.2332,0.6409
+bowl,9,Mohammad Nawaz,best,2,17556,2022-09-25,England in Pakistan T20I Series 2022,T20I_full,Pakistan,England,2,15,0.2949,23,0.6493,0.2332,0.6409
+bowl,9,Mohammad Nawaz,best,3,17737,2022-10-07,New Zealand T20I Tri Series 2022/23,T20I_full,Pakistan,Bangladesh,2,24,0.2445,23,0.6493,0.2332,0.6409
+bowl,9,Mohammad Nawaz,worst,1,28966,2024-01-19,Pakistan in New Zealand T20I series 2024,T20I_full,Pakistan,New Zealand,2,20,-0.3052,23,0.6493,0.2332,0.6409
+bowl,9,Mohammad Nawaz,worst,2,45504,2025-09-17,Asia Cup 2025,T20I_associate,Pakistan,United Arab Emirates,2,12,-0.1147,23,0.6493,0.2332,0.6409
+bowl,9,Mohammad Nawaz,worst,3,41512,2025-08-03,Pakistan in West Indies T20I Series 2025,T20I_full,Pakistan,West Indies,2,7,-0.0728,23,0.6493,0.2332,0.6409
+bowl,10,Nathan Ellis,best,1,50598,2026-06-19,Australia in Bangladesh T20I Series 2026,T20I_full,Australia,Bangladesh,2,9,0.5560,25,0.8039,0.2480,0.6916
+bowl,10,Nathan Ellis,best,2,20188,2023-04-05,IPL 2023,IPL,Punjab Kings,Rajasthan Royals,2,11,0.4628,25,0.8039,0.2480,0.6916
+bowl,10,Nathan Ellis,best,3,25156,2023-09-01,Australia in South Africa T20I Series 2023,T20I_full,Australia,South Africa,1,4,0.2366,25,0.8039,0.2480,0.6916
+bowl,10,Nathan Ellis,worst,1,27060,2023-11-23,Australia in India T20I Series 2023,T20I_full,Australia,India,2,14,-0.2322,25,0.8039,0.2480,0.6916
+bowl,10,Nathan Ellis,worst,2,20246,2023-05-19,IPL 2023,IPL,Punjab Kings,Rajasthan Royals,2,15,-0.1819,25,0.8039,0.2480,0.6916
+bowl,10,Nathan Ellis,worst,3,20233,2023-05-08,IPL 2023,IPL,Punjab Kings,Kolkata Knight Riders,2,20,-0.1511,25,0.8039,0.2480,0.6916

@@ -115,9 +115,15 @@ defined relative to the job (setting or chasing), we say so openly, and we show 
 Why 75%: it is a convention, justified three ways: (a) the validation chart shows outcomes change across bands,
 (b) it leaves the median eligible player ~250 pressure balls, (c) the top 10 are re-run at 80%, 70% and a
 global cut (section 4.4).
-Expect and report: first-innings pressure sits early and after early wickets ([proto] 48% powerplay, 45%
-middle, 7% death; highest at 2–3 wickets down), chase pressure sits in close games ([proto] 87% of chase
-pressure balls have WP between 20% and 80%; 53% middle overs, 25% death, 22% powerplay).
+Built (corrected after Review 1, D41; `outputs/leverage_summary.md`): first-innings pressure is mostly the
+new ball: 77.3% powerplay, 21.3% middle, 1.4% death (the prototype's 48 / 45 / 7 did not survive the build);
+98% of first-innings over-1 balls and 84% of over-2 balls are pressure balls, and first-innings powerplay balls
+are 40.4% of all pressure balls. First-innings pressure balls are only mildly high-leverage (median LI 1.15,
+cut 1.04) against chases (median 2.17, cut 1.71). Chase pressure: 26% powerplay, 50% middle, 25% death, in
+close games. The report says this plainly: first-innings "pressure" here mostly means batting or bowling with
+the new ball when early wickets swing the projected total most. The owner kept the per-innings cut (a single
+league-wide cut makes ~97% of pressure balls chase balls, i.e. "chases only"); T3/T4 add each pick's
+chase-only pressure rank and first-innings share so readers can see who also holds up in a chase.
 
 ### 1.5 Validation: are pressure balls really different?
 
@@ -127,6 +133,12 @@ Named outputs: `outputs/pressure_validation.csv`, figure **F3**, figure **F4**.
   intervals for pressure minus routine. [proto] in the middle overs SR falls 138 → 122 from the lowest to
   the highest band and in the powerplay 151 → 130 with dot % 44 → 47; at the death the pattern is mixed.
   Report whatever the final numbers show; a modest effect is still a finding.
+  (Changed after Review 1, D42: the crude band gaps are mostly over number and wickets down. F3 now shows
+  pressure minus routine inside the same over × wickets-down cell, by innings × phase, precision-weighted, with
+  match-bootstrap intervals. What holds: chases slow by about 8 SR points on middle-overs pressure balls (and
+  about 5 in the powerplay, interval touching 0); chase death overs show no SR gap and a wicket gap whose
+  interval includes 0; first-innings powerplay shows no SR effect, and first-innings middle overs go the
+  other way (+11 SR, −1.0 wicket %).)
 - **Phase alone is not enough**: mean |WP change| per ball by phase next to mean |WP change| by leverage band.
 - **F4 / the usual definition misses**: take the common definition (overs 16–20, or chase required rate
   above 10). Report what share of those balls are dead or below-median leverage, and what share of our
@@ -194,11 +206,13 @@ All estimates are shrunk (section 3.1). `n` is the effective number of balls.
    credited pressure WPA summed to more than zero, shrunk to the pool rate by adding `m` pseudo-matches.
    One sentence: *"In what share of the games where he was under pressure did he leave his team better off?"*
 
-Why the pressure level is built as usual level + shift: [proto] raw pressure Impact barely repeats from
-2022–24 to 2025–26 (Spearman 0.03 batters, 0.19 bowlers), while usual level + shrunk shift predicts later
-pressure Impact better (0.16 and 0.31). A player's routine balls are three times as many and tell us most of
-what we can know about how they will play under pressure; the pressure sample then moves the estimate as far
-as its size justifies.
+Why the pressure level is built as usual level + shift: a player's routine balls are three times as many as
+their pressure balls, so the routine sample is the steadier base, and the pressure sample then moves the
+estimate as far as its size justifies. (Changed after Review 1, D40: the earlier claim that this "predicts
+later pressure Impact better" came from the prototype and does not hold in the build. In the time split
+(`outputs/time_split.csv`) the shrunk pressure level predicts 2025–26 pressure Impact for bowlers (0.32) but
+not for batters (0.01), where raw pressure Impact (0.19) and the usual approach (0.23) do slightly better.
+We report this as it is and do not retune on ~60 players.)
 
 ### 2.5 Reliability rating
 
@@ -212,8 +226,9 @@ Weights, fixed before seeing any ranking (to avoid tuning towards names we like)
 - **25% consistency**: a robust check that the level is not two or three huge games; it is the brief's
   "most consistently".
 - **15% pressure shift**: the brief asks for pressure against usual level, but the shift is the noisiest
-  quantity ([proto] it shows almost no persistence between periods: 0.13 batters, −0.06 bowlers), so it
-  gets the smallest weight. It also already moves `P̂`.
+  quantity (time split, raw shift: 0.22 batters, −0.08 bowlers), so it gets the smallest weight. It also
+  already moves `P̂`. Since D37 each z-score is scaled by the SD of the raw values, so the effective weights
+  are set by how much survives shrinkage (`outputs/rating_scale_change.md`).
 
 Why not rank on the drop alone: the drop is a difference of two noisy numbers, so its extremes are mostly
 luck, and a player who is poor everywhere has no drop at all. A batter at Impact −5 in both situations would
@@ -284,8 +299,9 @@ Two separate things:
 ### 3.4 Recency
 
 `w_rec = 0.5 ^ ((2026 − year) / 2)`: a two-year half-life, giving 2026 = 1.00, 2025 = 0.71, 2024 = 0.50,
-2023 = 0.35, 2022 = 0.25. Ball weight `ω = w_tier × w_rec`. A match's weight (for consistency) is the same
-product. Two years because form and roles change but one IPL season is only ~14 matches; variants with
+2023 = 0.35, 2022 = 0.25. Ball weight `ω = w_tier × w_rec`, times `s_inn` on pressure balls (D45: s = median
+pressure LI of the innings ÷ the larger median, so chase 1.00 and first innings 0.53). A match's weight (for
+consistency) is the same product. Two years because form and roles change but one IPL season is only ~14 matches; variants with
 no decay and a one-year half-life are in section 4.4.
 
 ### 3.5 Opposition strength: no explicit adjustment
@@ -337,8 +353,9 @@ variants in which they stay top 10.
 | V9, V10 | IPL balls only; all tiers weight 1 with no offsets |
 | V11 | no run/wicket split (one shrinkage on total Impact) |
 | V12 | level measured as raw WPA per 100 pressure balls instead of Impact |
+| V13 | both innings' pressure balls weighted equally (no stake weight; the headline before D45) |
 
-Report the players who stay top 10 in at least 10 of 12 variants as "core picks" and name the ones who do not.
+Report the players who stay top 10 in at least 10 of 13 variants as "core picks" and name the ones who do not.
 
 ---
 
@@ -391,7 +408,7 @@ Tables
 - **T1** Data coverage and exclusions. **T2** Eligibility funnel (players left after each rule).
 - **T3 / T4** Top-10 batters / bowlers: rating, rank interval, P̂, usual level, shift, consistency, pressure
   balls and matches, WPA, SR or economy, dot %, boundary %, dismissal rate (pressure vs routine).
-- **T5** Sensitivity: rank of each top-10 player under V1–V12. **T6** Tier offsets and weights.
+- **T5** Sensitivity: rank of each top-10 player under V1–V13. **T6** Tier offsets and weights.
 - **T7** RR needs and which pick fills each.
 
 ---

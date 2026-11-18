@@ -1,0 +1,3 @@
+discipline,eligible players,mean role-mix shift per 100,sd role-mix shift,mean raw shift before,mean raw shift after,"corr(role-mix, raw shift) before","corr(role-mix, raw shift) after"
+bat,105,-2.846,1.221,-3.137,-0.290,0.382,0.271
+bowl,109,3.026,0.748,2.606,-0.420,0.079,-0.007

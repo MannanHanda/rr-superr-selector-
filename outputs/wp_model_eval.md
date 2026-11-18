@@ -4,32 +4,83 @@ Spec: docs/METHODOLOGY_SPEC.md section 1.2. Brier, log loss, AUC and the LightGB
 
 ## Acceptance checks
 
-| check                                                     | value       | pass   |
-|:----------------------------------------------------------|:------------|:-------|
-| Test Brier innings 1 <= 0.225                             | 0.2203      | True   |
-| Test Brier innings 2 <= 0.135                             | 0.1162      | True   |
-| CV ECE innings 1 <= 0.03                                  | 0.0178      | True   |
-| CV ECE innings 2 <= 0.03                                  | 0.0070      | True   |
-| CV: no bin with >= 500 balls off by > 0.07                | 0.0573      | True   |
-| CV ECE chase balls with b <= 12 <= 0.05                   | 0.0200      | True   |
-| WP falls as r rises (>= 99% of grid)                      | 1.0000      | True   |
-| WP rises with w (>= 99% of grid)                          | 1.0000      | True   |
-| 6 off 6, 5 wkts in hand > 0.80                            | 0.965       | True   |
-| 30 off 6, 5 wkts in hand < 0.03                           | 0.0108      | True   |
-| 1 off 6, 5 wkts in hand > 0.95                            | 0.9931      | True   |
-| Training rows: no tie/DLS/associate/super over            | 0 bad rows  | True   |
-| Train and test share no match_id                          | 0 shared    | True   |
-| LightGBM benchmark inn 1: logistic within 0.01 (CUTTABLE) | LGBM 0.2240 | True   |
-| LightGBM benchmark inn 2: logistic within 0.01 (CUTTABLE) | LGBM 0.1519 | True   |
+| check                                                                       | value                       | pass   |
+|:----------------------------------------------------------------------------|:----------------------------|:-------|
+| Test Brier innings 1 <= 0.225                                               | 0.2203                      | True   |
+| Test Brier innings 2 <= 0.135                                               | 0.1161                      | True   |
+| CV ECE innings 1 <= 0.03                                                    | 0.0175                      | True   |
+| CV ECE innings 2 <= 0.03                                                    | 0.0069                      | True   |
+| CV: no bin with >= 500 balls off by > 0.07                                  | 0.0592                      | True   |
+| CV ECE chase balls with b <= 12 <= 0.05                                     | 0.0209                      | True   |
+| WP falls as r rises (>= 99% of grid)                                        | 1.0000                      | True   |
+| WP rises with w (>= 99% of grid)                                            | 1.0000                      | True   |
+| 6 off 6, 5 wkts in hand > 0.80                                              | 0.962                       | True   |
+| 30 off 6, 5 wkts in hand < 0.03                                             | 0.0096                      | True   |
+| 1 off 6, 5 wkts in hand > 0.95                                              | 0.9941                      | True   |
+| 6 off 1, 5 wkts in hand in [0.05, 0.15]                                     | 0.127                       | True   |
+| 4 off 1, 5 wkts in hand in [0.00, 0.30]                                     | 0.241                       | True   |
+| 12 off 3, 5 wkts in hand in [0.00, 0.15]                                    | 0.108                       | True   |
+| Mean dWP per ball, innings 1, 1 balls left, within +/-max(0.5 pts, 2 SE)    | -0.00 pts (SE 0.05, n 728)  | True   |
+| Mean dWP per ball, innings 1, 2-3 balls left, within +/-max(0.5 pts, 2 SE)  | +0.04 pts (SE 0.04, n 1525) | True   |
+| Mean dWP per ball, innings 1, 4-6 balls left, within +/-max(0.5 pts, 2 SE)  | +0.05 pts (SE 0.03, n 2317) | True   |
+| Mean dWP per ball, innings 1, 7-12 balls left, within +/-max(0.5 pts, 2 SE) | +0.04 pts (SE 0.02, n 4756) | True   |
+| Mean dWP per ball, innings 2, 1 balls left, within +/-max(0.5 pts, 2 SE)    | +1.94 pts (SE 1.06, n 253)  | True   |
+| Mean dWP per ball, innings 2, 2-3 balls left, within +/-max(0.5 pts, 2 SE)  | -0.18 pts (SE 0.43, n 635)  | True   |
+| Mean dWP per ball, innings 2, 4-6 balls left, within +/-max(0.5 pts, 2 SE)  | +0.34 pts (SE 0.24, n 1220) | True   |
+| Mean dWP per ball, innings 2, 7-12 balls left, within +/-max(0.5 pts, 2 SE) | +0.09 pts (SE 0.10, n 3113) | True   |
+| Training rows: no tie/DLS/associate/super over                              | 0 bad rows                  | True   |
+| Train and test share no match_id                                            | 0 shared                    | True   |
+| LightGBM benchmark inn 1: logistic within 0.01 (CUTTABLE)                   | LGBM 0.2240                 | True   |
+| LightGBM benchmark inn 2: logistic within 0.01 (CUTTABLE)                   | LGBM 0.1519                 | True   |
 
 ## Held-out metrics
 
 |   innings |   test balls |   test matches |   Brier |   Brier (coin flip) |   log loss |    AUC |   CV Brier |   CV ECE (10 bins) |   CV max gap, bins >= 500 balls |
 |----------:|-------------:|---------------:|--------:|--------------------:|-----------:|-------:|-----------:|-------------------:|--------------------------------:|
-|         1 |   18828.0000 |       152.0000 |  0.2203 |              0.2500 |     0.6302 | 0.6957 |     0.2167 |             0.0178 |                          0.0573 |
-|         2 |   17287.0000 |       152.0000 |  0.1162 |              0.2495 |     0.3630 | 0.9178 |     0.1248 |             0.0070 |                          0.0264 |
+|         1 |   18828.0000 |       152.0000 |  0.2203 |              0.2500 |     0.6302 | 0.6957 |     0.2167 |             0.0175 |                          0.0592 |
+|         2 |   17287.0000 |       152.0000 |  0.1161 |              0.2495 |     0.3628 | 0.9179 |     0.1249 |             0.0069 |                          0.0282 |
 
-Chase balls with 12 or fewer balls left (CV): 5,221 balls, ECE 0.0200.
+Chase balls with 12 or fewer balls left (CV): 5,221 balls, ECE 0.0209.
+
+## Last balls of a chase (D35)
+
+For chases with b <= 6 balls left, WP = lambda x exact backward induction + (1 - lambda) x logistic, lambda = (7 - b) / 6. The induction plays out every remaining ball with the league outcome frequencies of chase balls with b <= 6 in the same band of runs needed per ball (below), and the terminal rules. E_rem for b <= 3 is the empirical mean remaining runs. The last-ball dWP bar is widened to 2 SE because 0.5 points is below the sampling noise of that bucket.
+
+|                   |     0 |     1 |     2 |     3 |     4 |     6 |     W |     x |    balls |
+|:------------------|------:|------:|------:|------:|------:|------:|------:|------:|---------:|
+| <= 1 run per ball | 0.154 | 0.254 | 0.075 | 0.000 | 0.208 | 0.117 | 0.121 | 0.071 |  240.000 |
+| 1-2 per ball      | 0.122 | 0.239 | 0.157 | 0.004 | 0.157 | 0.117 | 0.122 | 0.083 |  230.000 |
+| > 2 per ball      | 0.245 | 0.265 | 0.067 | 0.001 | 0.104 | 0.114 | 0.129 | 0.075 | 1638.000 |
+
+Empirical E_rem used (runs): b = 1: 2.13, b = 2: 4.09, b = 3: 6.13.
+
+### Model WP against actual results in late-chase states (training matches, final model)
+
+| runs needed   |   balls left |   balls |   actual win rate |   mean model WP |
+|:--------------|-------------:|--------:|------------------:|----------------:|
+| 1             |            1 |       7 |             1.000 |           0.862 |
+| 2             |            1 |       9 |             0.778 |           0.626 |
+| 3             |            1 |       6 |             0.500 |           0.300 |
+| 4             |            1 |       8 |             0.625 |           0.241 |
+| 5             |            1 |       8 |             0.125 |           0.184 |
+| 6             |            1 |       7 |             0.143 |           0.127 |
+| 7-8           |            3 |      20 |             0.300 |           0.416 |
+| 9-12          |            3 |      29 |             0.241 |           0.174 |
+| 12-15         |            6 |      37 |             0.351 |           0.369 |
+| 16-20         |            6 |      56 |             0.214 |           0.152 |
+
+### Mean batting-side WP change per ball by balls left (0 if calibrated)
+
+|   innings | balls left   |   balls |   mean dWP (points) |   SE (points) |
+|----------:|:-------------|--------:|--------------------:|--------------:|
+|         1 | 1            |     728 |               -0.00 |          0.05 |
+|         1 | 2-3          |    1525 |                0.04 |          0.04 |
+|         1 | 4-6          |    2317 |                0.05 |          0.03 |
+|         1 | 7-12         |    4756 |                0.04 |          0.02 |
+|         2 | 1            |     253 |                1.94 |          1.06 |
+|         2 | 2-3          |     635 |               -0.18 |          0.43 |
+|         2 | 4-6          |    1220 |                0.34 |          0.24 |
+|         2 | 7-12         |    3113 |                0.09 |          0.10 |
 
 ## Calibration bins (5-fold CV, out of fold)
 
@@ -37,46 +88,46 @@ Chase balls with 12 or fewer balls left (CV): 5,221 balls, ECE 0.0200.
 
 | bin           |         n |   predicted |   actual |   gap |
 |:--------------|----------:|------------:|---------:|------:|
-| (-0.001, 0.1] |  1445.000 |       0.072 |    0.103 | 0.031 |
-| (0.1, 0.2]    |  5589.000 |       0.157 |    0.146 | 0.011 |
-| (0.2, 0.3]    |  7978.000 |       0.252 |    0.224 | 0.028 |
-| (0.3, 0.4]    | 12353.000 |       0.354 |    0.388 | 0.034 |
-| (0.4, 0.5]    | 20953.000 |       0.457 |    0.445 | 0.012 |
-| (0.5, 0.6]    | 21628.000 |       0.545 |    0.555 | 0.010 |
-| (0.6, 0.7]    | 12083.000 |       0.645 |    0.659 | 0.014 |
-| (0.7, 0.8]    |  6757.000 |       0.748 |    0.740 | 0.008 |
-| (0.8, 0.9]    |  3882.000 |       0.843 |    0.785 | 0.057 |
-| (0.9, 1.0]    |  1508.000 |       0.936 |    0.918 | 0.018 |
+| (-0.001, 0.1] |  1442.000 |       0.072 |    0.103 | 0.031 |
+| (0.1, 0.2]    |  5617.000 |       0.156 |    0.145 | 0.012 |
+| (0.2, 0.3]    |  7972.000 |       0.252 |    0.226 | 0.026 |
+| (0.3, 0.4]    | 12338.000 |       0.353 |    0.387 | 0.034 |
+| (0.4, 0.5]    | 20868.000 |       0.457 |    0.445 | 0.012 |
+| (0.5, 0.6]    | 21702.000 |       0.545 |    0.555 | 0.009 |
+| (0.6, 0.7]    | 12101.000 |       0.645 |    0.659 | 0.014 |
+| (0.7, 0.8]    |  6755.000 |       0.748 |    0.743 | 0.005 |
+| (0.8, 0.9]    |  3887.000 |       0.843 |    0.784 | 0.059 |
+| (0.9, 1.0]    |  1494.000 |       0.937 |    0.917 | 0.020 |
 
 ### Innings 2
 
 | bin           |         n |   predicted |   actual |   gap |
 |:--------------|----------:|------------:|---------:|------:|
-| (-0.001, 0.1] | 19466.000 |       0.027 |    0.033 | 0.006 |
-| (0.1, 0.2]    |  7278.000 |       0.149 |    0.161 | 0.012 |
-| (0.2, 0.3]    |  5868.000 |       0.249 |    0.251 | 0.003 |
-| (0.3, 0.4]    |  5462.000 |       0.350 |    0.338 | 0.012 |
-| (0.4, 0.5]    |  5702.000 |       0.451 |    0.452 | 0.001 |
-| (0.5, 0.6]    |  5760.000 |       0.550 |    0.523 | 0.026 |
-| (0.6, 0.7]    |  5824.000 |       0.650 |    0.645 | 0.005 |
-| (0.7, 0.8]    |  6523.000 |       0.751 |    0.757 | 0.006 |
-| (0.8, 0.9]    |  7892.000 |       0.852 |    0.860 | 0.007 |
-| (0.9, 1.0]    | 16959.000 |       0.963 |    0.961 | 0.002 |
+| (-0.001, 0.1] | 19465.000 |       0.027 |    0.034 | 0.006 |
+| (0.1, 0.2]    |  7276.000 |       0.149 |    0.162 | 0.013 |
+| (0.2, 0.3]    |  5894.000 |       0.248 |    0.250 | 0.001 |
+| (0.3, 0.4]    |  5457.000 |       0.350 |    0.342 | 0.008 |
+| (0.4, 0.5]    |  5712.000 |       0.451 |    0.449 | 0.002 |
+| (0.5, 0.6]    |  5780.000 |       0.550 |    0.522 | 0.028 |
+| (0.6, 0.7]    |  5793.000 |       0.650 |    0.648 | 0.002 |
+| (0.7, 0.8]    |  6535.000 |       0.751 |    0.759 | 0.008 |
+| (0.8, 0.9]    |  7853.000 |       0.853 |    0.859 | 0.006 |
+| (0.9, 1.0]    | 16969.000 |       0.963 |    0.961 | 0.002 |
 
 ### Innings 2, balls left <= 12
 
 | bin           |        n |   predicted |   actual |   gap |
 |:--------------|---------:|------------:|---------:|------:|
-| (-0.001, 0.1] | 2907.000 |       0.012 |    0.019 | 0.007 |
-| (0.1, 0.2]    |  262.000 |       0.145 |    0.191 | 0.045 |
-| (0.2, 0.3]    |  151.000 |       0.245 |    0.252 | 0.006 |
-| (0.3, 0.4]    |  128.000 |       0.349 |    0.398 | 0.050 |
-| (0.4, 0.5]    |  121.000 |       0.449 |    0.471 | 0.022 |
-| (0.5, 0.6]    |  120.000 |       0.548 |    0.458 | 0.089 |
-| (0.6, 0.7]    |  118.000 |       0.653 |    0.619 | 0.034 |
-| (0.7, 0.8]    |  182.000 |       0.753 |    0.797 | 0.044 |
-| (0.8, 0.9]    |  300.000 |       0.856 |    0.913 | 0.057 |
-| (0.9, 1.0]    |  932.000 |       0.964 |    0.988 | 0.024 |
+| (-0.001, 0.1] | 2921.000 |       0.011 |    0.020 | 0.008 |
+| (0.1, 0.2]    |  259.000 |       0.147 |    0.197 | 0.050 |
+| (0.2, 0.3]    |  161.000 |       0.245 |    0.298 | 0.053 |
+| (0.3, 0.4]    |  128.000 |       0.342 |    0.352 | 0.010 |
+| (0.4, 0.5]    |  134.000 |       0.447 |    0.440 | 0.007 |
+| (0.5, 0.6]    |  112.000 |       0.552 |    0.536 | 0.016 |
+| (0.6, 0.7]    |  121.000 |       0.653 |    0.620 | 0.033 |
+| (0.7, 0.8]    |  181.000 |       0.753 |    0.840 | 0.087 |
+| (0.8, 0.9]    |  281.000 |       0.855 |    0.915 | 0.060 |
+| (0.9, 1.0]    |  923.000 |       0.965 |    0.990 | 0.025 |
 
 ## Training data
 
@@ -115,17 +166,17 @@ Par source counts: {'tier_year': 861, 'tier': 6}
 
 | model   | term            |    coef |
 |:--------|:----------------|--------:|
-| first   | intercept       | -0.0323 |
-| first   | z               |  0.9660 |
-| first   | z*prog          |  0.1798 |
-| first   | z*prog^2        | -0.0367 |
-| chase   | intercept       | -0.4934 |
-| chase   | u               |  1.3755 |
-| chase   | u*ln(b+1)       | -0.1616 |
-| chase   | m/30            | -0.4416 |
-| chase   | w/10            |  0.9128 |
-| chase   | b/120           | -0.7862 |
-| chase   | min(6r/b,36)/10 |  0.5922 |
+| first   | intercept       | -0.0317 |
+| first   | z               |  0.9637 |
+| first   | z*prog          |  0.1822 |
+| first   | z*prog^2        | -0.0344 |
+| chase   | intercept       | -0.5247 |
+| chase   | u               |  1.3771 |
+| chase   | u*ln(b+1)       | -0.1602 |
+| chase   | m/30            | -0.4598 |
+| chase   | w/10            |  0.9199 |
+| chase   | b/120           | -0.7950 |
+| chase   | min(6r/b,36)/10 |  0.6268 |
 
 ## Sanity checks (final model, chase, IPL 2026 par 196.4)
 
@@ -133,9 +184,14 @@ Par source counts: {'tier_year': 861, 'tier': 6}
 |:---------|--------:|
 | mono_r   |  1.0000 |
 | mono_w   |  1.0000 |
-| 6_off_6  |  0.9654 |
-| 30_off_6 |  0.0108 |
-| 1_off_6  |  0.9931 |
+| 6_off_6  |  0.9615 |
+| 30_off_6 |  0.0096 |
+| 1_off_6  |  0.9941 |
+| 6_off_1  |  0.1274 |
+| 4_off_1  |  0.2411 |
+| 12_off_3 |  0.1082 |
+| 3_off_1  |  0.2997 |
+| 8_off_3  |  0.3949 |
 
 WP of the batting side at the first ball of an IPL 2026 match: 0.492.
 

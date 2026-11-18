@@ -6,9 +6,10 @@ Everything a sensitivity variant can change is a field of Params, so 06 and 07 r
 
 Pipeline:
     d   = load_balls()                       ball values (03) joined to ball facts
-    pms, offsets = build_pms(d, params)      credited, weighted sufficient statistics per
-                                             discipline x player x match x flag (pressure / routine / dead)
-    e, funnel = eligibility(pms, disc)       eligibility counts on IPL + T20I_full, non-dead balls
+    pms, offsets, cells = build_pms(d, params)   credited, tier-offset and situation-centred (D36), weighted
+                                             sufficient statistics per discipline x player x match x flag
+                                             (pressure / routine / dead); cells = the centring means
+    e, funnel = eligibility(pms, disc)       eligibility counts on non-dead balls, all tiers (D38)
     table, eb = rate(pms, disc, rated_ids, eb_pool_ids, params[, eb])
 """
 
@@ -31,7 +32,9 @@ RECENT_YEARS = (2025, 2026)
 PRESSURE_MATCH_MIN_BALLS = 3
 EB_POOL = {"total": 200, "pressure": 60}
 
-BALL_COLS = ["match_id", "innings", "innings_ball_num", "phase", "comp_tier", "year", "striker_id", "bowler_id",
+OVER_GROUPS = ([0, 2, 6, 10, 15, 18, 20], ["1-2", "3-6", "7-10", "11-15", "16-18", "19-20"])
+
+BALL_COLS = ["match_id", "innings", "innings_ball_num", "overid", "phase", "comp_tier", "year", "striker_id", "bowler_id",
              "is_ball_faced", "is_legal", "striker_out", "is_bowler_wicket", "batter_runs", "bowler_runs",
              "is_dot_faced", "is_four", "is_six"]
 
@@ -50,7 +53,11 @@ class Params:
     split_parts: bool = True            # shrink run and wicket parts separately (V11 = False)
     level: str = "impact"               # "wpa" (V12): pressure level = shrunk raw WPA per pressure ball
     k_cap: float = 5000.0
-    m_range: tuple = (10.0, 60.0)
+    m_range: tuple = (10.0, np.inf)      # no upper cap on consistency pseudo-matches (D37; was 60)
+    z_scale: str = "raw"                # divide each shrunk component by the SD of its raw values (D37);
+                                        # "shrunk" = the old SD of the shrunk values
+    stake_weight: bool = True           # D45: weight pressure balls by their innings' median pressure LI
+                                        # (V13 = False, equal innings weight)
 
 
 def variant(**kw) -> Params:
@@ -83,9 +90,16 @@ def set_flags(d: pd.DataFrame, p: Params) -> pd.Series:
     return pd.Series(np.select([pressure, d["is_dead"]], ["pressure", "dead"], "routine"), index=d.index)
 
 
+def stake_weights(d: pd.DataFrame, flag: pd.Series) -> pd.Series:
+    """D45: per innings, median LI of its pressure balls divided by the larger median (chase = 1, first
+    innings ~0.53). Computed on all scored balls, like the cut."""
+    med = d.loc[flag == "pressure"].groupby("innings")["LI"].median()
+    return med / med.max()
+
+
 def credit(d: pd.DataFrame) -> pd.DataFrame:
     """One row per (ball, credited player): batting rows for the striker, bowling rows for the bowler (2.1)."""
-    keep = ["match_id", "innings", "phase", "comp_tier", "year", "flag", "omega"]
+    keep = ["match_id", "innings", "overid", "phase", "comp_tier", "year", "flag", "omega"]
     wpa_run, wpa_wkt = d["wp_nw"] - d["wp0"], d["wp1"] - d["wp_nw"]
 
     bat = d[d["is_ball_faced"] == 1]
@@ -145,7 +159,7 @@ def aggregate(c: pd.DataFrame) -> pd.DataFrame:
     """Sufficient statistics per discipline x player x match x flag."""
     c = c.assign(x_run=c["x_run"].fillna(0.0), x_wkt=c["x_wkt"].fillna(0.0), w2=c["omega"] ** 2)
     c = c.assign(x_tot=c["x_run"] + c["x_wkt"])
-    for col in ("x_run", "x_wkt", "x_tot", "rae", "wpa"):
+    for col in ("x_run", "x_wkt", "x_tot", "rae", "wpa", "xc"):
         c[f"w_{col}"] = c["omega"] * c[col]
     for col in ("x_run", "x_wkt", "x_tot", "wpa"):
         c[f"w_{col}2"] = c["omega"] * c[col] ** 2
@@ -153,19 +167,42 @@ def aggregate(c: pd.DataFrame) -> pd.DataFrame:
     agg = {"rows": ("omega", "size"), "n_balls": ("n_balls", "sum"), "w": ("omega", "sum"), "w2": ("w2", "sum"),
            "omega": ("omega", "first"), "wpa": ("wpa", "sum"), "runs": ("runs", "sum"), "dots": ("dots", "sum"),
            "bnd": ("bnd", "sum"), "outs": ("outs", "sum")}
-    for col in ("w_x_run", "w_x_wkt", "w_x_tot", "w_rae", "w_wpa", "w_x_run2", "w_x_wkt2", "w_x_tot2", "w_wpa2"):
+    for col in ("w_x_run", "w_x_wkt", "w_x_tot", "w_rae", "w_wpa", "w_xc", "w_x_run2", "w_x_wkt2", "w_x_tot2",
+                "w_wpa2"):
         agg[col] = (col, "sum")
     return c.groupby(keys, observed=True).agg(**agg).reset_index()
 
 
-def build_pms(d: pd.DataFrame, p: Params = Params()) -> tuple[pd.DataFrame, pd.DataFrame]:
+def centre_impact(c: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Subtract the league mean credited Impact of the same discipline x innings x over group x flag, run and
+    wicket parts separately (D36), so 0 = an average outcome for that exact situation and role. The removed
+    cell mean of the total is kept per ball as `xc` (role-mix check in 05). Live balls only."""
+    c = c.assign(over_group=pd.cut(c["overid"], OVER_GROUPS[0], labels=OVER_GROUPS[1]))
+    live = c["flag"] != "dead"
+    keys = ["discipline", "innings", "over_group", "flag"]
+    cells = c[live].groupby(keys, observed=True).agg(n_balls=("x_run", "size"), x_run=("x_run", "mean"),
+                                                     x_wkt=("x_wkt", "mean"))
+    m = cells.reindex(pd.MultiIndex.from_frame(c[keys]))
+    c["xc"] = np.where(live, (m["x_run"] + m["x_wkt"]).to_numpy(), np.nan)
+    for part in ("x_run", "x_wkt"):
+        c[part] = c[part] - np.where(live, m[part].to_numpy(), 0.0)
+    cells = cells.reset_index()
+    cells["x_tot"] = cells["x_run"] + cells["x_wkt"]
+    return c.drop(columns="over_group"), cells
+
+
+def build_pms(d: pd.DataFrame, p: Params = Params()) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     d = d.assign(flag=set_flags(d, p))
+    stake = stake_weights(d, d["flag"]) if p.stake_weight else None
     if p.tiers is not None:
         d = d[d["comp_tier"].isin(p.tiers)]
     if p.years is not None:
         d = d[d["year"].isin(p.years)]
     d = d.assign(omega=d["comp_tier"].map(p.tier_weight)
                  * recency_weight(d["year"], p.anchor_year, p.half_life))
+    if stake is not None:
+        is_p = d["flag"] == "pressure"
+        d.loc[is_p, "omega"] *= d.loc[is_p, "innings"].map(stake).to_numpy()
     c = credit(d)
 
     offs = tier_offsets(c, p.tier_weight)
@@ -176,6 +213,7 @@ def build_pms(d: pd.DataFrame, p: Params = Params()) -> tuple[pd.DataFrame, pd.D
             c[part] = c[part] - o.reindex(key).fillna(0.0).to_numpy()
     else:
         offs = offs.assign(applied_offset_per_ball=0.0, used=False)
+    c, cells = centre_impact(c)
 
     # runs above expected: league mean in the same discipline x innings x phase x flag x tier (D30d)
     live = c["flag"] != "dead"
@@ -183,12 +221,13 @@ def build_pms(d: pd.DataFrame, p: Params = Params()) -> tuple[pd.DataFrame, pd.D
     c["rae"] = np.nan
     c.loc[live, "rae"] = np.where(c.loc[live, "discipline"] == "bat", c.loc[live, "runs"] - exp,
                                   exp - c.loc[live, "runs"])
-    return aggregate(c), offs
+    return aggregate(c), offs, cells
 
 
 def eligibility(pms: pd.DataFrame, disc: str) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Eligibility counts (3.2) on IPL + T20I_full, non-dead balls, and the funnel."""
-    s = pms[(pms["discipline"] == disc) & pms["comp_tier"].isin(CORE_TIERS) & (pms["flag"] != "dead")]
+    """Eligibility counts (3.2) on non-dead balls in all four tiers (D38; was IPL + T20I_full only), and the
+    funnel. IPL pressure balls are counted alongside so readers can see where each player's evidence is from."""
+    s = pms[(pms["discipline"] == disc) & (pms["flag"] != "dead")]
     pr = s[s["flag"] == "pressure"]
     pm = pr.groupby(["player_id", "match_id"])["n_balls"].sum()
     e = pd.DataFrame({
@@ -196,13 +235,14 @@ def eligibility(pms: pd.DataFrame, disc: str) -> tuple[pd.DataFrame, pd.DataFram
         "elig_pressure_balls": pr.groupby("player_id")["n_balls"].sum(),
         "elig_pressure_matches": (pm >= PRESSURE_MATCH_MIN_BALLS).groupby("player_id").sum(),
         "elig_recent_balls": s[s["year"].isin(RECENT_YEARS)].groupby("player_id")["n_balls"].sum(),
+        "ipl_pressure_balls": pr[pr["comp_tier"] == "IPL"].groupby("player_id")["n_balls"].sum(),
     }).fillna(0)
     rules = [("total", e["elig_balls"] >= ELIG["total"]),
              ("pressure", e["elig_pressure_balls"] >= ELIG["pressure"]),
              ("pressure_matches", e["elig_pressure_matches"] >= ELIG["pressure_matches"]),
              ("recent", e["elig_recent_balls"] >= ELIG["recent"])]
     ok = pd.Series(True, index=e.index)
-    funnel = [{"discipline": disc, "step": "any live ball in IPL / T20I_full", "players": int((e["elig_balls"] > 0).sum())}]
+    funnel = [{"discipline": disc, "step": "any live ball (all tiers)", "players": int((e["elig_balls"] > 0).sum())}]
     for name, rule in rules:
         ok &= rule
         funnel.append({"discipline": disc, "step": f"+ {name} >= {ELIG[name]}", "players": int(ok.sum())})
@@ -229,6 +269,7 @@ def player_sums(pms: pd.DataFrame, disc: str) -> pd.DataFrame:
     s = pms[(pms["discipline"] == disc) & (pms["flag"] != "dead")]
     cols = ["rows", "n_balls", "w", "w2", "w_x_run", "w_x_wkt", "w_x_tot", "w_x_run2", "w_x_wkt2", "w_x_tot2",
             "wpa", "w_wpa", "w_wpa2"]
+    cols += [c for c in ("w_xc",) if c in s.columns]
     g = s.groupby(["player_id", "flag"])[cols].sum().unstack("flag")
     out = pd.DataFrame(index=g.index)
     for flag, tag in (("pressure", "P"), ("routine", "R")):
@@ -345,10 +386,14 @@ def rate_from_sums(sums: pd.DataFrame, cons: pd.DataFrame, rated: pd.Index, p: P
     out["C_hat"] = (c["c_neff"] * c["c_raw"] + e["k"] * e["prior"]) / (c["c_neff"] + e["k"])
     out["C_hat"] = out["C_hat"].fillna(e["prior"])
     out["P_wpa_sum"] = t["P_wpa"]
+    out["P_level_raw"] = t["P_w_wpa"] / t["P_w"] if p.level == "wpa" else out["P_raw"]
 
+    # D37: scale by the spread of the raw values, so a component that shrinkage pulls almost flat (a noisy
+    # one) also counts for little in the rating; the old way divided by the spread after shrinkage
     wl, ws, wc = p.weights
-    for col in ("P_hat", "D_hat", "C_hat"):
-        out[f"z_{col}"] = (out[col] - out[col].mean()) / out[col].std(ddof=0)
+    for col, raw in (("P_hat", "P_level_raw"), ("D_hat", "D_raw"), ("C_hat", "C_raw")):
+        sd = out[raw].std(ddof=0) if p.z_scale == "raw" else out[col].std(ddof=0)
+        out[f"z_{col}"] = (out[col] - out[col].mean()) / sd if sd > 0 else 0.0
     out["rating_z"] = wl * out["z_P_hat"] + ws * out["z_D_hat"] + wc * out["z_C_hat"]
     out["rating"] = 50 + 10 * out["rating_z"]
     out = out.sort_values(["rating", "P_hat"], ascending=False)

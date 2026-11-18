@@ -1,11 +1,11 @@
 discipline,step,players
-bat,any live ball in IPL / T20I_full,632
-bat,+ total >= 400,132
-bat,+ pressure >= 125,110
-bat,+ pressure_matches >= 10,110
-bat,+ recent >= 60,99
-bowl,any live ball in IPL / T20I_full,467
-bowl,+ total >= 400,133
-bowl,+ pressure >= 125,111
-bowl,+ pressure_matches >= 10,110
-bowl,+ recent >= 60,103
+bat,any live ball (all tiers),862
+bat,+ total >= 400,139
+bat,+ pressure >= 125,117
+bat,+ pressure_matches >= 10,117
+bat,+ recent >= 60,105
+bowl,any live ball (all tiers),637
+bowl,+ total >= 400,141
+bowl,+ pressure >= 125,116
+bowl,+ pressure_matches >= 10,116
+bowl,+ recent >= 60,109

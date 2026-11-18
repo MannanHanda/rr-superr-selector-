@@ -7,10 +7,12 @@ Run from the repo root:
 
 Inputs  (data/processed/): balls.parquet, ball_values.parquet, matches.parquet
 Outputs (outputs/): pressure_validation.csv   outcomes by leverage band within phase, pressure minus routine
+                                              (crude, and within over x wickets-down cells, D42)
                                               with match-bootstrap 90% intervals, mean |WP change| by phase/band
                     naive_vs_leverage.csv     the usual definition (overs 16-20 or chase RRR > 10) vs ours
                     leverage_summary.md       appends the 15 highest-leverage states (for a human eyeball)
-                    figures/f2_example_chase.png, f3_outcomes_by_band.png, f4_usual_vs_leverage.png
+                    figures/f2_example_chase.png, f3_outcomes_by_band.png (within-cell gaps by innings, D42),
+                    f4_usual_vs_leverage.png
 
 Leverage bands (spec 1.5): low = below the innings median LI; medium = median to the pressure cut;
 pressure = pressure ball but not crunch; crunch = top 5% of LI overall. Band rates use legal balls.
@@ -48,6 +50,12 @@ SERIES = {"powerplay": "#2a78d6", "middle": "#eb6834", "death": "#1baf7a"}
 METRICS = {"SR": "Strike rate", "dot_pct": "Dot balls (%)", "boundary_pct": "Boundary balls (%)",
            "wicket_pct": "Wicket balls (%)"}
 SUMMARY_MARK = "## 15 highest-leverage states"
+METRIC_NUM = {"SR": "runs", "dot_pct": "dots", "boundary_pct": "bnd", "wicket_pct": "wkts"}
+WK_CAP = 6  # wickets-down groups 0, 1, ..., 5, 6+ for the within-cell comparison
+INN_LABEL = {"1": "First innings", "2": "Chase"}
+# F3 states only what the within-cell comparison supports (D42); main() checks the claim still holds
+F3_TITLE = ("Like for like, chases slow down on middle-overs pressure balls (SR {sr:+.0f}); other gaps are small "
+            "or mixed\n(same over and wickets down; bars = 90% interval over 1,000 match resamples)")
 
 BALL_COLS = ["match_id", "innings", "innings_ball_num", "overid", "over_ball_num", "phase", "comp_tier", "year",
              "status", "is_dls", "batting_team_id", "bowling_team_id", "is_legal", "batter_runs", "is_dot_faced",
@@ -101,6 +109,55 @@ def bootstrap_diff(d: pd.DataFrame) -> pd.DataFrame:
             rows.append({"table": "pressure_minus_routine", "innings": "both", "phase": ph, "band": "pressure-routine",
                          "metric": m, "value": res[True][0][m] - res[False][0][m],
                          "lo90": diff.quantile(0.05), "hi90": diff.quantile(0.95), "n_balls": np.nan})
+    return pd.DataFrame(rows)
+
+
+def within_cell(d: pd.DataFrame) -> pd.DataFrame:
+    """REVIEW_1 item 8: pressure minus routine inside the same over x wickets-down cell, averaged over cells
+    with precision weights nP nR / (nP + nR), per innings x phase, with a 90% match-bootstrap interval. The crude gap
+    (no cells) is reported alongside: most of it is over number and wickets down, not pressure."""
+    leg = d[(d["is_legal"] == 1) & (d["is_pressure"] | d["is_routine"])].copy()
+    leg["wk"] = leg["wickets_before"].clip(upper=WK_CAP).astype(int)
+    stats = ["legal", "runs", "dots", "bnd", "wkts"]
+    c = counts(leg, ["match_id", "innings", "phase", "overid", "wk", "is_pressure"])
+    wide = c.unstack(["innings", "phase", "overid", "wk", "is_pressure"], fill_value=0)  # matches x (stat, cell)
+    mids = wide.index
+    rng = np.random.default_rng(lib_wp.SEED)
+    boot_w = np.stack([np.bincount(rng.integers(0, len(mids), len(mids)), minlength=len(mids))
+                       for _ in range(N_BOOT)])
+    allw = np.vstack([np.ones(len(mids)), boot_w])  # row 0 = point estimate
+    tot = pd.DataFrame(allw @ wide.to_numpy(float), columns=wide.columns)  # (1 + N_BOOT) x (stat, cell)
+    cells = wide["legal"].columns.droplevel("is_pressure").unique()
+    rows = []
+    for inn in (1, 2):
+        for ph in PHASES:
+            keep = [cl for cl in cells if cl[0] == inn and cl[1] == ph]
+            if not keep:
+                continue
+            P = {st: tot[st][[(*cl, True) for cl in keep if (*cl, True) in tot[st].columns]] for st in stats}
+            R = {st: tot[st][[(*cl, False) for cl in keep if (*cl, False) in tot[st].columns]] for st in stats}
+            both = [cl for cl in keep if (*cl, True) in tot["legal"].columns and (*cl, False) in tot["legal"].columns]
+            nP = np.column_stack([tot["legal"][(*cl, True)] for cl in both])
+            nR = np.column_stack([tot["legal"][(*cl, False)] for cl in both])
+            ok = (nP > 0) & (nR > 0)
+            for m, num in METRIC_NUM.items():
+                xP = np.column_stack([tot[num][(*cl, True)] for cl in both])
+                xR = np.column_stack([tot[num][(*cl, False)] for cl in both])
+                scale = 100.0
+                with np.errstate(invalid="ignore", divide="ignore"):
+                    gap = np.where(ok, scale * (xP / nP - xR / nR), 0.0)
+                # precision weights: a cell counts by how much it says about the difference, so cells that
+                # are almost all pressure (first-innings overs 1-2) do not rest on a handful of routine balls
+                with np.errstate(invalid="ignore", divide="ignore"):
+                    w = np.where(ok, nP * nR / (nP + nR), 0.0)
+                within = (gap * w).sum(axis=1) / w.sum(axis=1)
+                crude = scale * (P[num].sum(axis=1) / P["legal"].sum(axis=1)
+                                 - R[num].sum(axis=1) / R["legal"].sum(axis=1)).to_numpy()
+                for kind, v in (("within_cell", within), ("crude", crude)):
+                    rows.append({"table": f"pressure_minus_routine_{kind}", "innings": str(inn), "phase": ph,
+                                 "band": "pressure-routine", "metric": m, "value": v[0],
+                                 "lo90": np.quantile(v[1:], 0.05), "hi90": np.quantile(v[1:], 0.95),
+                                 "n_balls": float(P["legal"].iloc[0].sum())})
     return pd.DataFrame(rows)
 
 
@@ -170,25 +227,39 @@ def style(ax) -> None:
     ax.tick_params(labelsize=8, colors=INK2)
 
 
-def fig_bands(t: pd.DataFrame) -> Path:
-    t = t[t["innings"] == "both"]
-    fig, axes = plt.subplots(1, 4, figsize=(7.5, 3.4))
-    x = np.arange(len(BANDS))
-    for ax, (m, label) in zip(axes, METRICS.items()):
-        for ph in PHASES:
-            s = t[(t["metric"] == m) & (t["phase"] == ph)].set_index("band").reindex(BANDS)
-            ax.plot(x, s["value"], color=SERIES[ph], lw=2, marker="o", ms=5, markeredgecolor="white",
-                    markeredgewidth=1.2, label=ph.capitalize())
-        ax.set_title(label, fontsize=9, color=INK, loc="left")
-        ax.set_xticks(x, ["Low", "Medium", "Pressure", "Crunch"], fontsize=7, rotation=35, ha="right",
-                      rotation_mode="anchor")
-        style(ax)
-    fig.supxlabel("Leverage band", fontsize=8, color=INK2, y=0.1)
-    handles, labels = axes[0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="lower center", ncol=3, frameon=False, fontsize=8, bbox_to_anchor=(0.5, -0.01))
-    fig.suptitle("In every phase, batters score more slowly on pressure balls",
-                 fontsize=11, color=INK, x=0.01, ha="left")
-    fig.tight_layout(rect=(0, 0.1, 1, 1))
+def fig_within(w: pd.DataFrame) -> Path:
+    """F3 (REVIEW_1 item 8): pressure minus routine within over x wickets-down cells, by innings and phase."""
+    rows = [(i, ph) for i in ("1", "2") for ph in PHASES]
+    y = np.arange(len(rows))[::-1]
+    fig, axes = plt.subplots(1, 2, figsize=(7.5, 3.6), sharey=True)
+    for ax, (m, label) in zip(axes, (("SR", "Strike rate"), ("wicket_pct", "Wicket balls (%)"))):
+        for yy, (inn, ph) in zip(y, rows):
+            get = lambda kind: w[(w["table"] == f"pressure_minus_routine_{kind}") & (w["innings"] == inn)
+                                 & (w["phase"] == ph) & (w["metric"] == m)].iloc[0]
+            r, cr = get("within_cell"), get("crude")
+            color = SERIES[ph]
+            ax.plot([r["lo90"], r["hi90"]], [yy, yy], color=color, lw=2, solid_capstyle="round")
+            ax.scatter([r["value"]], [yy], s=30, color=color, edgecolors="white", lw=1, zorder=3)
+            ax.scatter([cr["value"]], [yy], s=22, facecolors="none", edgecolors=MUTED, lw=1, zorder=2)
+        ax.axvline(0, color=INK2, lw=0.8)
+        ax.axhline(2.5, color=GRID, lw=1)
+        ax.set_title(f"{label}: pressure minus routine", fontsize=9, color=INK, loc="left")
+        ax.grid(axis="x", color=GRID, lw=0.6)
+        ax.set_axisbelow(True)
+        for s in ("top", "right"):
+            ax.spines[s].set_visible(False)
+        ax.tick_params(labelsize=8, colors=INK2)
+    axes[0].set_yticks(y, [f"{INN_LABEL[i]} · {ph}" for i, ph in rows], fontsize=8)
+    axes[0].set_xlabel("Strike-rate points", fontsize=8, color=INK2)
+    axes[1].set_xlabel("Percentage points", fontsize=8, color=INK2)
+    handles = [plt.Line2D([], [], color=INK2, marker="o", lw=2, ms=5, label="Same over and wickets down (with interval)"),
+               plt.Line2D([], [], color=MUTED, marker="o", lw=0, ms=5, markerfacecolor="none",
+                          label="Crude: all balls in the phase (mostly over number and wickets, not pressure)")]
+    fig.legend(handles=handles, loc="lower center", ncol=2, frameon=False, fontsize=7, bbox_to_anchor=(0.5, 0.0))
+    sr = w[(w["table"] == "pressure_minus_routine_within_cell") & (w["innings"] == "2") & (w["phase"] == "middle")
+           & (w["metric"] == "SR")]["value"].iloc[0]
+    fig.suptitle(F3_TITLE.format(sr=sr), fontsize=9.5, color=INK, x=0.01, ha="left")
+    fig.tight_layout(rect=(0, 0.06, 1, 1))
     path = FIGS / "f3_outcomes_by_band.png"
     fig.savefig(path, dpi=200, facecolor="white")
     plt.close(fig)
@@ -268,7 +339,8 @@ def main() -> None:
     bands = band_table(d)
     diff = bootstrap_diff(d)
     absw = abs_wpa_table(d)
-    val = pd.concat([bands, diff, absw], ignore_index=True)[
+    within = within_cell(d)
+    val = pd.concat([bands, diff, absw, within], ignore_index=True)[
         ["table", "innings", "phase", "band", "metric", "value", "lo90", "hi90", "n_balls"]]
     val.to_csv(OUTPUTS / "pressure_validation.csv", index=False)
     naive = naive_table(d)
@@ -277,7 +349,7 @@ def main() -> None:
     m = pd.read_parquet(PROC / "matches.parquet", columns=["home_team_id", "home_team", "away_team_id", "away_team"])
     teams = {**dict(zip(m["home_team_id"], m["home_team"])), **dict(zip(m["away_team_id"], m["away_team"]))}
     f2, example_mid = fig_example(d, teams)
-    f3, f4 = fig_bands(bands), fig_naive(naive)
+    f3, f4 = fig_within(within), fig_naive(naive)
 
     top = top_states(d)
     summary = (OUTPUTS / "leverage_summary.md").read_text(encoding="utf-8")
@@ -292,6 +364,8 @@ def main() -> None:
     share_sum = both.assign(s=share).groupby("phase")["s"].sum()
     small = both[both["n_balls"] < MIN_CELL][["phase", "band", "n_balls"]]
     small_by_inn = bands[(bands["innings"] != "both") & (bands["metric"] == "SR") & (bands["n_balls"] < MIN_CELL)]
+    cm = within[(within["table"] == "pressure_minus_routine_within_cell") & (within["innings"] == "2")
+                & (within["phase"] == "middle") & (within["metric"] == "SR")].iloc[0]
     checks = [
         ("Band shares sum to 100% in every phase", ", ".join(f"{v:.3f}" for v in share_sum),
          bool(np.allclose(share_sum, 1))),
@@ -299,6 +373,8 @@ def main() -> None:
          f"{len(small)} small (flagged below)" if len(small) else "all >= 500", True),
         ("Top-15 leverage states table written to leverage_summary.md", f"{len(top)} rows", len(top) == 15),
         ("Bootstrap diff has 3 phases x 4 metrics", f"{len(diff)} rows", len(diff) == 12),
+        ("F3 title claim: chase middle-overs SR gap (within cell) < 0, 90% interval",
+         f"{cm['value']:+.1f} ({cm['lo90']:+.1f} to {cm['hi90']:+.1f})", cm["hi90"] < 0),
     ]
     check_df = pd.DataFrame(checks, columns=["check", "value", "pass"])
 

@@ -9,15 +9,16 @@ Inputs  (data/processed/): player_match_stats.parquet, ball_values.parquet, ball
         (outputs/):        ratings_batters.csv, ratings_bowlers.csv, eb_params.csv (via lib_rating re-estimate)
 Outputs (outputs/): bootstrap_ranks_batters.csv, bootstrap_ranks_bowlers.csv   rank intervals (4.1)
                     time_split.csv                                             2022-24 -> 2025-26 test (4.2)
-                    sensitivity.csv, sensitivity_summary.csv                   12 variants (4.4)
+                    time_split_ceiling.csv                                     noise ceiling of that test (D40)
+                    sensitivity.csv, sensitivity_summary.csv                   13 variants (4.4)
                     figures/f7_rank_intervals.png, figures/f8_time_split.png
 
 4.1 Bootstrap: resample matches with replacement (1,000 times, seed 42). WP model, leverage, pressure cuts,
     tier offsets, priors, k and the eligible pool are held fixed; raw sums, shrunk values, ratings and ranks
     are recomputed from player x match sufficient statistics with the same formula as 06.
 4.2 Time split: rate on 2022-24 only (recency anchored at 2024); correlate predictors with raw pressure
-    Impact in 2025-26 for players with >= 75 pressure balls (IPL + T20I_full) in both periods.
-4.4 Sensitivity: V1-V12 re-rank the headline eligible pool (held fixed, D32).
+    Impact in 2025-26 for players with >= 75 pressure balls (all tiers, as eligibility, D38) in both periods.
+4.4 Sensitivity: V1-V13 re-rank the headline eligible pool (held fixed, D32).
 Exits with code 1 if any acceptance check fails.
 """
 
@@ -47,6 +48,7 @@ SEED = 42
 N_BOOT = 1000
 N_BOOT_PLAYERS = 1000
 TIME_MIN_PRESSURE = 75
+N_CEILING_SPLITS = 200
 EARLY, LATE = (2022, 2023, 2024), (2025, 2026)
 CORE_MIN_VARIANTS = 10
 FILE = {"bat": "batters", "bowl": "bowlers"}
@@ -66,9 +68,10 @@ VARIANTS = {
     "V10 tiers equal, no offsets": dict(tier_weight={t: 1.0 for t in lr.TIER_WEIGHT}, use_offsets=False),
     "V11 no run/wicket split": dict(split_parts=False),
     "V12 level = raw WPA": dict(level="wpa"),
+    "V13 innings weighted equally": dict(stake_weight=False),
 }
 # variants that change the ball-level build (pressure flags, weights, tiers) need new sufficient statistics
-REBUILD = {"pressure_q", "global_share", "half_life", "tiers", "tier_weight", "use_offsets"}
+REBUILD = {"pressure_q", "global_share", "half_life", "tiers", "tier_weight", "use_offsets", "stake_weight"}
 
 
 # ---------------------------------------------------------------- 4.1 bootstrap
@@ -164,16 +167,42 @@ def spearman_ci(x: pd.Series, y: pd.Series, rng) -> tuple[int, float, float, flo
     return n, rho, float(np.nanquantile(boots, 0.05)), float(np.nanquantile(boots, 0.95))
 
 
-def time_split(d: pd.DataFrame) -> pd.DataFrame:
-    pe, _ = lr.build_pms(d, lr.variant(years=EARLY, anchor_year=2024))
-    pl, _ = lr.build_pms(d, lr.variant(years=LATE, half_life=None))
+def noise_ceiling(pl: pd.DataFrame, disc: str, ids: pd.Index, rng) -> dict:
+    """Split-half reliability of the late outcome (raw pressure Impact, 2025-26): split matches at random into
+    two halves, correlate players' halves (Spearman), Spearman-Brown to full length, average over
+    N_CEILING_SPLITS splits. sqrt(reliability) is the highest correlation any predictor could reach."""
+    s = pl[(pl["discipline"] == disc) & (pl["flag"] == "pressure") & pl["player_id"].isin(ids)]
+    g = s.groupby(["player_id", "match_id"])[["w", "w_x_tot"]].sum().reset_index()
+    pid = pd.Index(ids)
+    mids = pd.Index(g["match_id"].unique())
+    pi, mi = pid.get_indexer(g["player_id"]), mids.get_indexer(g["match_id"])
+    W = sparse.csr_matrix((g["w"], (pi, mi)), shape=(len(pid), len(mids)))
+    X = sparse.csr_matrix((g["w_x_tot"], (pi, mi)), shape=(len(pid), len(mids)))
+    rs = []
+    for _ in range(N_CEILING_SPLITS):
+        half = rng.integers(0, 2, len(mids)).astype(float)
+        with np.errstate(invalid="ignore", divide="ignore"):  # a player with every match in one half
+            a = (X @ half) / (W @ half)
+            b = (X @ (1 - half)) / (W @ (1 - half))
+        ok = np.isfinite(a) & np.isfinite(b)
+        rs.append(spearmanr(a[ok], b[ok])[0])
+    r = float(np.mean(rs))
+    rel = 2 * r / (1 + r) if r > 0 else 0.0
+    return {"discipline": disc, "n": len(ids), "split_half_spearman": r, "split_half_lo90": float(np.quantile(rs, 0.05)),
+            "split_half_hi90": float(np.quantile(rs, 0.95)), "reliability_spearman_brown": rel,
+            "max_attainable_correlation": float(np.sqrt(rel))}
+
+
+def time_split(d: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    pe = lr.build_pms(d, lr.variant(years=EARLY, anchor_year=2024))[0]
+    pl = lr.build_pms(d, lr.variant(years=LATE, half_life=None))[0]
     balls = pd.read_parquet(PROC / "balls.parquet", columns=[
         "match_id", "innings", "year", "comp_tier", "overid", "req_run_rate", "is_ball_faced", "is_legal",
         "striker_id", "bowler_id", "batter_runs", "bowler_runs"])
     sc = d[["match_id", "innings"]].drop_duplicates()
     balls = balls.merge(sc, on=["match_id", "innings"])  # scored innings only
     rng = np.random.default_rng(SEED)
-    rows = []
+    rows, ceil = [], []
     for disc in ("bat", "bowl"):
         ee, _ = lr.eligibility(pe, disc)
         el, _ = lr.eligibility(pl, disc)
@@ -187,11 +216,13 @@ def time_split(d: pd.DataFrame) -> pd.DataFrame:
             "(3) raw pressure Impact": early["P_raw"], "(4) shift alone (raw)": early["D_raw"],
             "(5) usual approach (death / RRR>10 SR or econ)": usual_definition_stat(balls, disc),
             "(extra) usual level (shrunk)": early["U"],
+            "(extra) consistency (shrunk)": early["C_hat"],
         }
         for name, x in preds.items():
             n, rho, lo, hi = spearman_ci(x.reindex(ids), y, rng)
             rows.append({"discipline": disc, "predictor": name, "n": n, "spearman": rho, "lo90": lo, "hi90": hi})
-    return pd.DataFrame(rows)
+        ceil.append(noise_ceiling(pl, disc, ids, rng))
+    return pd.DataFrame(rows), pd.DataFrame(ceil)
 
 
 # ---------------------------------------------------------------- 4.4 sensitivity
@@ -262,8 +293,8 @@ def fig_intervals(br: dict) -> Path:
     return path
 
 
-def fig_time_split(ts: pd.DataFrame) -> Path:
-    fig, axes = plt.subplots(1, 2, figsize=(7.5, 3.6), sharey=True)
+def fig_time_split(ts: pd.DataFrame, ceil: pd.DataFrame) -> Path:
+    fig, axes = plt.subplots(1, 2, figsize=(7.5, 3.9), sharey=True)
     order = list(dict.fromkeys(ts["predictor"]))
     y = np.arange(len(order))[::-1]
     for ax, disc in zip(axes, ("bat", "bowl")):
@@ -273,13 +304,20 @@ def fig_time_split(ts: pd.DataFrame) -> Path:
         ax.errorbar(t["spearman"], y, xerr=[t["spearman"] - t["lo90"], t["hi90"] - t["spearman"]],
                     fmt="none", ecolor=INK2, elinewidth=0.8, capsize=2)
         ax.axvline(0, color=INK2, lw=0.8)
-        ax.set_xlim(-0.6, 0.8)
+        c = float(ceil.set_index("discipline").loc[disc, "max_attainable_correlation"])
+        ax.axvline(c, color=ORANGE, lw=1.2, ls="--")
+        ax.text(c, y.max() + 0.6, f" noise ceiling {c:.2f}", fontsize=6.5, color=ORANGE, va="bottom", ha="left")
+        ax.set_xlim(-0.6, 0.9)
+        ax.set_ylim(-0.6, y.max() + 1.3)
         ax.set_title(f"{LABEL[disc]} (n = {int(t['n'].max())})", fontsize=9, color=INK, loc="left")
         style(ax)
     fig.supxlabel("Spearman correlation with 2025-26 raw pressure Impact", fontsize=8, color=INK2)
     axes[0].set_yticks(y, order, fontsize=7)
-    fig.suptitle("What in 2022-24 predicts pressure performance in 2025-26? (bars = 90% interval)",
-                 fontsize=10.5, color=INK, x=0.01, ha="left")
+    rating = ts[ts["predictor"] == "(1) full rating"].set_index("discipline")["spearman"]
+    fig.suptitle(f"Does 2022-24 predict 2025-26 pressure Impact? Our rating: batters {rating['bat']:.2f}, "
+                 f"bowlers {rating['bowl']:.2f}\n"
+                 "(bars = 90% interval; dashed = the most any predictor could reach, given outcome noise)",
+                 fontsize=10, color=INK, x=0.01, ha="left")
     fig.tight_layout()
     path = FIGS / "f8_time_split.png"
     fig.savefig(path, dpi=200, facecolor="white")
@@ -315,13 +353,14 @@ def main() -> None:
 
     # 4.2 time split, 4.4 sensitivity (both rebuild sufficient statistics from ball level)
     d = lr.load_balls()
-    ts = time_split(d)
+    ts, ceil = time_split(d)
     ts.to_csv(OUTPUTS / "time_split.csv", index=False, float_format="%.4f")
+    ceil.to_csv(OUTPUTS / "time_split_ceiling.csv", index=False, float_format="%.4f")
     sens, sens_sum = sensitivity(d, pms, rated, head)
     sens.to_csv(OUTPUTS / "sensitivity.csv", float_format="%.0f")
     sens_sum.to_csv(OUTPUTS / "sensitivity_summary.csv", index=False, float_format="%.3f")
 
-    f7, f8 = fig_intervals(br), fig_time_split(ts)
+    f7, f8 = fig_intervals(br), fig_time_split(ts, ceil)
 
     # --- acceptance checks
     checks = []
@@ -337,9 +376,11 @@ def main() -> None:
         ]
     n_var = sens_sum.groupby("discipline")["variant"].nunique()
     checks += [
-        ("All 12 variants present (both lists)", n_var.to_dict().__str__(), bool((n_var == 12).all())),
+        (f"All {len(VARIANTS)} variants present (both lists)", n_var.to_dict().__str__(), bool((n_var == len(VARIANTS)).all())),
         ("Time-split table has n and intervals", f"{len(ts)} rows",
-         bool(ts[["n", "lo90", "hi90"]].notna().all().all() and len(ts) == 12)),
+         bool(ts[["n", "lo90", "hi90"]].notna().all().all() and len(ts) == 14)),
+        ("Noise ceiling for both lists", f"{ceil['max_attainable_correlation'].round(2).tolist()}",
+         len(ceil) == 2 and ceil["max_attainable_correlation"].notna().all()),
     ]
     check_df = pd.DataFrame(checks, columns=["check", "value", "pass"])
 
@@ -350,17 +391,19 @@ def main() -> None:
         v = sens[sens["discipline"] == disc].set_index(sens[sens["discipline"] == disc].index)
         for pid, r in t.iterrows():
             print(f"  {int(r['headline_rank']):2d}. {r['player_name']:<24} {int(r['rank_p5']):>3}-{int(r['rank_p95']):<3} "
-                  f"{100 * r['share_top10']:3.0f}%   {int(v.loc[pid, 'n_variants_top10'])}/12")
+                  f"{100 * r['share_top10']:3.0f}%   {int(v.loc[pid, 'n_variants_top10'])}/{len(VARIANTS)}")
     print("\nTime split (Spearman with 2025-26 raw pressure Impact, 90% interval):")
     tsp = ts.assign(ci=ts["lo90"].round(2).astype(str) + " to " + ts["hi90"].round(2).astype(str))
     print(tsp.pivot(index="predictor", columns="discipline", values="spearman").round(2)
           .join(tsp.pivot(index="predictor", columns="discipline", values="ci").add_suffix("_90ci")).to_string())
     print(f"n players: {ts.groupby('discipline')['n'].max().to_dict()}")
+    print("Noise ceiling (split-half reliability of the 2025-26 outcome):")
+    print(ceil.round(3).to_string(index=False))
     print("\nSensitivity (top-10 overlap with headline):")
     print(sens_sum.pivot(index="variant", columns="discipline", values="top10_overlap").reindex(VARIANTS).to_string())
     for disc in ("bat", "bowl"):
         core = sens[(sens["discipline"] == disc) & sens["core_pick"]]["player_name"].tolist()
-        print(f"Core {FILE[disc]} (top 10 in >= {CORE_MIN_VARIANTS}/12 variants): {len(core)}: {', '.join(core)}")
+        print(f"Core {FILE[disc]} (top 10 in >= {CORE_MIN_VARIANTS}/{len(VARIANTS)} variants): {len(core)}: {', '.join(core)}")
     print()
     print(check_df.assign(**{"pass": check_df["pass"].map({True: "PASS", False: "FAIL"})}).to_string(index=False))
     print(f"\nWrote bootstrap_ranks_*.csv, time_split.csv, sensitivity.csv, sensitivity_summary.csv, {f7.name}, {f8.name}")

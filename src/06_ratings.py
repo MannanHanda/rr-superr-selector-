@@ -7,7 +7,7 @@ Run from the repo root:
 
 Inputs  (data/processed/): player_match_stats.parquet;  (outputs/): metrics_batters.csv, metrics_bowlers.csv
 Outputs (outputs/): eb_params.csv, ratings_batters.csv, ratings_bowlers.csv (whole eligible pool, ranked),
-                    top10_batters.md, top10_bowlers.md (top 20 shown, top 10 marked),
+                    rating_scale_change.md (D37); T3 / T4 (top10_*.md) moved to 09_top10_tables.py,
                     figures/f5_shrinkage.png, figures/f6_pressure_vs_usual.png
 
 Components (all in Impact per 100 balls, shrinkage in lib_rating.py):
@@ -15,7 +15,8 @@ Components (all in Impact per 100 balls, shrinkage in lib_rating.py):
   D  pressure shift   pressure minus routine Impact, shrunk to the pool mean shift
   P  pressure level   U + D
   C  consistency      share of pressure matches (>= 3 pressure balls) with positive credited WPA, shrunk
-Rating = 0.60 z(P) + 0.15 z(D) + 0.25 z(C), reported as 50 + 10 x rating.
+Rating = 0.60 z(P) + 0.15 z(D) + 0.25 z(C), z = (shrunk - mean) / SD of raw values (D37), reported as
+50 + 10 x rating.
 Exits with code 1 if any acceptance check fails.
 """
 
@@ -53,35 +54,6 @@ def to_report_units(t: pd.DataFrame) -> pd.DataFrame:
     for c in ("C_hat", "C_raw"):
         t[c] = 100 * t[c]
     return t
-
-
-def top_table(r: pd.DataFrame, disc: str, n: int = 20) -> str:
-    t = r.head(n)
-
-    def pr(a, b, fmt="{:.0f}"):
-        return [f"{fmt.format(x)} / {fmt.format(y)}" if pd.notna(x) and pd.notna(y) else "-"
-                for x, y in zip(t[a], t[b])]
-
-    out = pd.DataFrame({
-        "Rank": [f"**{k}**" if k <= 10 else str(k) for k in t["rank"]],
-        "Player": t["player_name"], "IPL 2026 team": t["ipl_2026_team"].fillna("-"),
-        "Rating": t["rating"].round(1),
-        "Pressure level": t["P_hat"].round(1), "Usual level": t["U"].round(1), "Shift": t["D_hat"].round(1),
-        "Consistency %": t["C_hat"].round(0).astype(int),
-        "Pressure balls": t["elig_pressure_balls"].astype(int), "Pressure matches": t["c_matches"].astype(int),
-        "Pressure WPA (wins)": t["P_wpa_sum"].round(2),
-    })
-    if disc == "bat":
-        out["SR P / R"] = pr("pressure_SR", "routine_SR")
-        out["Dot % P / R"] = pr("pressure_dot_pct", "routine_dot_pct")
-        out["Bdry % P / R"] = pr("pressure_boundary_pct", "routine_boundary_pct")
-        out["Balls/out P / R"] = pr("pressure_balls_per_dismissal", "routine_balls_per_dismissal")
-    else:
-        out["Econ P / R"] = pr("pressure_economy", "routine_economy", "{:.2f}")
-        out["Dot % P / R"] = pr("pressure_dot_pct", "routine_dot_pct")
-        out["Bdry % P / R"] = pr("pressure_boundary_pct", "routine_boundary_pct")
-        out["Balls/wkt P / R"] = pr("pressure_balls_per_wicket", "routine_balls_per_wicket")
-    return out.to_markdown(index=False)
 
 
 def style(ax) -> None:
@@ -142,13 +114,57 @@ def fig_pressure_vs_usual(rated: dict) -> Path:
         style(ax)
     axes[0].set_ylabel("Pressure level (Impact per 100 pressure balls)", fontsize=8, color=INK2)
     axes[1].legend(fontsize=7, frameon=False, loc="lower right")
-    fig.suptitle("Batters lose ground under pressure and bowlers gain\n"
-                 "(dashed line = same level under pressure as usual)", fontsize=10, color=INK, x=0.01, ha="left")
+    # title from the data (D36): with Impact centred on the situation there is no league-wide shift left
+    rng = {d: (rated[d]["D_hat"].min(), rated[d]["D_hat"].max()) for d in rated}
+    fig.suptitle("Pressure level mostly follows usual level; the shift moves few players far\n"
+                 f"(dashed = no change; shrunk shifts per 100 balls: batters {rng['bat'][0]:+.0f} to "
+                 f"{rng['bat'][1]:+.0f}, bowlers {rng['bowl'][0]:+.1f} to {rng['bowl'][1]:+.1f})",
+                 fontsize=10, color=INK, x=0.01, ha="left")
     fig.tight_layout()
     path = FIGS / "f6_pressure_vs_usual.png"
     fig.savefig(path, dpi=200, facecolor="white")
     plt.close(fig)
     return path
+
+
+def effective_weights(t: pd.DataFrame, weights: tuple) -> np.ndarray:
+    """Nominal weight x SD of the component's z-score, rescaled to sum to 100."""
+    w = np.array(weights) * np.array([t[f"z_{c}"].std(ddof=0) for c in ("P_hat", "D_hat", "C_hat")])
+    return 100 * w / w.sum()
+
+
+def scale_change(pms: pd.DataFrame, rated: dict, pools: dict, ebs: dict, p: lr.Params) -> tuple[str, pd.DataFrame]:
+    """D37 report: effective weights and the top 10 under the old scaling (SD of shrunk values, m capped
+    at 60) against the new one (SD of raw values, no cap), on the same data."""
+    old_p = lr.variant(z_scale="shrunk", m_range=(10.0, 60.0))
+    eff_rows, sections = [], []
+    for disc in ("bat", "bowl"):
+        new = rated[disc]
+        old, old_eb = lr.rate(pms, disc, new.index, pools[disc], old_p)
+        for lab, t, eb in (("old", old, old_eb), ("new", new, ebs[disc])):
+            e = effective_weights(t, p.weights)
+            eff_rows.append({"discipline": disc, "scaling": lab, "level %": e[0], "shift %": e[1],
+                             "consistency %": e[2], "consistency m": eb["C"]["k"]})
+        top = new[new["rank"] <= 10]
+        comp = pd.DataFrame({
+            "new rank": top["rank"].astype(int), "player": top["player_name"],
+            "old rank": old["rank"].reindex(top.index).astype(int),
+            "rank on pressure level": new["P_hat"].rank(ascending=False, method="min").reindex(top.index).astype(int),
+        })
+        gone = old[(old["rank"] <= 10) & ~old.index.isin(top.index)]
+        gone_txt = ", ".join(f"{new.loc[i, 'player_name']} (old {int(gone.loc[i, 'rank'])}, new "
+                             f"{int(new.loc[i, 'rank'])})" for i in gone.index) or "nobody"
+        sections += [f"## {LABEL[disc]}: new top 10 with old rank", "", comp.to_markdown(index=False), "",
+                     f"Left the top 10: {gone_txt}.", ""]
+    eff = pd.DataFrame(eff_rows)
+    lines = ["# Rating scale change (generated by src/06_ratings.py, D37, REVIEW_1 item 3)", "",
+             "Old: each shrunk component divided by its own SD after shrinkage, consistency m capped at 60. "
+             "New: each shrunk component divided by the SD of its raw (unshrunk) values across the eligible "
+             "pool, no cap on m. Nominal weights 60 / 15 / 25 (level / shift / consistency). Effective weight = "
+             "nominal weight x SD of the component's z-score, rescaled to sum to 100: how much of the rating's "
+             "spread each component actually drives.", "",
+             "## Effective weights", "", eff.to_markdown(index=False, floatfmt=".1f"), "", *sections]
+    return "\n".join(lines) + "\n", eff
 
 
 def between(shrunk, raw, prior) -> bool:
@@ -161,12 +177,13 @@ def main() -> None:
     FIGS.mkdir(parents=True, exist_ok=True)
     pms = pd.read_parquet(PROC / "player_match_stats.parquet")
     p = lr.Params()
-    rated, pool_tabs, eb_rows, checks = {}, {}, [], []
+    rated, pool_tabs, eb_rows, checks, pools, ebs = {}, {}, [], [], {}, {}
     for disc in ("bat", "bowl"):
         metrics = pd.read_csv(OUTPUTS / f"metrics_{FILE[disc]}.csv", index_col="player_id")
         elig_ids = metrics.index[metrics["eligible"]]
-        pool = lr.eb_pool(pms, disc)
+        pool = pools[disc] = lr.eb_pool(pms, disc)
         t, eb = lr.rate(pms, disc, elig_ids, pool, p)
+        ebs[disc] = eb
         for q, e in eb.items():
             eb_rows.append({"discipline": disc, "quantity": q, **e})
 
@@ -182,17 +199,10 @@ def main() -> None:
         cols = ["rank", "player_name", "ipl_2026_team", "rating", "rating_z", "P_hat", "U", "U_run", "U_wkt", "D_hat",
                 "C_hat", "P_raw", "R_raw", "D_raw", "C_raw", "n_P", "n_R", "c_matches", "P_wpa_sum",
                 "z_P_hat", "z_D_hat", "z_C_hat", "elig_balls", "elig_pressure_balls", "elig_pressure_matches",
-                "elig_recent_balls", "pressure_share_inn1", "ipl_share_of_balls"]
+                "elig_recent_balls", "ipl_pressure_balls", "pressure_share_inn1", "ipl_share_of_balls"]
         plain = [c for c in metrics.columns if c.startswith(("pressure_", "routine_", "all_"))
                  and c not in cols and not c.endswith(("impact_per100", "_n_eff", "_rows"))]
         r[cols + plain].to_csv(OUTPUTS / f"ratings_{FILE[disc]}.csv", float_format="%.4f")
-        (OUTPUTS / f"top10_{FILE[disc]}.md").write_text(
-            f"# Top 20 {FILE[disc]} by reliability rating (generated by src/06_ratings.py)\n\n"
-            "Ranks 1-10 in bold are the submission. Levels and shift are Impact per 100 balls (0 = average ball "
-            "outcome for the situation; positive = helps the team's win chances). Consistency = shrunk share of "
-            "pressure matches with positive win probability added. P / R = pressure / routine balls "
-            "(plain stats on IPL + full-member T20Is). Rank intervals come from src/07_reliability.py.\n\n"
-            + top_table(r, disc) + "\n", encoding="utf-8")
 
         # pool for the shrinkage figure: everyone in the EB pool, priors and k held at the main estimates
         pt, _ = lr.rate(pms, disc, pool.union(elig_ids), pool, p, eb=eb)
@@ -204,20 +214,27 @@ def main() -> None:
                        & (el["elig_recent_balls"] >= lr.ELIG["recent"]))).sum())
         z = r[["z_P_hat", "z_D_hat", "z_C_hat"]]
         corr = float(np.corrcoef(r["rating"], r["elig_pressure_balls"])[0, 1])
+        # D37: better players get more (pressure) balls, so some correlation is real; fail only if the
+        # rating's is clearly above the raw usual level's, i.e. shrinkage manufactured it
+        corr_raw = float(np.corrcoef(r["R_raw"], r["elig_pressure_balls"])[0, 1])
         tag = LABEL[disc]
         checks += [
             (f"{tag}: nobody below an eligibility rule", f"{below} below, {len(r)} rated", below == 0),
             (f"{tag}: no duplicate players", f"{r.index.duplicated().sum()} dup",
              not r.index.duplicated().any() and not r["player_name"].duplicated().any()),
-            (f"{tag}: z-scores mean 0, SD 1", f"max |mean| {z.mean().abs().max():.1e}, SD {z.std(ddof=0).round(6).tolist()}",
-             bool((z.mean().abs() < 1e-9).all() and np.allclose(z.std(ddof=0), 1))),
+            (f"{tag}: z-scores mean 0, SD <= 1 (raw-SD scaling, D37)",
+             f"max |mean| {z.mean().abs().max():.1e}, SD {z.std(ddof=0).round(3).tolist()}",
+             bool((z.mean().abs() < 1e-9).all() and (z.std(ddof=0) <= 1 + 1e-9).all())),
             (f"{tag}: shrunk values between raw and prior", str(between_ok), between_ok),
-            (f"{tag}: |corr(rating, pressure balls)| < 0.3", f"{corr:+.3f}", abs(corr) < 0.3),
+            (f"{tag}: |corr(rating, pressure balls)| < 0.3 or <= raw usual level's + 0.05",
+             f"{corr:+.3f} (raw usual level {corr_raw:+.3f})", abs(corr) < 0.3 or abs(corr) <= abs(corr_raw) + 0.05),
         ]
 
     eb_df = pd.DataFrame(eb_rows)
     eb_df.to_csv(OUTPUTS / "eb_params.csv", index=False)
     f5, f6 = fig_shrinkage(pool_tabs), fig_pressure_vs_usual(rated)
+    sc_md, eff = scale_change(pms, rated, pools, ebs, p)
+    (OUTPUTS / "rating_scale_change.md").write_text(sc_md, encoding="utf-8")
     check_df = pd.DataFrame(checks, columns=["check", "value", "pass"])
 
     # --- console summary
@@ -229,10 +246,12 @@ def main() -> None:
         print(f"\nTop 20 {FILE[disc]}:")
         print(r[["rank", "player_name", "ipl_2026_team", "rating", "P_hat", "U", "D_hat", "C_hat",
                  "elig_pressure_balls"]].round(1).to_string(index=False))
+    print("\nEffective weights (D37):")
+    print(eff.round(1).to_string(index=False))
     print()
     print(check_df.assign(**{"pass": check_df["pass"].map({True: "PASS", False: "FAIL"})}).to_string(index=False))
-    print(f"\nWrote eb_params.csv, ratings_batters.csv, ratings_bowlers.csv, top10_batters.md, top10_bowlers.md, "
-          f"{f5.name}, {f6.name}")
+    print(f"\nWrote eb_params.csv, ratings_batters.csv, ratings_bowlers.csv, "
+          f"rating_scale_change.md, {f5.name}, {f6.name}")
     if not check_df["pass"].all():
         sys.exit(1)
 

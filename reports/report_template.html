@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pressure Ratings Methodology</title>
+<style>
+  :root {
+    --ink: #1b1b1b; --ink2: #4a4945; --muted: #8a8882; --rule: #d9d6cf; --soft: #f4f2ee;
+    --accent: #1f5fae; --secure: #0b7a4b; --probable: #9a5b00; --marginal: #b3261e;
+  }
+  @page {
+    size: A4;
+    margin: 14mm 14mm 15mm 14mm;
+    @bottom-left { content: "SupeRR Selector S2 · Pressure ratings: methodology"; font: 7.5pt "Segoe UI", Arial, sans-serif; color: #8a8882; }
+    @bottom-right { content: "Page " counter(page) " of " counter(pages); font: 7.5pt "Segoe UI", Arial, sans-serif; color: #8a8882; }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; background: #fff; color: var(--ink);
+         font: 9pt/1.38 "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif; }
+  @media screen {
+    body { background: #e9e7e2; }
+    .doc { width: 210mm; margin: 12px auto; background: #fff; padding: 14mm; box-shadow: 0 1px 6px rgba(0,0,0,.15); }
+    section.main { border-top: 1px dashed var(--rule); margin-top: 14mm; padding-top: 8mm; }
+  }
+  @media screen and (max-width: 820px) {
+    .doc { width: auto; margin: 0; padding: 16px; box-shadow: none; }
+    .two, .pair { grid-template-columns: 1fr !important; }
+    .tablewrap { overflow-x: auto; }
+  }
+  section.main { break-before: page; }
+  h1 { font-size: 19pt; line-height: 1.15; margin: 0 0 2mm; letter-spacing: -0.01em; }
+  h2 { font-size: 13.5pt; margin: 0 0 2.5mm; padding-bottom: 1.5mm; border-bottom: 2px solid var(--ink); }
+  h2 .brief { float: right; font-size: 8pt; font-weight: 500; color: var(--ink2); margin-top: 5pt; }
+  h3 { font-size: 10.3pt; margin: 3.5mm 0 1mm; color: var(--ink); break-after: avoid; }
+  h4 { font-size: 9.2pt; margin: 2.5mm 0 1mm; break-after: avoid; }
+  p { margin: 0 0 1.8mm; }
+  ul, ol { margin: 0 0 2mm; padding-left: 5mm; }
+  li { margin-bottom: 0.8mm; }
+  .sub { color: var(--ink2); font-size: 10pt; margin-bottom: 4mm; }
+  .small { font-size: 8.4pt; color: var(--ink2); }
+  .muted { color: var(--muted); }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+  .pair { display: grid; grid-template-columns: 1fr 1.35fr; gap: 5mm; }
+  .box { background: var(--soft); border-left: 3px solid var(--accent); padding: 2.2mm 3mm; margin: 2mm 0 2.5mm; break-inside: avoid; }
+  .box p:last-child, .box ol:last-child, .box ul:last-child { margin-bottom: 0; }
+  .formula { font-family: Cambria, "Times New Roman", serif; font-size: 10.5pt; background: var(--soft); padding: 1.8mm 3mm; margin: 1.5mm 0 2.5mm; break-inside: avoid; }
+  figure { margin: 2mm 0 3mm; break-inside: avoid; text-align: center; }
+  figure img { width: 100%; height: auto; display: block; }
+  figure.w85 img { width: 85%; margin: 0 auto; }
+  figure.w75 img { width: 75%; margin: 0 auto; }
+  figure.w70 img { width: 70%; margin: 0 auto; }
+  figure.w65 img { width: 65%; margin: 0 auto; }
+  figure.w60 img { width: 60%; margin: 0 auto; }
+  figure.w55 img { width: 55%; margin: 0 auto; }
+  figcaption { font-size: 8pt; color: var(--ink2); text-align: left; margin-top: 1mm; }
+  table { border-collapse: collapse; width: 100%; font-size: 8.2pt; margin: 1mm 0 2.5mm; }
+  caption { caption-side: top; text-align: left; font-size: 8pt; font-weight: 600; color: var(--ink2); padding-bottom: 0.8mm; }
+  thead { display: table-header-group; }
+  th { text-align: left; font-weight: 600; border-bottom: 1.2px solid var(--ink); padding: 1.2mm 1.6mm; vertical-align: bottom; }
+  td { border-bottom: 0.6px solid var(--rule); padding: 1mm 1.6mm; vertical-align: top; }
+  tr { break-inside: avoid; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  table.compact { font-size: 8pt; }
+  table.mini { width: auto; }
+  table.tiny { font-size: 7.4pt; }
+  table.defs td:first-child { font-weight: 600; white-space: nowrap; }
+  table.compdef td:nth-child(2) { white-space: nowrap; }
+  table.top10 { font-size: 7.2pt; line-height: 1.25; }
+  table.top10 td { padding: 0.7mm 1.4mm; }
+  table.comp { font-size: 7.6pt; }
+  table.comp td { padding: 0.6mm 1.6mm; }
+  table.top10 th { font-size: 7.1pt; }
+  table.top10 td:nth-child(2) { width: 17%; }
+  table.top10 td:nth-child(3) { width: 12%; }
+  table.top10 td:nth-child(7) { white-space: nowrap; }
+  table.top10 td:last-child { width: 33%; }
+  table.comp td:nth-child(2), table.sens td:first-child, table.rr td:nth-child(2) { white-space: nowrap; }
+  table.mini.profile { width: 75%; }
+  table.rr { font-size: 7.2pt; }
+  table.rr td { padding: 0.5mm 1.6mm; }
+  .conf { font-weight: 600; }
+  .conf.secure { color: var(--secure); } .conf.probable { color: var(--probable); } .conf.marginal { color: var(--marginal); }
+  .flag { color: var(--marginal); }
+  .keep { break-inside: avoid; }
+  ol.rr { padding-left: 6mm; font-size: 8.4pt; }
+  ol.rr li { margin-bottom: 1mm; }
+  .cover-meta { display: flex; justify-content: space-between; font-size: 8.4pt; color: var(--ink2); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding: 1.5mm 0; margin-bottom: 4mm; }
+  .list-title { font-weight: 700; font-size: 10pt; margin-bottom: 1mm; }
+  code, .mono { font-family: Consolas, "Courier New", monospace; font-size: 8.2pt; }
+  pre { font-family: Consolas, "Courier New", monospace; font-size: 7.8pt; background: var(--soft); padding: 2mm 3mm; margin: 1mm 0 2.5mm; white-space: pre-wrap; break-inside: avoid; }
+</style>
+</head>
+<body>
+<div class="doc">
+
+<!-- ============================================================ EXECUTIVE SUMMARY -->
+<header>
+  <h1>Who delivers when it matters</h1>
+  <div class="sub">A leverage-based pressure rating of T20 batters and bowlers, for Rajasthan Royals' IPL 2027 auction planning</div>
+  <div class="cover-meta">
+    <span>SupeRR Selector Season 2 · Round 1 · Methodology report</span>
+    <span>Data: {{d.matches|int}} matches, {{d.deliveries|int}} deliveries, {{d.first_date}} to {{d.last_date}}</span>
+  </div>
+</header>
+
+<div class="two">
+  <div><div class="list-title">Top 10 batters</div>{{table:summary_bat}}</div>
+  <div><div class="list-title">Top 10 bowlers</div>{{table:summary_bowl}}</div>
+</div>
+<p class="small">Confidence: <span class="conf secure">secure</span> = in the top 10 in at least {{p.secure_pct|.0f}}% of {{p.n_boot|int}} match resamples;
+<span class="conf probable">probable</span> = {{p.probable_pct|.0f}}&ndash;{{p.secure_pct|.0f}}%; <span class="conf marginal">marginal</span> = below {{p.probable_pct|.0f}}%.
+Rating: 50 = average eligible player; higher is better. Team = IPL 2026 franchise.</p>
+
+<h3>The method in four lines</h3>
+<ol>
+  <li><b>Pressure = leverage.</b> A win-probability model built on this data tells us how far one ball can swing the match. The top {{p.pressure_top|.0f}}% of balls by that swing in each innings are pressure balls; a first-innings pressure ball counts {{lev.stake_w1|.2f}} of a chase one, in proportion to what is at stake.</li>
+  <li><b>Performance = Impact.</b> The win probability a player adds on a ball, divided by what was at stake, compared with the league average in the same situation.</li>
+  <li><b>Rating = level, shift and consistency.</b> {{p.w_level|.0f}}% pressure level, {{p.w_shift|.0f}}% change from the player's usual level, {{p.w_cons|.0f}}% share of pressure matches won for the team, after shrinking small samples towards the average.</li>
+  <li><b>Checks.</b> Rank intervals from {{p.n_boot|int}} match resamples, a 2022&ndash;24 &rarr; 2025&ndash;26 time split, and {{p.n_variants|int}} alternative versions of the method.</li>
+</ol>
+
+<h3>Three findings</h3>
+<div class="box">
+<ol>
+  <li><b>The usual definition of pressure measures the wrong balls.</b> "Death overs, or a required rate above 10" misses {{naive.chase_missed|.0f}}% of the high-leverage balls in chases, and {{naive.chase_usual_dead_below|.0f}}% of the chase balls it does flag are dead or below-median leverage.</li>
+  <li><b>Pressure balls really are different, but not everywhere.</b> Comparing like with like (same over, same wickets down), chasing batters score {{val.w_2_middle_SR_value|abs.0f}} strike-rate points slower on middle-overs pressure balls. In the first innings, "pressure" is mostly the new ball and carries about half the stake, so it counts about half, and each pick's chase-only rank is shown too.</li>
+  <li><b>Bowlers' pressure form partly repeats; batters' does not.</b> Rated on 2022&ndash;24, bowlers' pressure level correlates {{ts.bowl_level|.2f}} with their 2025&ndash;26 pressure Impact (full rating {{ts.bowl_rating|.2f}}); for batters the rating's correlation is {{ts.bat_rating|.2f}}. The bowling list is the firmer of the two; the batting list ranks who has delivered, not a forecast.</li>
+</ol>
+</div>
+<p class="small">How sure we are: {{conf.bat_secure|int}} batters and {{conf.bowl_secure|int}} bowlers are secure; {{conf.bat_marginal|int}} and {{conf.bowl_marginal|int}} are marginal, and places 9&ndash;10 are close to coin-flips against 11&ndash;12. Every number in this report is read from a file the pipeline writes to <code>outputs/</code>.</p>
+
+<!-- ============================================================ 1. PRESSURE -->
+<section class="main" id="s1">
+<h2>1. Pressure definition <span class="brief">Brief item: which situations and indicators, and why</span></h2>
+
+<h3>1.1 A win-probability model built on this data</h3>
+<p>Pressure starts from win probability (WP): the chance that the batting side wins, given the score, balls left, wickets in hand and, in a chase, the target. We fit it on {{wp.train_balls|int}} balls from {{wp.train_matches|int}} completed matches. Associate T20Is, DLS-affected games, ties and no-results are left out of fitting (their outcomes are mismatches or unreliable) but are still scored.</p>
+<ul>
+  <li><b>First innings:</b> a logistic regression on how far the projected total sits above par. Par is the average first-innings total in the same competition tier and season, leaving the match itself out, which tracks the rise in IPL scoring year by year.</li>
+  <li><b>Chase:</b> a logistic regression on how many runs the chasing side is ahead of an average side with the same balls and wickets left.</li>
+  <li><b>Last {{p.late_b|int}} balls of a chase:</b> the regression misjudges the final over, so WP is computed exactly by playing out every remaining ball with league outcome rates for the same runs-per-ball requirement, fully so on the last ball.</li>
+</ul>
+<div class="pair">
+  <div>{{table:wp}}
+  <p class="small">Brier = mean squared error of the predicted probability (lower is better; the constant guess predicts the average win rate). Calibration error = average gap between predicted and actual win rates over ten probability bins, on matches the model never saw ({{p.folds|int}}-fold cross-validation by match).</p></div>
+  <div><p class="small"><b>Sanity checks</b> (chasing side with 5 wickets in hand): 6 needed off the last ball, WP {{wp.6_off_1|.2f}}; 4 off the last ball {{wp.4_off_1|.2f}}; 12 off 3 {{wp.12_off_3|.2f}}; 6 off 6 {{wp.6_off_6|.2f}}; 30 off 6 {{wp.30_off_6|.2f}}.</p>
+  <p class="small">The chase model is strong (AUC {{wp.auc_2|.2f}}). The first-innings model is weaker (AUC {{wp.auc_1|.2f}}): before the chase starts, much of the result is still unknown. First-innings leverage inherits that, which is one reason we report a chase-only rank for every pick.</p></div>
+</div>
+<figure class="w65">{{fig:f1}}<figcaption>Figure 1. Calibration of the WP model on out-of-fold matches. Source: <code>outputs/wp_model_eval.md</code>.</figcaption></figure>
+
+<h3>1.2 Leverage: how much one ball can swing the match</h3>
+<p>For every ball we compute the WP after each of {{p.n_outcomes|int}} possible outcomes (dot, 1, 2, 3, 4, 6, wicket, extra), weight them by how often each happens in that innings and phase, and take their spread (standard deviation). Dividing by the all-ball average gives the <b>Leverage Index (LI)</b>: an average ball is 1.00; a ball with LI 3 carries three times the usual stake. The 95th percentile is {{lev.p95_li|.2f}}, the 99th {{lev.p99_li|.2f}}, and the highest, the last ball of a close chase, {{lev.max_li|.1f}}.</p>
+
+<h3>1.3 Pressure balls</h3>
+<p>A <b>pressure ball</b> is one whose LI is at or above the {{p.pressure_pct|ord}} percentile of its own innings, so {{p.pressure_top|.0f}}% of the balls in each innings qualify ({{lev.pressure_balls|int}} in all). A <b>dead ball</b> cannot move WP by more than {{p.dead_pts|.1f}} points; these ({{lev.dead_pct|.1f}}% of balls, mostly lost causes) are dropped, so runs in a dead game count for nothing. Everything else is a <b>routine ball</b>.</p>
+<p><b>Why the cut is set within each innings.</b> Chase leverage is either near zero or very high, while first-innings leverage is flat. One league-wide cut would make {{lev.global_cut_chase_pct|.0f}}% of pressure balls chase balls, and nobody would be rated on setting a total. So pressure is measured relative to the job, and we show the split openly.</p>
+{{table:pressure_profile}}
+<p><b>How much each innings counts.</b> The two kinds of pressure ball do not carry the same stake: the median pressure ball has LI {{lev.median_li_1|.2f}} in the first innings and {{lev.median_li_2|.2f}} in a chase. So in the rating a first-innings pressure ball counts {{lev.stake_w1|.2f}} of a chase pressure ball (the ratio of the two medians). First-innings play is still rated, but the new ball cannot outweigh a tight chase. The ratio is measured, not chosen, and was fixed before any re-ranking; equal weights are variant V13 (section 5.3).</p>
+<p><b>What first-innings pressure is.</b> It is mostly the new ball: {{lev.over1_flag|.0f}}% of first-over balls and {{lev.over2_flag|.0f}}% of second-over balls are pressure balls, and first-innings powerplay balls are {{lev.inn1_pp_share_all|.0f}}% of all pressure balls. Early wickets move the projected total most, so that is where the first-innings stakes are, but they are only mildly high (median LI {{lev.median_li_1|.2f}} against {{lev.median_li_2|.2f}} in chases). Chase pressure sits in close games: {{lev.chase_close_pct|.0f}}% of chase pressure balls come with WP between 20% and 80%.</p>
+<figure class="w60">{{fig:f2}}<figcaption>Figure 2. One close IPL 2026 chase, ball by ball. Orange bars are pressure balls. Source: <code>src/04_validate_pressure.py</code>.</figcaption></figure>
+
+<h3>1.4 Evidence that pressure balls matter</h3>
+<p><b>Phase alone is not enough.</b> Mean absolute WP change per ball, in percentage points: the death overs move WP more than the middle overs, but the leverage bands separate balls far more sharply than phase does.</p>
+{{table:abswp}}
+<p><b>Outcomes change on pressure balls, like for like.</b> Figure 3 compares pressure and routine balls inside the same over and the same number of wickets down, so the gap is not just "later overs" or "more wickets down". The crude gaps (hollow circles) are mostly that mix. What holds: chasing batters score {{val.w_2_middle_SR_value|abs.1f}} strike-rate points slower on middle-overs pressure balls (90% interval {{val.w_2_middle_SR_hi90|abs.1f}} to {{val.w_2_middle_SR_lo90|abs.1f}} slower) and {{val.w_2_powerplay_SR_value|abs.1f}} slower in the powerplay, where the interval just reaches zero. At the chase death there is no strike-rate gap and the wicket gap ({{val.w_2_death_wicket_pct_value|+.1f}} points) is not clear of zero. In first-innings middle overs, batters score faster on pressure balls ({{val.w_1_middle_SR_value|+.1f}}). We report this mixed picture as found: pressure changes the game, and players differ in how they respond, which is what the rating measures.</p>
+<figure class="w75">{{fig:f3}}<figcaption>Figure 3. Pressure minus routine within over &times; wickets-down cells, by innings and phase. Source: <code>outputs/pressure_validation.csv</code>.</figcaption></figure>
+<p><b>The usual definition misses most pressure balls.</b> In chases, "overs 16&ndash;20 or required rate above 10" misses {{naive.chase_missed|.0f}}% of our pressure balls and {{naive.crunch_missed|.0f}}% of crunch balls (top {{p.crunch_pct|.0f}}% of LI), while {{naive.chase_usual_dead_below|.0f}}% of the balls it flags are dead or below-median leverage.</p>
+<figure class="w55">{{fig:f4}}<figcaption>Figure 4. The usual definition against leverage, chase balls. Source: <code>outputs/naive_vs_leverage.csv</code>.</figcaption></figure>
+</section>
+
+<!-- ============================================================ 2. PERFORMANCE -->
+<section class="main" id="s2">
+<h2>2. Performance measurement <span class="brief">Brief item: batting and bowling metrics, baselines, rating logic</span></h2>
+
+<h3>2.1 Value of one ball: Impact</h3>
+<div class="formula">Impact = (WP after the ball &minus; WP before) &divide; leverage of the ball &minus; league average for the same situation</div>
+<p><b>Impact is how much a ball helped the team's win chances, measured against how much was at stake on it, compared with what an average player does in the same situation.</b> Raw WP added is larger on pressure balls simply because more is at stake; dividing by leverage puts pressure and routine balls on one scale, so the two can be compared. Impact is split into a run part (the WP change without the wicket) and a wicket part, each capped at &plusmn;{{p.x_clip|.0f}} so one freak ball cannot dominate. Figures are per 100 balls; positive helps the player's team.</p>
+<ul>
+  <li><b>Batter</b>: the run part on every ball faced, and the wicket part only when he is out. Wides are not the striker's; a non-striker run-out is charged to nobody.</li>
+  <li><b>Bowler</b>: every delivery, wides and no-balls included, with the sign flipped; the wicket part only for bowler wickets (not run-outs).</li>
+  <li><b>Centring</b>: from each ball we subtract the league-average credited Impact in the same innings, over group (1&ndash;2, 3&ndash;6, 7&ndash;10, 11&ndash;15, 16&ndash;18, 19&ndash;20) and pressure flag. Without this, openers looked worse and new-ball bowlers better under pressure purely because of where they play: eligible batters' average shift was {{cent.bat_before|+.1f}} per 100 balls before centring and {{cent.bat_after|+.1f}} after; bowlers' {{cent.bowl_before|+.1f}} and {{cent.bowl_after|+.1f}}.</li>
+</ul>
+
+<h3>2.2 Plain metrics shown alongside</h3>
+{{table:metrics}}
+<p class="small">Only Impact (and the sign of each match's pressure WPA) enters the rating. The plain metrics are on IPL and full-member T20I balls, unweighted, so readers can check them against public records.</p>
+
+<h3>2.3 Baseline: the player's own routine balls</h3>
+<p>A player's usual level is his Impact on his own routine balls (neither pressure nor dead), in the same tiers with the same weights. Routine rather than all balls, so the two sides of the comparison do not overlap.</p>
+
+<h3>2.4 The rating</h3>
+{{table:components_def}}
+<div class="formula">Rating = {{p.w_level|.0f}}% &middot; z(pressure level) + {{p.w_shift|.0f}}% &middot; z(shift) + {{p.w_cons|.0f}}% &middot; z(consistency), &nbsp; reported as 50 + 10 &times; rating</div>
+<p>Each z-score divides the player's shrunk value by the spread of the <i>raw</i> values across the pool. A component that the data cannot measure well is pulled close to the average by shrinkage (section 3.1), so it ends up with little spread and counts for little. The weights were fixed before any ranking was seen; the effective weights below show how much each component actually moves the ranking.</p>
+<div class="pair">
+  <div>{{table:effective}}</div>
+  <div><p class="small"><b>Why level leads.</b> Pressure level is what wins matches and is the best-measured component. The shift is the brief's "compared with their usual level", but it is the difference of two noisy numbers, so for bowlers it is shrunk almost to zero (shrunk shifts range {{pool.bowl_shift_min|+.1f}} to {{pool.bowl_shift_max|+.1f}} per 100 balls, against {{pool.bat_shift_min|+.1f}} to {{pool.bat_shift_max|+.1f}} for batters). <b>Never the drop alone:</b> a player who is poor in every situation has no drop at all, so ranking on the drop would reward him.</p></div>
+</div>
+</section>
+
+<!-- ============================================================ 3. FAIR COMPARISONS -->
+<section class="main" id="s3">
+<h2>3. Fair comparisons <span class="brief">Brief item: sample sizes, eligibility, match context, IPL + T20I</span></h2>
+
+<h3>3.1 Shrinking small samples (empirical Bayes)</h3>
+<p>Each estimate is pulled towards the pool average by an amount set by the data: shrunk = average + n &divide; (n + k) &times; (raw &minus; average), where n is the player's effective number of balls. <b>k is the number of balls at which we trust the player's own record as much as the league average</b>, estimated from how much players really differ compared with ball-to-ball noise. Run and wicket parts are shrunk separately because wickets take far longer to settle. Priors and k are estimated on players with at least {{p.eb_total|int}} balls and {{p.eb_pressure|int}} pressure balls.</p>
+<div class="pair">
+  <div>{{table:eb}}<p class="small">"Cap" = the data shows almost no real spread between bowlers' shifts, so k hits the {{p.k_cap|int}}-ball ceiling and the shift is close to the average for everyone.</p></div>
+  <div><figure>{{fig:f5}}<figcaption>Figure 5. Raw against shrunk pressure Impact. Small samples cannot top the list. Source: <code>src/06_ratings.py</code>.</figcaption></figure></div>
+</div>
+
+<h3>3.2 Eligibility and sample sizes</h3>
+<div class="pair">
+  <div>{{table:eligibility}}<p class="small">Counts use live (non-dead) balls in all four competition tiers; bowlers' balls are legal deliveries.</p></div>
+  <div>{{table:funnel}}<p class="small">The median eligible player has {{pool.bat_median_pressure_balls|int}} (batters) or {{pool.bowl_median_pressure_balls|int}} (bowlers) pressure balls.</p></div>
+</div>
+
+<h3>3.3 Combining IPL and T20I data</h3>
+<p>Two separate adjustments. A <b>difficulty offset</b> is measured: for players with at least {{p.offset_min_balls|int}} balls both in a tier and in the IPL, the average difference in their Impact, taken off every ball in that tier. A <b>relevance weight</b> is a judgment, fixed in advance: the target is IPL 2027, so IPL evidence counts most. Associate and Emerging offsets are zero because fewer than {{p.offset_min_players|int}} players qualify; for those tiers the low weights do the work.</p>
+{{table:tiers}}
+
+<h3>3.4 Recency and match context</h3>
+<div class="pair">
+  <div>{{table:recency}}<p class="small">Half-life of {{p.half_life|.0f}} years, applied to every ball and match.</p></div>
+  <div><ul class="small">
+    <li><b>Era and competition:</b> par is set per competition tier and season, so a 190 in IPL 2026 is judged against IPL 2026, including the deeper batting since the Impact Player rule.</li>
+    <li><b>Situation:</b> Impact is centred on innings, over group and pressure flag (2.1).</li>
+    <li><b>Venue:</b> not adjusted; the data has anonymous venue ids only.</li>
+    <li><b>Opposition:</b> no explicit adjustment beyond competition tier (see limitations).</li>
+  </ul></div>
+</div>
+</section>
+
+<!-- ============================================================ 4. EVIDENCE -->
+<section class="main" id="s4">
+<h2>4. Evidence for the top 10 <span class="brief">Brief item: results, comparisons, tables and charts</span></h2>
+<p class="small"><b>How to read the tables.</b> Rank interval = 5th&ndash;95th percentile rank over {{p.n_boot|int}} match resamples; the percentage below it is the share of resamples in which the player is top 10 (coloured by confidence band). Pressure balls count all tiers; the IPL share is in brackets. Pressure / routine = the plain metric on pressure balls / on routine balls. &#9873; = high variance: an eligibility count within {{p.flag_margin_pct|.0f}}% of its minimum, or at least {{p.flag_season_pct|.0f}}% of pressure balls in one season.</p>
+
+<h3>Table 3. Top 10 batters</h3>
+<div class="tablewrap">{{table:top10_bat}}</div>
+<h4>Rating components (Impact per 100 balls; consistency %)</h4>
+{{table:comp_bat}}
+</section>
+
+<section class="main" id="s4b">
+<h3>Table 4. Top 10 bowlers</h3>
+<div class="tablewrap">{{table:top10_bowl}}</div>
+<h4>Rating components (Impact per 100 balls; consistency %). "Chase-only rank" for bowlers = when defending a target.</h4>
+{{table:comp_bowl}}
+<figure class="w65">{{fig:f6}}<figcaption>Figure 6. Pressure level against usual level, eligible players; top 10 labelled. Points above the dashed line do better under pressure than usual. Source: <code>outputs/ratings_*.csv</code>.</figcaption></figure>
+</section>
+
+<!-- ============================================================ 5. RELIABILITY -->
+<section class="main" id="s5">
+<h2>5. Reliability and limitations <span class="brief">Brief item: consistency across matches, uncertainty</span></h2>
+
+<h3>5.1 How sure is each place?</h3>
+<p>We resample whole matches {{p.n_boot|int}} times and re-rank. {{conf.bat_secure|int}} batters and {{conf.bowl_secure|int}} bowlers stay in the top 10 in at least {{p.secure_pct|.0f}}% of resamples. The order inside a confidence band is the point estimate only, and places 9&ndash;10 are close to coin-flips: #11 {{boot.bat_name_11}} is top 10 in {{boot.bat_share_11|.0f}}% of resamples and #11 {{boot.bowl_name_11}} in {{boot.bowl_share_11|.0f}}%. The intervals hold the WP model and shrinkage settings fixed, so the true uncertainty is larger.</p>
+<figure class="w70">{{fig:f7}}<figcaption>Figure 7. 90% bootstrap rank intervals, top 20 of each list. Source: <code>outputs/bootstrap_ranks_*.csv</code>.</figcaption></figure>
+
+<h3>5.2 Does pressure form repeat?</h3>
+<p>We rate players on 2022&ndash;24 only and check how well each measure predicts their raw pressure Impact in 2025&ndash;26 (players with at least {{p.time_min_pressure|int}} pressure balls in both periods). Because the 2025&ndash;26 outcome is itself noisy, no predictor could exceed about {{ts.bat_ceiling|.2f}} for batters and {{ts.bowl_ceiling|.2f}} for bowlers (split-half reliability). <b>For bowlers</b>, pressure level ({{ts.bowl_level|.2f}}, 90% interval {{ts.bowl_level_lo|+.2f}} to {{ts.bowl_level_hi|+.2f}}) recovers a fair part of what is recoverable; the full rating ({{ts.bowl_rating|.2f}}, {{ts.bowl_rating_lo|+.2f}} to {{ts.bowl_rating_hi|+.2f}}) less clearly. <b>For batters</b>, the rating shows no persistence ({{ts.bat_rating|+.2f}}, 90% interval {{ts.bat_rating_lo|+.2f}} to {{ts.bat_rating_hi|+.2f}}); raw pressure Impact ({{ts.bat_raw|.2f}}) and the usual death-overs strike rate ({{ts.bat_usual|.2f}}) do slightly better, but their intervals overlap zero and each other. We did not retune the weights on about {{ts.bat_n|int}} players. The batting list is the best evidence of who has delivered, not a forecast.</p>
+<figure class="w65">{{fig:f8}}<figcaption>Figure 8. Time split: correlation of each 2022&ndash;24 predictor with 2025&ndash;26 pressure Impact. Source: <code>outputs/time_split.csv</code>, <code>time_split_ceiling.csv</code>.</figcaption></figure>
+
+<h3>5.3 Sensitivity: {{p.n_variants|int}} other ways to build the ranking</h3>
+<div class="pair">
+  <div>{{table:sensitivity}}</div>
+  <div><p class="small">Each variant changes one choice and re-ranks the same pool. {{sens.bat_core|int}} batters and {{sens.bowl_core|int}} bowlers stay top 10 in at least {{p.core_min|int}} of {{p.n_variants|int}} variants ("core picks"; the "Variants top 10" column in section 4). The biggest changes come from a single league-wide pressure cut (V3, which in practice rates chases only), ranking on raw WP added instead of Impact (V12), dropping the recency weights (V7) and IPL balls only (V9). Counting both innings' pressure balls equally (V13) keeps {{sens.bat_v13_overlap|int}} of 10 batters and {{sens.bowl_v13_overlap|int}} of 10 bowlers.</p>
+  <p class="small"><b>Consistency across matches.</b> Raw pressure WPA is dominated by a handful of last-over balls, so it can disagree with Impact. For bowlers it does: {{bowl1.player_name}}'s pressure WPA is {{bowl1.total_pressure_wpa|+.2f}} wins in total and {{bowl1.total_without_best|+.2f}} without his best match; {{bowl4.player_name}}'s is {{bowl4.total_pressure_wpa|+.2f}}. Every pick's three best and three worst pressure matches are in <code>outputs/top10_match_detail.csv</code>.</p></div>
+</div>
+
+<h3>5.4 Limitations</h3>
+<ul>
+  <li><b>Batting persistence.</b> The batter rating does not predict the next period (5.2). Treat batting places beyond the secure ones as a record of delivery.</li>
+  <li><b>Small samples.</b> {{bat1.player_name}}'s evidence is almost all from one season; {{bat3.player_name}} is close to the career-volume minimum ({{bat3.elig_balls|int}} balls). Both are flagged in Table 3.</li>
+  <li><b>IPL evidence.</b> {{bowl9.player_name}} has {{bowl9.ipl_pressure_balls|int}} IPL pressure balls and {{bat6.player_name}} {{bat6.ipl_pressure_balls|int}}; their ratings rest mainly on T20Is, adjusted by an offset measured on the players who play in both (Table in 3.3) and down-weighted.</li>
+  <li><b>First-innings pressure is mostly the new ball</b>, and the first-innings WP model is weaker (AUC {{wp.auc_1|.2f}}). The chase-only rank in section 4 shows who also holds up when chasing.</li>
+  <li><b>Last ball of a chase.</b> After the exact play-out, the model is still slightly pessimistic there on average ({{wp.last_ball_dwp|+.1f}} WP points per ball, standard error {{wp.last_ball_se|.1f}}, {{wp.last_ball_n|int}} balls).</li>
+  <li><b>Role effects.</b> Centring removes most of the effect of where a player bats; the correlation between batters' role mix and their shift falls from {{cent.bat_corr_before|.2f}} to {{cent.bat_corr_after|.2f}}, not to zero.</li>
+  <li><b>No venue or opposition adjustment.</b> Venue names are missing (anonymous ids only), and opposition strength is only handled through competition tiers.</li>
+  <li><b>DLS and short games.</b> {{d.dls_no_target|int}} DLS games have no revised target, so their chases are not scored; DLS games are left out of fitting; other revised targets are taken from the data.</li>
+  <li><b>Accounting simplifications.</b> Byes and leg-byes sit inside the run part for both batter and bowler. Super overs are excluded; {{d.tied|int}} tied matches are scored with a level finish worth 0.5.</li>
+</ul>
+</section>
+
+<!-- ============================================================ 6. RR -->
+<section class="main" id="s6">
+<h2>6. How each pick strengthens RR <span class="brief">Optional extra</span></h2>
+<p>We rank purely on the data; nobody is moved up or down for being at RR or likely to be retained. This section describes fit. RR's own IPL 2025&ndash;26 pressure-ball record is compared with the other nine teams in each phase &times; role cell; a cell counts only if every team has enough pressure balls in it, and a <b>need</b> is a cell where RR rank in the bottom three. Two seasons is a small sample, so read this as indicative.</p>
+{{table:rr_needs}}
+<p class="small">A pick "fills" a need if his role matches the cell (batting position group, or pace / spin) and a substantial share of his recent balls fall in that phase. Picks already at RR: {{top10.bat_rr|int}} batter, {{top10.bowl_rr|int}} bowlers.</p>
+<h4>Batters (ranks 11&ndash;15 in grey are the alternates)</h4>{{table:rr_bat}}
+<h4>Bowlers</h4>{{table:rr_bowl}}
+</section>
+
+<!-- ============================================================ APPENDIX -->
+<section class="main" id="app">
+<h2>Appendix</h2>
+
+<h3>A. Reproducing the results</h3>
+<p>Code and decision log: <span class="mono">{{REPO_URL}}</span>. Python, Windows PowerShell, run from the repository root with the competition data pack in <code>data/raw/</code>. Every random step uses seed {{p.seed|int}}; each script checks its own outputs and stops on a failure.</p>
+<pre>python src/01_clean.py             # clean, label legal balls, chase targets, tiers
+python src/02_wp_model.py          # win-probability model and calibration (F1)
+python src/03_leverage.py          # leverage, pressure balls, Impact per ball
+python src/04_validate_pressure.py # pressure validation (F2-F4)
+python src/05_player_metrics.py    # credit, tier offsets, centring, eligibility
+python src/06_ratings.py           # shrinkage, ratings (F5-F6)
+python src/07_reliability.py       # bootstrap, time split, sensitivity (F7-F8)
+python src/08_rr_fit.py            # RR needs and role cards
+python src/09_top10_tables.py      # Tables 3-4, match detail, final lists
+python src/91_report_numbers.py    # numbers quoted in this report
+python src/92_build_report.py      # this report (reports/report.html)</pre>
+
+<h3>B. Full eligibility rules</h3>
+<ul class="small">
+  <li>Scored balls: innings 1&ndash;2 of completed and tied matches; no-result and abandoned games, super overs and the chases of the {{d.dls_no_target|int}} DLS games without a revised target are excluded. Live balls are scored balls that are not dead.</li>
+  <li>Batters count balls faced (wides excluded); bowlers count legal deliveries. All four tiers count towards eligibility.</li>
+  <li>Career &ge; {{p.elig_total|int}} live balls; &ge; {{p.elig_pressure|int}} pressure balls; &ge; {{p.elig_matches|int}} pressure matches (a match with at least {{p.match_min_balls|int}} pressure balls); &ge; {{p.elig_recent|int}} live balls in {{p.recent_from|.0f}}&ndash;{{p.recent_to|.0f}}.</li>
+  <li>Shrinkage priors and k: players with &ge; {{p.eb_total|int}} live balls and &ge; {{p.eb_pressure|int}} pressure balls. Time split: &ge; {{p.time_min_pressure|int}} pressure balls in each period.</li>
+</ul>
+
+<h3>C. Data coverage (Table 1)</h3>
+{{table:coverage}}
+<p class="small">{{d.matches_with_balls|int}} of {{d.matches|int}} matches have ball-by-ball data; {{d.scored_balls|int}} balls in {{d.scored_matches|int}} matches are scored. Tiers: IPL; T20I between full members; T20I involving an associate side; Emerging (A-team Asia Cups).</p>
+
+<h3>D. Decision log summary</h3>
+<table class="defs tiny">
+<thead><tr><th>Decision</th><th>What we chose, and the alternative we rejected</th></tr></thead>
+<tbody>
+<tr><td>D1&ndash;D5</td><td>Standard scoring rules: legal ball, bowler charges, bowler wickets, chase target from revised target or first-innings total; four competition tiers.</td></tr>
+<tr><td>D6&ndash;D8, D25&ndash;D27</td><td>WP model = two logistic regressions on an expected-runs curve, par by tier &times; season; trained on completed non-DLS, non-associate matches, calibration judged out of fold. Rejected: gradient boosting (stepped surface), venue effects.</td></tr>
+<tr><td>D35</td><td>Last six chase balls: exact play-out blended with the regression. Rejected: one outcome mix for all requirements.</td></tr>
+<tr><td>D9&ndash;D10, D41, D45</td><td>Leverage Index; pressure = top share of LI within each innings; first-innings pressure balls weighted by the ratio of median pressure LI (D45). Rejected: one global cut (rates chases only), phase rules.</td></tr>
+<tr><td>D11&ndash;D13, D36</td><td>Impact = WP added &divide; leverage, centred on innings &times; over group &times; pressure flag; routine balls as baseline. Rejected: raw WPA as the rated quantity (kept as a variant).</td></tr>
+<tr><td>D14&ndash;D17, D37</td><td>Pressure level = usual level + shrunk shift; consistency = shrunk share of positive pressure matches; weights fixed in advance; z-scores on raw spread. Rejected: ranking on the drop alone; tuning weights on the time split.</td></tr>
+<tr><td>D18&ndash;D21, D38</td><td>Empirical-Bayes shrinkage; eligibility minimums on all tiers; measured tier offsets plus fixed relevance weights; two-year recency half-life. Rejected: an IPL-ball minimum; weights alone.</td></tr>
+<tr><td>D22</td><td>No explicit opposition adjustment (circular and thin). Stated as a limitation.</td></tr>
+<tr><td>D23, D39&ndash;D40, D42&ndash;D44</td><td>Reliability: match bootstrap with confidence bands, time split reported as found with a noise ceiling, within-cell validation, match-level detail and high-variance flags.</td></tr>
+<tr><td>Q1&ndash;Q2</td><td>Data-only ranking (no RR adjustment); super overs excluded.</td></tr>
+</tbody>
+</table>
+</section>
+
+</div>
+
+<script type="text/x-why">
+bat|Vaibhav Sooryavanshi|{{bat1.P_rank|ord}} on pressure level and {{bat1.U_rank|ord}} on usual level; scores a little slower under pressure but is out far less often; {{bat1.chase_pressure_rank|ord}} when chasing. One season of evidence.
+bat|Heinrich Klaasen|Top 10 in {{bat2.n_variants_top10|int}} of {{p.n_variants|int}} variants. Keeps most of his scoring rate under pressure and is out less often; middle-overs batter.
+bat|Priyansh Arya|{{bat3.D_rank|ord}} in the pool on shift: scores faster under pressure. Mostly new-ball pressure ({{bat3.pressure_share_inn1_pct|.0f}}% first innings); {{bat3.chase_pressure_rank|ord}} when chasing.
+bat|Abhishek Sharma|{{bat4.U_rank|ord}} on usual level; slower under pressure (shift {{bat4.D_hat|+.1f}}) but still {{bat4.P_rank|ord}} on pressure level and {{bat4.chase_pressure_rank|ord}} when chasing.
+bat|Tim David|{{bat5.pressure_share_inn2_pct|.0f}}% of his pressure balls come in chases ({{bat5.chase_pressure_rank|ord}} chasing); close to his usual level under pressure (shift {{bat5.D_hat|+.1f}}).
+bat|Finn Allen|{{bat6.U_rank|ord}} on usual level, but {{bat6.pressure_share_inn1_pct|.0f}}% of pressure balls are first-innings and only {{bat6.ipl_pressure_balls|int}} in the IPL.
+bat|Virat Kohli|Lifts under pressure (shift {{bat7.D_hat|+.1f}}) and is {{bat7.chase_pressure_rank|ord}} on chase-only level, on {{bat7.ipl_pressure_balls|int}} IPL pressure balls.
+bat|Rajat Patidar|All {{bat8.elig_pressure_balls|int}} pressure balls in the IPL; out less often under pressure, but {{bat8.chase_pressure_rank|ord}} when chasing.
+bat|Shreyas Iyer|{{bat9.C_rank|ord}} on consistency (share of pressure matches won for his side) and {{bat9.chase_pressure_rank|ord}} when chasing; {{bat9.ipl_pressure_balls|int}} of {{bat9.elig_pressure_balls|int}} pressure balls in the IPL. Marginal.
+bat|Josh Inglis|Same output under pressure as usual (shift {{bat10.D_hat|+.1f}}); evidence split between IPL ({{bat10.ipl_pressure_balls|int}} balls) and T20Is. Marginal.
+bowl|Jasprit Bumrah|{{bowl1.P_rank|ord}} on pressure level; dot % rises under pressure and he is {{bowl1.chase_pressure_rank|ord}} when defending a target. Consistency share only {{bowl1.C_rank|ord}}.
+bowl|Sunil Narine|Top 10 in {{bowl2.n_variants_top10|int}} of {{p.n_variants|int}} variants; economy falls under pressure; all {{bowl2.elig_pressure_balls|int}} pressure balls in the IPL.
+bowl|Mustafizur Rahman|Death and new-ball seamer; economy holds and dot % rises under pressure. {{bowl3.ipl_pressure_balls|int}} of {{bowl3.elig_pressure_balls|int}} pressure balls in the IPL.
+bowl|Lungi Ngidi|{{bowl4.U_rank|ord}} on usual level and {{bowl4.chase_pressure_rank|ord}} when defending, but {{bowl4.C_rank|ord}} of {{bowl4.pool_size|int}} on consistency and {{bowl4.ipl_pressure_balls|int}} IPL pressure balls.
+bowl|Bhuvneshwar Kumar|{{bowl5.elig_pressure_balls|int}} pressure balls over {{bowl5.c_matches|int}} matches; economy and dot % both improve under pressure; {{bowl5.C_rank|ord}} on consistency.
+bowl|Rashid Khan|{{bowl6.chase_pressure_rank|ord}} in the pool when defending a target; economy falls under pressure; {{bowl6.C_rank|ord}} on consistency.
+bowl|Josh Hazlewood|New-ball bowler whose dot % rises under pressure; {{bowl7.chase_pressure_rank|ord}} when defending a target.
+bowl|Krunal Pandya|Economy {{bowl8.pressure_economy|.2f}} on pressure balls against {{bowl8.routine_economy|.2f}} routine, all in the IPL; {{bowl8.C_rank|ord}} on consistency.
+bowl|Mohammad Nawaz|Middle-overs spinner, {{bowl9.chase_pressure_rank|ord}} when defending; no IPL balls, all evidence from T20Is.
+bowl|Nathan Ellis|Death bowler whose economy holds under pressure; fits RR's middle-overs pace need. Marginal.
+</script>
+</body>
+</html>

@@ -52,7 +52,12 @@ INK, INK2, BLUE, GRID = "#0b0b0b", "#52514e", "#2a78d6", "#e4e3df"
 COLS = [
     "match_id", "innings", "comp_tier", "year", "status", "is_dls", "use_for_model", "max_balls",
     "balls_remaining", "wickets_before", "score_before", "runs_needed", "total_runs", "batting_team_won",
+    "innings_ball_num", "is_legal", "is_wicket",
 ]
+# late-chase acceptance bars (REVIEW_1 item 1): (r, b, w, lo, hi)
+LATE_BARS = [(6, 1, 5, 0.05, 0.15), (4, 1, 5, 0.0, 0.30), (12, 3, 5, 0.0, 0.15)]
+DWP_BUCKETS = [(1, 1, "1"), (2, 3, "2-3"), (4, 6, "4-6"), (7, 12, "7-12")]
+DWP_TOL = 0.005
 
 
 # ---------------------------------------------------------------- data
@@ -111,6 +116,8 @@ def fit(rows: pd.DataFrame) -> dict:
     models["erem"] = PoissonRegressor(alpha=0, max_iter=3000).fit(
         lib_wp.erem_features(full["balls_remaining"], full["w"]), remaining
     )
+    last = full["balls_remaining"] <= lib_wp.EMP_EREM_B
+    models["erem_emp"] = {int(k): float(v) for k, v in remaining[last].groupby(full.loc[last, "balls_remaining"]).mean().items()}
     models["erem120"] = float(lib_wp.erem(models, [120], [10])[0])
 
     Xc = lib_wp.first_features(models, i1["score_before"], i1["balls_remaining"], i1["w"],
@@ -120,6 +127,15 @@ def fit(rows: pd.DataFrame) -> dict:
     i2 = rows[rows["innings"] == 2]
     Xd = lib_wp.chase_features(models, i2["runs_needed"], i2["balls_remaining"], i2["w"], i2["par"])
     models["chase"] = LogisticRegression(C=10, max_iter=3000).fit(Xd, i2["batting_team_won"].astype(int))
+
+    # last six balls of a chase: exact backward induction over league outcome frequencies (D35)
+    late = i2[i2["balls_remaining"] <= lib_wp.LATE_B]
+    band = lib_wp.rpb_band(late["runs_needed"], late["balls_remaining"])
+    freq = lib_wp.outcome_code(late).groupby(band).value_counts(normalize=True)
+    models["late_freq"] = {int(k): {o: float(freq[k].get(o, 0.0)) for o in lib_wp.OUTCOMES}
+                           for k in range(len(lib_wp.RPB_CUTS) + 1)}
+    models["late_n"] = {int(k): int(v) for k, v in pd.Series(band).value_counts().sort_index().items()}
+    models["bi"] = lib_wp.backward_induction(models["late_freq"])
     return models
 
 
@@ -160,6 +176,39 @@ def lgbm_benchmark(train: pd.DataFrame, test: pd.DataFrame) -> dict:
     return out
 
 
+def wp_after(models: dict, rows: pd.DataFrame) -> np.ndarray:
+    """WP of the batting side after the ball (same state update as 03)."""
+    runs, legal, wkt = (rows[c].to_numpy(float) for c in ("total_runs", "is_legal", "is_wicket"))
+    return lib_wp.wp(models, rows["innings"], rows["score_before"] + runs, rows["balls_remaining"] - legal,
+                     rows["w"] - wkt, rows["runs_needed"].fillna(0) - runs, rows["max_balls"], rows["par"])
+
+
+def dwp_by_bucket(models: dict, rows: pd.DataFrame) -> pd.DataFrame:
+    """Mean batting-side WP change per ball by innings x balls-remaining bucket. A calibrated model gives 0
+    in any set of states, because WP is the expected value of the WP after the ball."""
+    d = rows.assign(dwp=wp_after(models, rows) - predict(models, rows))
+    out = []
+    for inn in (1, 2):
+        for lo, hi, lab in DWP_BUCKETS:
+            s = d.loc[(d["innings"] == inn) & d["balls_remaining"].between(lo, hi), "dwp"]
+            out.append({"innings": inn, "balls left": lab, "balls": len(s), "mean dWP (points)": 100 * s.mean(),
+                        "SE (points)": 100 * s.std() / np.sqrt(len(s))})
+    return pd.DataFrame(out)
+
+
+def late_states(models: dict, rows: pd.DataFrame) -> pd.DataFrame:
+    """Model WP against actual win rate in the late-chase states named in REVIEW_1 item 1."""
+    c = rows[(rows["innings"] == 2)].assign(wp=predict(models, rows[rows["innings"] == 2]))
+    states = [(1, 1, 1), (2, 2, 1), (3, 3, 1), (4, 4, 1), (5, 5, 1), (6, 6, 1), (7, 8, 3), (9, 12, 3),
+              (12, 15, 6), (16, 20, 6)]
+    out = []
+    for r_lo, r_hi, b in states:
+        s = c[c["runs_needed"].between(r_lo, r_hi) & (c["balls_remaining"] == b)]
+        out.append({"runs needed": f"{r_lo}" if r_lo == r_hi else f"{r_lo}-{r_hi}", "balls left": b,
+                    "balls": len(s), "actual win rate": s["batting_team_won"].mean(), "mean model WP": s["wp"].mean()})
+    return pd.DataFrame(out)
+
+
 def sanity_grid(models: dict, par: float) -> dict:
     b, w, r = np.meshgrid(np.arange(1, 121), np.arange(1, 11), np.arange(1, 201), indexing="ij")
     p = lib_wp.wp(models, np.full(b.size, 2), np.zeros(b.size), b.ravel(), w.ravel(), r.ravel(),
@@ -173,6 +222,8 @@ def sanity_grid(models: dict, par: float) -> dict:
         "mono_r": float((np.diff(p, axis=2) <= tol).mean()),
         "mono_w": float((np.diff(p, axis=1) >= -tol).mean()),
         "6_off_6": point(6, 6, 5), "30_off_6": point(30, 6, 5), "1_off_6": point(1, 6, 5),
+        **{f"{r}_off_{b}": point(r, b, w) for r, b, w, _, _ in LATE_BARS},
+        "3_off_1": point(3, 1, 5), "8_off_3": point(8, 3, 5),
     }
 
 
@@ -263,6 +314,8 @@ def main() -> None:
     ref_par = float(ref["inn1_total"].mean())
     sanity = sanity_grid(models, ref_par)
     start_wp = float(lib_wp.wp(models, [1], [0], [120], [10], [0], [120], [ref_par])[0])
+    dwp = dwp_by_bucket(models, tr_rows)
+    late_tab = late_states(models, tr_rows)
     with open(PROC / "wp_models.pkl", "wb") as fh:
         pickle.dump(models, fh)
 
@@ -283,6 +336,12 @@ def main() -> None:
         ("6 off 6, 5 wkts in hand > 0.80", f"{sanity['6_off_6']:.3f}", sanity["6_off_6"] > 0.80),
         ("30 off 6, 5 wkts in hand < 0.03", f"{sanity['30_off_6']:.4f}", sanity["30_off_6"] < 0.03),
         ("1 off 6, 5 wkts in hand > 0.95", f"{sanity['1_off_6']:.4f}", sanity["1_off_6"] > 0.95),
+        *[(f"{r} off {b}, {w} wkts in hand in [{lo:.2f}, {hi:.2f}]", f"{sanity[f'{r}_off_{b}']:.3f}",
+           lo <= sanity[f"{r}_off_{b}"] <= hi) for r, b, w, lo, hi in LATE_BARS],
+        # bar = +/-0.5 points, widened to 2 SE where the bucket is too small to test 0.5 (D35)
+        *[(f"Mean dWP per ball, innings {x.innings}, {x._2} balls left, within +/-max(0.5 pts, 2 SE)",
+           f"{x._4:+.2f} pts (SE {x._5:.2f}, n {x.balls})", abs(x._4) <= max(100 * DWP_TOL, 2 * x._5))
+          for x in dwp.itertuples()],
         ("Training rows: no tie/DLS/associate/super over", f"{len(bad_train)} bad rows", len(bad_train) == 0),
         ("Train and test share no match_id", f"{len(shared)} shared", len(shared) == 0),
     ]
@@ -317,6 +376,22 @@ def main() -> None:
         "## Acceptance checks", "", check_df.to_markdown(index=False), "",
         "## Held-out metrics", "", md_table(metrics_df, ".4f"), "",
         f"Chase balls with 12 or fewer balls left (CV): {len(late):,} balls, ECE {ece(cal_late):.4f}.", "",
+        "## Last balls of a chase (D35)", "",
+        f"For chases with b <= {lib_wp.LATE_B} balls left, WP = lambda x exact backward induction + (1 - lambda) "
+        f"x logistic, lambda = ({lib_wp.LATE_B + 1} - b) / {lib_wp.LATE_B}. The induction plays out every "
+        f"remaining ball with the league outcome frequencies of chase balls with b <= {lib_wp.LATE_B} in the "
+        "same band of runs needed per ball (below), and the terminal rules. E_rem for b <= 3 is the empirical "
+        "mean remaining runs. The last-ball dWP bar is widened to 2 SE because 0.5 points is below the "
+        "sampling noise of that bucket.", "",
+        pd.DataFrame(models["late_freq"]).T.rename(index={0: "<= 1 run per ball", 1: "1-2 per ball",
+                                                          2: "> 2 per ball"})
+        .assign(balls=list(models["late_n"].values())).to_markdown(floatfmt=".3f"), "",
+        "Empirical E_rem used (runs): " + ", ".join(f"b = {k}: {v:.2f}" for k, v in models["erem_emp"].items())
+        + ".", "",
+        "### Model WP against actual results in late-chase states (training matches, final model)", "",
+        late_tab.to_markdown(index=False, floatfmt=".3f"), "",
+        "### Mean batting-side WP change per ball by balls left (0 if calibrated)", "",
+        dwp.to_markdown(index=False, floatfmt=".2f"), "",
         "## Calibration bins (5-fold CV, out of fold)", "",
         "### Innings 1", "", md_table(cals[1]), "", "### Innings 2", "", md_table(cals[2]), "",
         "### Innings 2, balls left <= 12", "", md_table(cal_late), "",

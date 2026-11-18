@@ -16,8 +16,11 @@ Credit (2.1): batter = balls faced; run part always, wicket part only if the str
               bowler = every delivery; minus the run part, minus the wicket part only for bowler wickets.
 Tier offset (3.3): mean (tier - IPL) Impact per ball of players with >= 150 balls in both, weighted by the
               smaller count; subtracted from every ball in that tier (run and wicket parts separately, D30).
+Centring (D36): after the tier offset, the league mean credited Impact of the same discipline x innings x
+              over group (1-2, 3-6, 7-10, 11-15, 16-18, 19-20) x pressure flag is subtracted (run and wicket
+              parts separately) -> outputs/impact_centering.csv; role-mix check -> impact_centering_check.csv.
 Weights (3.4): ball weight = tier weight x 0.5 ** ((2026 - year) / 2).
-Eligibility (3.2): IPL + T20I_full, non-dead balls.
+Eligibility (3.2): non-dead balls in all four tiers (D38); IPL pressure balls are reported alongside.
 Exits with code 1 if any acceptance check fails.
 """
 
@@ -115,10 +118,32 @@ def hand_check(players: pd.DataFrame, metrics: dict) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def role_mix_check(pms: pd.DataFrame, metrics: dict) -> pd.DataFrame:
+    """D36 check: the shift a player gets from role mix alone (where their pressure and routine balls fall,
+    valued at the league cell means) and its correlation with the raw shift before and after centring."""
+    rows = []
+    for disc in ("bat", "bowl"):
+        s = lr.player_sums(pms, disc)
+        ids = metrics[disc].index[metrics[disc]["eligible"]]
+        s = s.reindex(ids)
+        role = 100 * (s["P_w_xc"] / s["P_w"] - s["R_w_xc"] / s["R_w"])
+        after = 100 * (s["P_w_x_tot"] / s["P_w"] - s["R_w_x_tot"] / s["R_w"])
+        before = after + role
+        rows.append({"discipline": disc, "eligible players": len(ids),
+                     "mean role-mix shift per 100": role.mean(), "sd role-mix shift": role.std(),
+                     "mean raw shift before": before.mean(), "mean raw shift after": after.mean(),
+                     "corr(role-mix, raw shift) before": np.corrcoef(role, before)[0, 1],
+                     "corr(role-mix, raw shift) after": np.corrcoef(role, after)[0, 1]})
+    return pd.DataFrame(rows)
+
+
 def main() -> None:
-    pms, offs = lr.build_pms(lr.load_balls(), lr.Params())
+    pms, offs, cells = lr.build_pms(lr.load_balls(), lr.Params())
     offs.to_csv(OUTPUTS / "tier_offsets.csv", index=False)
     pms.to_parquet(PROC / "player_match_stats.parquet", index=False)
+    cent = cells.assign(**{f"{c}_per100": 100 * cells[c] for c in ("x_run", "x_wkt", "x_tot")}).drop(
+        columns=["x_run", "x_wkt", "x_tot"])
+    cent.to_csv(OUTPUTS / "impact_centering.csv", index=False, float_format="%.3f")
 
     players = pd.read_parquet(PROC / "players.parquet")
     metrics, funnels = {}, []
@@ -129,6 +154,8 @@ def main() -> None:
     metrics["bowl"].to_csv(OUTPUTS / "metrics_bowlers.csv", float_format="%.4f")
     funnel = pd.concat(funnels, ignore_index=True)
     funnel.to_csv(OUTPUTS / "eligibility_funnel.csv", index=False)
+    rm = role_mix_check(pms, metrics)
+    rm.to_csv(OUTPUTS / "impact_centering_check.csv", index=False, float_format="%.3f")
 
     # --- acceptance checks
     raw = pd.read_parquet(PROC / "balls.parquet", columns=["match_id", "innings", "status", "is_ball_faced",
@@ -153,6 +180,7 @@ def main() -> None:
         ("Plain stats match hand calc (3 bat, 3 bowl)", f"max diff {hc_err:.1e}", hc_err < 1e-9),
         ("Recency weights match spec 3.4", str(w_tab), w_tab == expected_w),
         ("No NaN Impact for eligible players", "", no_nan),
+        ("Centring cells: 2 disciplines x 2 innings x 6 over groups x 2 flags", f"{len(cells)} cells", len(cells) == 48),
     ]
     check_df = pd.DataFrame(checks, columns=["check", "value", "pass"])
 
@@ -163,6 +191,11 @@ def main() -> None:
     t = offs.groupby(["discipline", "tier"]).agg(off=("applied_offset_per_ball", "sum"),
                                                  raw=("raw_offset_per_ball", "sum"), n=("n_players", "first"))
     print((t.assign(off=100 * t["off"], raw=100 * t["raw"])).round(2).to_string())
+    print("\nCentring (D36): league cell means removed, Impact per 100 balls (largest |x_tot| cells):")
+    print(cent.reindex(cent["x_tot_per100"].abs().sort_values(ascending=False).index).head(8)
+          [["discipline", "innings", "over_group", "flag", "n_balls", "x_tot_per100"]].round(2).to_string(index=False))
+    print("\nRole-mix check (eligible players):")
+    print(rm.round(3).to_string(index=False))
     print("\nHand check:")
     print(hc.round(3).to_string(index=False))
     for disc, label in (("bat", "batters"), ("bowl", "bowlers")):

@@ -45,6 +45,7 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
 - D14 (14 Nov, P1): Pressure level P̂ = shrunk usual level + shrunk pressure shift. Why: [proto] raw
   pressure Impact barely repeats across periods (0.03 batters, 0.19 bowlers) while usual level + shrunk shift
   predicts later pressure Impact better (0.16, 0.31). Rejected: shrinking raw pressure Impact to the league mean.
+  [Claim withdrawn by D40: the build's time split does not support "predicts better" for batters.]
 - D15 (14 Nov, P1): Run and wicket parts are shrunk separately. Why: [proto] run evidence stabilises in
   ~150–370 balls, wicket evidence in ~370–4,300; one shrinkage lets a few wickets drive ranks.
   Rejected: single shrinkage (variant V11).
@@ -142,19 +143,146 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   batters who bat through the middle overs (Kohli 47% middle overs, but a tie with powerplay broke the other
   way). Rejected: main phase only.
 
+## Made after Review 1 (docs/REVIEW_1.md)
+- D35 (14 Nov, R1 item 1): Chase WP in the last six balls = λ × exact backward induction + (1 − λ) × logistic,
+  λ = (7 − b)/6, so the last ball is pure induction. The induction plays out every remaining ball with league
+  outcome frequencies (0, 1, 2, 3, 4, 6, W, extra) of training chase balls with b ≤ 6, in three bands of runs
+  needed per ball (≤ 1, 1–2, > 2; 240 / 230 / 1,638 balls), and the existing terminal rules. E_rem for
+  b ≤ 3 is the empirical mean remaining runs (2.13 / 4.09 / 6.13 at b = 1 / 2 / 3; the Poisson curve gave 3.1
+  at b = 1). Why: the `min(6r/b, 36)/10` term blew up as b → 1 (4 off 1 with 5 wickets was 0.78). Result
+  (`wp_model_eval.md`, 5 wickets in hand): 6 off 1 0.13, 4 off 1 0.24, 12 off 3 0.11, 3 off 1 0.30, 8 off 3
+  0.39 (was 0.70); mean batting ΔWP per ball on
+  the last ball of a chase +1.94 points (SE 1.06, 253 balls; was −2.45), all other balls-left buckets within
+  ±0.35 points; Brier and ECE unchanged (0.2203 / 0.1161, 0.018 / 0.007). The top-15 leverage states are
+  still "last ball, 3–4 needed" (they are the biggest swings), now at WP 0.24–0.30.
+  Deviation from the review's bar: "within ±0.5 points" is kept for every bucket except where 2 SE is wider
+  (only the last chase ball, SE 1.06), because a perfectly calibrated model would fail ±0.5 on 253 balls most
+  of the time. Rejected: one set of b ≤ 6 frequencies (the review's version; last-ball ΔWP +2.33, 2 off 1 at
+  0.51 against 7 of 9 won), and four bands with a > 4 per ball cut (+1.81, more parameters for no clear gain).
+- D36 (14 Nov, R1 item 2): Credited Impact is centred within situation. After the tier offset, `lib_rating.
+  centre_impact` subtracts the league mean credited Impact of the same discipline × innings × over group (1–2,
+  3–6, 7–10, 11–15, 16–18, 19–20) × pressure flag, run and wicket parts separately (unweighted, all tiers,
+  live balls; recomputed inside every variant and the time split). Cell means: `outputs/impact_centering.csv`
+  (largest: batters, innings 1, overs 1–2, pressure −10.8 per 100 over 9,236 balls). Why: the WP model's misfit
+  differed by situation, so "pressure minus routine" partly measured where a player bats or bowls, not how he
+  copes. Result (`impact_centering_check.csv`, eligible players): mean raw shift −2.91 → −0.13 per 100
+  (batters) and +3.23 → +0.11 (bowlers); EB shift prior −0.034 → −0.006 and +0.026 → −0.004. The correlation
+  between the role-mix shift and batters' raw shift falls from 0.42 to 0.29, not to 0: some role-linked shift
+  is left inside the over groups (stated as a limitation). Bowlers' shift now has τ² ≈ 0 (k hits the 5,000
+  guard), so for bowlers it barely moves anyone. F6 retitled: "Pressure level mostly follows usual level; the
+  shift moves few players far". Rejected: adding wickets-down to the cells (thinner cells; not asked for, and
+  the remaining 0.29 may be genuine).
+- D37 (14 Nov, R1 item 3, closes Q4): Each shrunk component is standardised by the SD of its raw (unshrunk)
+  values across the eligible pool, z = (shrunk − pool mean) / SD(raw), so a component that shrinkage pulls
+  nearly flat counts for little; the consistency m has no upper cap (lower bound 10 kept). Weights stay
+  60/15/25 nominal. Why: dividing by the SD after shrinkage re-inflated noise (bowlers' shift SD 0.5 counted
+  like level SD 3.7). Result (`outputs/rating_scale_change.md`): effective weights level / shift / consistency
+  74 / 13 / 13 (batters) and 83 / 2 / 16 (bowlers); m = 69 (bat) and 74 (bowl), was capped at 60. Left the top
+  10: Iyer, Mendis (bat); Mujeeb, Muzarabani (bowl). In: Allen, Russell; Ngidi, Nawaz. V4 (level only) keeps
+  9/10 in both lists. The 06 guard "|corr(rating, pressure balls)| < 0.3" now also passes when the rating's
+  correlation is within 0.05 of the raw usual level's (bowlers 0.309 vs raw 0.320): better bowlers get more
+  pressure overs, so the correlation is real, not made by shrinkage. Rejected: re-weighting to keep 60/15/25
+  effective (would put the noise back); a cap on m (the data gives a value).
+- D38 (14 Nov, R1 item 4, owner decided): Eligibility counts live balls in all four tiers (was IPL + T20I_full
+  only, D19); minimums (400 / 125 / 10 / 60), tier weights and offsets unchanged; no IPL-ball minimum. The
+  time split's ≥ 75 pressure balls per period follows the same count (D32 changed with it: n 60 bat, 57 bowl).
+  Each player's IPL pressure balls are now reported (`ipl_pressure_balls` in ratings_*.csv, column in T3/T4).
+  Why: owner's call; the weights and offsets already discount weaker cricket, and showing the IPL count lets
+  readers judge each pick's evidence. Result (`eligibility_funnel.csv`): pool 105 batters (was 100), 109
+  bowlers (was 103); both top 10s unchanged. Picks with little IPL evidence: Nawaz 0 and Ngidi 71 (bowl), Allen
+  38 (bat) IPL pressure balls. Rejected: an IPL pressure-ball minimum (owner declined).
+- D39 (14 Nov, R1 item 5): T3 / T4 (`top10_*.md`) move from 06 to a new step `src/09_top10_tables.py` (runs
+  after 07, since it needs the bootstrap) and gain the 90% rank interval, the share of resamples in the top 10
+  and a confidence band: secure ≥ 80%, probable 50–80%, marginal < 50% (called "confidence" so it is not
+  confused with competition tiers). The report says the order inside a band is the point estimate only and
+  that places 9–10 are coin-flips against 11–12. Result: batters 3 secure / 3 probable / 4 marginal, bowlers
+  2 / 4 / 4; #9–12 top-10 shares 33 / 31 / 34 / 25% (bat) and 40 / 33 / 34 / 26% (bowl). Rejected: re-ordering
+  by top-10 share (the rating is the estimate; the share describes its uncertainty).
+- D40 (14 Nov, R1 item 6, closes Q5): The time split is reported as it is, after D35–D38, with two
+  additions in 07: (a) early-period shrunk consistency as a predictor; (b) a noise ceiling, i.e. the split-half
+  reliability of the 2025–26 outcome (matches split at random into halves, Spearman between players' halves,
+  Spearman-Brown corrected, mean of 200 splits, seed 42); √reliability is the most any predictor could reach
+  (`outputs/time_split_ceiling.csv`, dashed line on F8). Result (n 60 batters, 57 bowlers): full rating 0.01
+  (bat) and 0.25 (bowl); shrunk pressure level 0.01 / 0.32; raw pressure Impact 0.19 / 0.23; raw shift 0.22 /
+  −0.08; usual approach 0.23 / 0.31; usual level −0.01 / 0.33; consistency 0.12 / 0.00; split-half 0.16 /
+  0.17, reliability 0.27 / 0.28, ceiling 0.52 / 0.53. So for bowlers the rating recovers about half of what
+  is recoverable; for batters it shows no persistence, and the plain "usual approach" does as well as
+  anything. The claim "usual level + shrunk shift predicts better" is deleted from spec 2.4 and D14. Weights
+  are not retuned (n ≈ 60). Rejected: switching batters to raw pressure Impact or the usual approach on this
+  evidence (intervals overlap zero and each other; it would be tuning on the test).
+- D41 (14 Nov, R1 item 7, closes Q3; owner kept the per-innings cut): First-innings pressure is stated
+  plainly as mostly new-ball pressure. 03 now writes the evidence to `leverage_summary.md`: 98.2% / 83.8% of
+  first-innings over-1 / over-2 balls flagged; first-innings powerplay = 40.4% of all pressure balls; median
+  LI of pressure balls 1.15 (innings 1) vs 2.17 (chases). T3/T4 (09) add each pick's share of pressure balls in
+  the first innings and a chase-only pressure rank: the same shrunk pressure level computed on innings-2 balls
+  only (priors and k re-estimated on chase balls), ranked within the eligible pool. Spec 1.4 corrected to the
+  built mix 77.3 / 21.3 / 1.4 (was the prototype's 48 / 45 / 7). Result: picks who rank low when chasing are
+  Arya 51st, Patidar 57th, Russell 67th (bat) and none of the bowlers below 21st; Allen has only 7 chase
+  pressure balls (97% first innings). Rejected: a global cut (V3; owner decided, it means "chases only").
+- D42 (14 Nov, R1 item 8): F3 redrawn by innings × phase as pressure minus routine within over ×
+  wickets-down cells (0–5, 6+ down), averaged with precision weights nP·nR/(nP + nR), 90% match bootstrap
+  (1,000, seed 42); crude gaps shown hollow. Rows in `pressure_validation.csv` (tables
+  `pressure_minus_routine_within_cell` / `_crude`). Result, SR (within cell): chase middle −8.1 (−11.7 to
+  −4.6), chase powerplay −5.1 (−9.9 to +0.2), chase death −0.1; first-innings powerplay +2.5 (−4.3 to +9.0),
+  middle +10.6 (+4.9 to +16.5), death −5.0 (wide, 353 balls). Wicket %: chase death +0.7 (−0.2 to +1.6);
+  first-innings powerplay −0.9 and middle −1.0 (both below 0). Crude first-innings powerplay gap −25.8. Title
+  states only what holds: "Like for like, chases slow down on middle-overs pressure balls (SR −8); other gaps
+  are small or mixed", and 04 checks that claim. The review's suggested wording ("death overs cost wickets,
+  first innings shows no effect") does not survive: the death wicket gap's interval includes 0, and
+  first-innings middle overs show the opposite effect. Rejected: pressure-ball weights (they lean on
+  first-innings overs 1–2, where 98% of balls are pressure, giving −12.4 with an interval of −25 to 0).
+- D43 (14 Nov, R1 item 9, spec 4.3): `outputs/top10_match_detail.csv` (written by 09): for every top-10 pick,
+  the three best and three worst pressure matches (≥ 3 pressure balls, as for consistency) by credited raw
+  pressure WPA, with date, competition, tier, team, opponent, innings and pressure balls, plus the player's
+  total pressure WPA, the total without the best match and the best match's share. Result: no batter's total
+  rests on one game except Allen (total 0.09 wins, −0.02 without his best match) and Russell (62% from one
+  match). For bowlers, raw WPA and the rating disagree for three picks: Bumrah 0.22 total (−0.15 without his
+  best match), Mustafizur 0.42 (−0.17), Ngidi −0.64. Why they can disagree: raw WPA is dominated by a handful
+  of last-overs balls (one six conceded at the death can cost 0.3–0.4 wins), while the rating uses Impact
+  (WPA ÷ leverage, centred by situation, tier- and recency-weighted), which counts every pressure ball on the
+  same scale. Reported, not changed (it is variant V12, which already shows raw WPA ranks differ: 4/10 overlap).
+- D44 (14 Nov, R1 item 10): No rule change. T3/T4 flag a pick "high variance" if any eligibility count is
+  below 1.25 × its minimum, or one season holds ≥ 75% of its pressure balls (all tiers); the reason is printed
+  in a Flag column and the flagged picks are named in the text for the limitations section. A rule rather
+  than two hand-picked names, so it applies the same way to every pick. Result: Sooryavanshi (87% of pressure
+  balls in 2026), Arya (446 balls, minimum 400), Russell (126 pressure balls, minimum 125; 10 pressure
+  matches, minimum 10); no bowler. Rejected: raising the minimums (owner: no rule change).
+
+## Made after the red-team read (docs/REDTEAM.md)
+- D45 (18 Nov, RT fix 1; owner asked for the change, D41's per-innings cut is kept): pressure balls are
+  weighted by the stakes of their innings. A pressure ball's weight omega is multiplied by
+  s_i = (median LI of pressure balls in innings i) / (the larger of the two medians), so a chase pressure ball
+  counts 1 and a first-innings pressure ball about 1.15 / 2.17 ≈ 0.53. The medians are computed on all scored
+  balls before any tier or year filter, like the cut. Routine and dead balls, the cut itself, eligibility
+  counts and plain stats are unchanged. Same rule for both lists. Fixed before any re-ranking was seen.
+  Why: the per-innings cut makes a first-innings pressure ball (median LI 1.15, 77% powerplay) count the same
+  as a chase pressure ball (median LI 2.17), and the like-for-like evidence that pressure changes outcomes
+  (D42) is in chases; the red-team read found 3 of the top 10 batters below the median chaser. Weighting by
+  measured stakes keeps first-innings play in the rating (D10's reason for the per-innings cut) without
+  letting the new ball dominate. Rejected: a global cut (V3, rates chases only); weighting each ball by its
+  own LI (a few last-ball chase balls at LI 10–17 would dominate); a hand-picked ratio such as 30/70.
+  The previous headline is kept as sensitivity variant V13 (equal innings weight).
+  Result: s_1 = 0.529. Batters: Russell out (10th to 11th), Iyer in (9th); order changes (Klaasen 3rd to
+  2nd, Arya 2nd to 3rd, Allen 9th to 6th, Patidar 6th to 8th). Chase-only ranks of the ten: 1, 29, 51, 5,
+  15, 26, 3, 57, 7, 21 (was 1, 51, 29, 15, 5, 57, 3, 21, 26, 67). Bowlers: same ten, Ngidi 8th to 4th.
+  V13 keeps 9/10 and 10/10. Time split (outcome now also stake-weighted): rating 0.03 bat (was 0.01),
+  0.19 bowl (was 0.25, interval now -0.03 to 0.39); bowl pressure level 0.24 (was 0.32); ceilings
+  0.54 / 0.48 (were 0.52 / 0.53). Within noise, but the change did not improve persistence and the
+  report's bowler claim is softened to "partly repeats". Core picks: 5 bat, 8 bowl (10 of 13 variants).
+
 ## Open questions (Phase 2)
-- Q3 (14 Nov, P2): First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected
+- Q3 (14 Nov, P2) [CLOSED by D41]: First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected
   48/45/7 from the prototype). Cause: the first-innings model values a run almost equally through the innings,
   while a wicket costs ~13 expected runs at over 2 and ~4 at over 18, so the biggest swings come early.
   Proceeding unchanged; revisit after 06 to check first-innings death specialists are not treated unfairly
   (compare with variant V3 and their first-innings vs chase pressure ball counts). Spec 1.4 numbers to be
   corrected before the report.
-- Q4 (14 Nov, P2): The pressure shift and consistency components are mostly noise but keep their full weight,
+- Q4 (14 Nov, P2) [CLOSED by D37]: The pressure shift and consistency components are mostly noise but keep their full weight,
   because each component is z-scored after shrinkage. Bowlers' shift has k_D = 3,811 balls (shrunk SD 0.5 per
   100 balls, vs 3.7 for pressure level); the consistency m hit the 60 cap in both lists (data implies ~78 bat,
   ~99 bowl). Ranking on pressure level alone keeps 8/10 batters and 7/10 bowlers (outputs/sensitivity_summary.csv,
   V4). Picks that depend on these components: Mendis, Iyer (bat); Mujeeb, Muzarabani, Mahedi Hasan (bowl).
-- Q5 (14 Nov, P2): The time split contradicts D14 for batters (outputs/time_split.csv; 59 batters, 55 bowlers).
+- Q5 (14 Nov, P2) [CLOSED by D40; numbers below are pre-Review-1]: The time split contradicts D14 for batters (outputs/time_split.csv; 59 batters, 55 bowlers).
   Spearman with 2025–26 raw pressure Impact: batters — full rating 0.08 (90% CI −0.16 to 0.30), shrunk pressure
   level 0.00, raw pressure Impact 0.25 (0.03 to 0.44), raw shift 0.27, usual approach 0.18, usual level −0.04.
   Bowlers — rating 0.24, shrunk pressure level 0.36 (0.15 to 0.55), raw 0.27, usual level 0.35, usual approach
