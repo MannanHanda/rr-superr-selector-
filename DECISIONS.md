@@ -310,6 +310,24 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   or economy; the Kohli, Bumrah and Ngidi lines cite it. Ngidi is called the least supported bowling pick
   (-15 runs per 100 against par on pressure balls). (e) Top-10 shares show one decimal when whole-number
   rounding would cross a band edge (Patidar 49.8%, marginal). No ranking changed.
+- D50 (18 Nov, red-team round 2, presentation only; no ranking change): (a) The components tables show raw
+  (unshrunk) pressure Impact with one standard error of chance, 100 x sqrt(sigma2_P / n_P) from eb_params.csv,
+  beside the shrunk pressure level, now labelled "estimate"; 3.1 explains that bowlers' pressure-minus-usual
+  gaps are no wider than chance (tau2 <= 0), so the bowling list ranks largely on level, with #1 Bumrah
+  (raw -0.0 +/- 5.3 vs usual 11.8, 2.2 SE; ~3 such gaps expected by chance among 109) as the worked case.
+  Page 1 says the same in one sentence. (b) An IPL-only rank column (variant V9). (c) The high-variance flag
+  adds fewer than 75 IPL pressure balls (the time split's per-period minimum): flags Allen, Ngidi, Nawaz.
+  (d) Ratings to two decimals; page 1 says places 8-12 cannot be told apart and names the two #11s.
+  (e) 1.4 no longer claims the rating measures differences in response; first-innings pressure is described
+  as defined by stakes. (f) Glossary box; only the two evidence tables are numbered (Tables 1-2); 5.2 states
+  why the rating is kept over simpler predictors. Why: red-team round 2 (docs/REDTEAM.md). Rejected: a page-1
+  auction-action box (owner: the brief asks who performs under pressure, not an auction plan).
+- D51 (18 Nov, owner): The report only says who performs best under pressure. Section 6 (RR needs, RR's own
+  players, routes to RR, open market, availability notes) is removed, with the RR-fit wording in the Ellis line and
+  the "auction planning" subtitle. Supersedes the report parts of D33-D34, D46 (RR group) and D47. Why: the brief
+  asks for the best performers under pressure, not recommendations to RR. The scripts still write rr_needs.csv,
+  rr_fit.md and context_players.csv (08 role cards feed Tables 1-2); docs/availability_notes.csv is unused by the
+  report. Rejected: reframing section 6 as squad fit (still a recommendation).
 
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2) [CLOSED by D41]: First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected

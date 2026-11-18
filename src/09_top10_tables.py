@@ -41,6 +41,7 @@ SHOW = 20
 BANDS = [(0.80, "secure"), (0.50, "probable"), (0.0, "marginal")]
 FLAG_MARGIN = 1.25      # an eligibility count within 25% of its minimum
 FLAG_ONE_SEASON = 0.75  # or one season holds >= 75% of the pressure balls
+FLAG_IPL_MIN = 75       # or fewer IPL pressure balls than this (D50; the time split's per-period minimum)
 
 
 def confidence(share: pd.Series) -> pd.Series:
@@ -114,6 +115,8 @@ def variance_flags(pms: pd.DataFrame, disc: str, r: pd.DataFrame) -> pd.Series:
     for pid, x in r.iterrows():
         why = [f"{int(x[col])} {lab} (min {lr.ELIG[k]})" for k, (col, lab) in counts.items()
                if x[col] < FLAG_MARGIN * lr.ELIG[k]]
+        if x["ipl_pressure_balls"] < FLAG_IPL_MIN:
+            why.append(f"{int(x['ipl_pressure_balls'])} IPL pressure balls (flag below {FLAG_IPL_MIN})")
         if share.get(pid, 0) >= FLAG_ONE_SEASON:
             why.append(f"{100 * share[pid]:.0f}% of pressure balls in {int(top_year[pid])}")
         out[pid] = "high variance: " + "; ".join(why) if why else ""
@@ -247,7 +250,8 @@ def band_note(r: pd.DataFrame) -> str:
             f"{counts['marginal']} marginal. The order inside a band is the point estimate only. Places 9-10 "
             f"against 11-12 (share of resamples in the top 10): {edge_txt}. The intervals hold the WP model, "
             "priors and shrinkage strengths fixed, so they understate the true uncertainty. High-variance picks "
-            f"(an eligibility count within {100 * (FLAG_MARGIN - 1):.0f}% of its minimum, or >= "
+            f"(an eligibility count within {100 * (FLAG_MARGIN - 1):.0f}% of its minimum, fewer than "
+            f"{FLAG_IPL_MIN} IPL pressure balls, or >= "
             f"{100 * FLAG_ONE_SEASON:.0f}% of pressure balls in one season): {flag_txt}.")
 
 

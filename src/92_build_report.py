@@ -124,8 +124,10 @@ def t_summary(disc: str) -> str:
     df = pd.DataFrame({
         "#": f["rank"],
         "Player": [esc(x) for x in f["player"]],
-        "Team": [esc(p.loc[k, "team_short"]) if pd.notna(p.loc[k, "team_short"]) else "&ndash;" for k in f["rank"]],
-        "Rating": f["rating"].map("{:.1f}".format),
+        "Team": [esc(p.loc[k, "team_short"]) if isinstance(p.loc[k, "team_short"], str) and p.loc[k, "team_short"]
+                 else (esc(p.loc[k, "national_team"]) if isinstance(p.loc[k, "national_team"], str)
+                       and p.loc[k, "national_team"] else "&ndash;") for k in f["rank"]],
+        "Rating": [f"{p.loc[k, 'rating']:.2f}" for k in f["rank"]],  # D50: two decimals, places 8-12 are close
         "Confidence": [f'<span class="conf {c}">{c}</span>' for c in f["confidence"]],
     })
     return table(df, "compact", ("#", "Rating"))
@@ -163,7 +165,7 @@ def t_top10(disc: str, why: dict) -> str:
             "#": int(r["rank"]),
             "Player": f"<b>{esc(r['player_name'])}</b>{flag}<br><span class=muted>{team_cell(r)}</span>",
             "Role": role_cell(r, disc),
-            "Rating": f"{r['rating']:.1f}",
+            "Rating": f"{r['rating']:.2f}",
             "Rank interval": f"{r['rank_p5']:.0f}&ndash;{r['rank_p95']:.0f}<br>"
                              f'<span class="conf {r["confidence"]}">{share_txt(r["share_top10"])}%</span>',
             "Pressure balls (IPL)": f"{r['elig_pressure_balls']:.0f} ({r['ipl_pressure_balls']:.0f})",
@@ -178,11 +180,14 @@ def t_components(disc: str) -> str:
     p = PICKS[(PICKS["discipline"] == disc) & (PICKS["rank"] <= 10)].sort_values("rank")
     df = pd.DataFrame({
         "#": p["rank"], "Player": [esc(x) for x in p["player_name"]],
-        "Pressure level": p["P_hat"].map(lambda x: signed(x)), "Usual level": p["U"].map(lambda x: signed(x)),
+        "Pressure level (estimate)": p["P_hat"].map(lambda x: signed(x)),
+        "Raw pressure Impact &plusmn; chance": [f"{signed(x)} &plusmn; {s:.1f}" for x, s in zip(p["P_raw"], p["P_raw_se"])],
+        "Usual level": p["U"].map(lambda x: signed(x)),
         "Shift": p["D_hat"].map(lambda x: signed(x)), "Consistency %": p["C_hat"].map("{:.0f}".format),
         "Pressure matches": p["c_matches"].map("{:.0f}".format),
         "1st-inns share %": p["pressure_share_inn1_pct"].map("{:.0f}".format),
         "Chase-only rank": p["chase_pressure_rank"].map("{:.0f}".format),
+        "IPL-only rank": p["ipl_only_rank"].map(lambda x: f"{x:.0f}" if pd.notna(x) else "&ndash;"),
         "Variants top 10": p["n_variants_top10"].map(lambda x: f"{x:.0f}/{N['p.n_variants']:.0f}"),
     })
     return table(df, "compact comp", tuple(df.columns[2:]) + ("#",))

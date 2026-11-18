@@ -77,6 +77,7 @@ def params(N: dict) -> None:
         "p.n_variants": len(m07.VARIANTS), "p.core_min": m07.CORE_MIN_VARIANTS,
         "p.secure_pct": 100 * m09.BANDS[0][0], "p.probable_pct": 100 * m09.BANDS[1][0],
         "p.flag_margin_pct": 100 * (m09.FLAG_MARGIN - 1), "p.flag_season_pct": 100 * m09.FLAG_ONE_SEASON,
+        "p.flag_ipl_min": m09.FLAG_IPL_MIN,
         "p.recent_from": min(lr.RECENT_YEARS), "p.recent_to": max(lr.RECENT_YEARS), "p.anchor": p.anchor_year,
     })
     for t, w in lr.TIER_WEIGHT.items():
@@ -271,6 +272,11 @@ def picks_table() -> pd.DataFrame:
         cards = m08.role_cards(d, picks, disc, players).set_index("player_id")
         t = picks.join(cards[[c for c in cards.columns if c not in picks.columns]])
         t = t.join(b[["rank_p5", "rank_p95", "share_top10"]]).join(s[["n_variants_top10"]])
+        t["ipl_only_rank"] = s["V9 IPL balls only"].reindex(t.index)  # D50
+        # D50: one standard error of chance on raw pressure Impact (per 100 balls), and the gap to usual level
+        eb = pd.read_csv(OUTPUTS / "eb_params.csv").set_index(["discipline", "quantity"])
+        t["P_raw_se"] = 100 * np.sqrt(eb.loc[(disc, "D"), "sigma2"] / t["n_P"])
+        t["P_gap_se"] = (t["P_raw"] - t["U"]) / t["P_raw_se"]
         t = t.join(f[["chase_pressure_rank", "confidence", "flag", "tier_mix"]])
         t["discipline"] = disc
         t["status"] = t["ipl_2026_team"].fillna("no IPL 2026 team").map(m08.status)
@@ -281,6 +287,18 @@ def picks_table() -> pd.DataFrame:
                           for _, x in t.iterrows()]
         out.append(t.reset_index())
     return pd.concat(out, ignore_index=True)
+
+
+def chance_numbers(N: dict, picks: pd.DataFrame) -> None:
+    """D50: how far raw pressure Impact moves by chance, and whether bowlers' gaps are wider than chance."""
+    from scipy.stats import norm
+    eb = pd.read_csv(OUTPUTS / "eb_params.csv").set_index(["discipline", "quantity"])
+    for disc in ("bat", "bowl"):
+        r = pd.read_csv(OUTPUTS / f"ratings_{FILE[disc]}.csv")
+        N[f"eb.{disc}_P_se_median"] = 100 * np.sqrt(eb.loc[(disc, "D"), "sigma2"] / r["n_P"].median())
+        N[f"eb.{disc}_D_tau2"] = eb.loc[(disc, "D"), "tau2"]
+    b1 = picks[(picks["discipline"] == "bowl") & (picks["rank"] == 1)].iloc[0]
+    N["eb.bowl1_expected_gaps"] = N["pool.bowl"] * 2 * norm.sf(abs(b1["P_gap_se"]))
 
 
 def wp_coefficients(N: dict) -> None:
@@ -347,6 +365,7 @@ def main() -> None:
     wp_coefficients(N)
     picks = picks_table()
     auction_numbers(N, picks)
+    chance_numbers(N, picks)
     for k, v in list(N.items()):
         if isinstance(v, (np.integer,)):
             N[k] = int(v)

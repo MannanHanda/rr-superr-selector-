@@ -22,6 +22,8 @@ The framing is RR's IPL 2027 auction strategy.
    It must be "transparent enough for someone else to understand and reproduce", and rankings must come from
    the data, "not reputation alone".
 3. Optional extra: a short section or appendix on how each pick strengthens the RR squad.
+   **Decided 18 Nov (D51): not included.** The report says who performs best under pressure; it does not
+   recommend players to RR, give an auction plan or discuss availability.
 
 ### Our strategy (decided; details live in docs/METHODOLOGY_SPEC.md once written)
 - Pressure = **leverage**: how much the win probability could swing on a ball, from a win-probability model

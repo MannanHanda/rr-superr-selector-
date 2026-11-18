@@ -334,7 +334,7 @@ def fig_time_split(ts: pd.DataFrame, ceil: pd.DataFrame) -> Path:
     bw = ts[ts["discipline"] == "bowl"].set_index("predictor")
     best = bw["spearman"].idxmax()
     best_lab = best.split(") ", 1)[1].replace(" (shrunk)", "")
-    fig.suptitle(f"Does 2022-24 predict 2025-26 pressure Impact? Bowlers: {best_lab} does best "
+    fig.suptitle(f"Does 2022-24 predict 2025-26 pressure Impact?\nBowlers: {best_lab} does best "
                  f"({bw.loc[best, 'spearman']:.2f}); batters: no measure clearly does\n"
                  "(bars = 90% interval; dashed = the most any predictor could reach, given outcome noise)",
                  fontsize=10, color=INK, x=0.01, ha="left")

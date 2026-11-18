@@ -1,187 +1,183 @@
-# REDTEAM: cold-read judge review of reports/report.html
+# REDTEAM (round 2): judge read of reports/report.html
 
-Reviewed 15 Nov 2026 as a first-time judge. Read only the task brief (CLAUDE.md, "The task") and
-`reports/report.html` (text plus the 8 embedded figures). I read the HTML, not the printed PDF, so page
-breaks and page count are not judged. Nothing was re-run; every number below is quoted from the report.
+Reviewed 18 Nov 2026, 07:40 UTC, after fixes D45-D49. Read: the task brief (CLAUDE.md, "The task") and
+`reports/report.html` (text and all 8 figures). Scored on what the report shows, not on what the repo contains.
+Caveat: this reviewer also made the round-1 fixes, so it is not a truly cold read; treat the scores as
+optimistic by perhaps half a point each. The round-1 review is in git history (`git show 5caaa66:docs/REDTEAM.md`).
 
 ## Scores
 
-| Criterion | Score /10 |
-|---|---|
-| 1. Pressure definition | 7.5 |
-| 2. Performance measurement | 7 |
-| 3. Fair comparisons | 7.5 |
-| 4. Evidence for the top 10 | 6.5 |
-| 5. Reliability and limitations | 8 |
-| 6. Clarity and reproducibility | 7 |
-| 7. How convincing the picks are for RR | 5 |
-| **Total** | **48.5 / 70** |
+| Criterion | Round 1 | Round 2 |
+|---|---|---|
+| 1. Pressure definition | 7.5 | 8 |
+| 2. Performance measurement | 7 | 7.5 |
+| 3. Fair comparisons | 7.5 | 7.5 |
+| 4. Evidence for the top 10 | 6.5 | 7.5 |
+| 5. Reliability and limitations | 8 | 8.5 |
+| 6. Clarity and reproducibility | 7 | 7.5 |
+| 7. How convincing the picks are for RR | 5 | 6.5 |
+| **Total** | **48.5 / 70** | **53 / 70** |
 
-## 1. Pressure definition: 7.5
+## 1. Pressure definition: 8
 
-Good: leverage from a calibrated WP model, out-of-fold calibration shown, last-over play-out, and a direct
-comparison with "death overs or RRR > 10" (misses 54% of pressure balls). Most entrants will not get near this.
+Good: a calibrated WP model with the formulas and coefficients on the page, leverage explained in one line,
+like-for-like validation, the comparison with "death overs or RRR > 10", and a first-innings weight (0.53)
+that is measured from the data, not chosen.
 
-**Biggest weakness: half of all "pressure balls" are not pressure.** The cut is the top 25% within each
-innings, so the first-innings cut is LI 1.04, which is an average ball. Pressure balls there have a median
-LI of 1.15, 77% are in the powerplay, and 98% of first-over balls qualify. A cricket analyst will not accept
-that the first over of a match is pressure in the same sense as a tight chase (median LI 2.17). The report's
-own validation agrees: the only clear effect is in chases (strike rate 8.1 lower in the middle overs), while
-in the first-innings middle overs batters score *faster* on pressure balls (+10.6).
+**Biggest weakness: section 1.4 ends by contradicting the rest of the report.** Its last sentence says
+"players differ in how they respond, which is what the rating measures". Front-page finding 3 says bowlers
+show no measurable difference in how they respond, and the rating is 77-87% level. The same section also
+shows that first-innings "pressure" does not behave like pressure: batters score *faster* on first-innings
+middle-overs pressure balls (+10.6), and the powerplay gap is not clear of zero. A careful judge sees the
+definition's evidence and the rating's premise pulling apart.
 
-The consequence shows in the batting list. Chase-only ranks of the top 10 batters are
-1, 51, 29, 15, 5, 57, 3, 21, 26, 67 (of 105). Only 3 are top 10 when chasing, and 2 (Patidar, Russell)
-are below the median eligible batter, with Arya (51st) just above it. Six of the ten are powerplay batters.
+**Fix (15 min):** rewrite the last two sentences of 1.4. Say the clear like-for-like effect is in chases;
+first-innings pressure balls are defined by stakes (an early wicket moves the projected total most), not by a
+change in behaviour, which is why they count 0.53. Replace "which is what the rating measures" with what the
+rating does reward: performance on high-stakes balls, which mostly tracks a player's level.
 
-**Fix (under an hour, no method change):** put the chase-only rank on the front-page lists, add one line
-("x of 10 batters and 6 of 10 bowlers are also top 10 on chase pressure alone"), and say plainly in 1.3 that
-first-innings pressure is a weaker kind. The proper fix is the ONE change at the end.
+## 2. Performance measurement: 7.5
 
-## 2. Performance measurement: 7
+Good: Impact (WPA ÷ stake, centred on the situation), run and wicket parts, "never the drop alone", and now
+runs against par, so plain stats and Impact no longer contradict each other.
 
-Good: WPA divided by stake, centred on situation, run and wicket parts separated, "never the drop alone".
+**Biggest weakness: for bowlers, "pressure level" is in practice the usual level relabelled.** The bowlers'
+shift hits the 5,000-ball shrinkage cap, its effective weight is 2%, and every bowler in Figure 6 sits on
+the diagonal. So Table 4 shows Ngidi (#4) with a pressure level of +7.5 while the same row shows him
+conceding 15 runs per 100 pressure balls *more* than par; Hazlewood (#7) is −2 and Mustafizur (#3) +4.
+A cricket judge reads that as "a pressure ranking built from non-pressure balls". The report does say this
+(finding 3, the Ngidi line), but the column label says otherwise.
 
-**Biggest weakness: Impact has no cricket-readable unit, and the plain stats beside it sometimes say the
-opposite.** Nobody can tell what "+19.3 per 100 balls" is worth. And the rows contradict their own text:
-- Kohli: "Lifts under pressure (shift +3.1)", but SR 140 / 146 and balls per dismissal 30 / 33 are both worse.
-- Bumrah, #1: economy 7.45 / 7.25 and balls per wicket 30 / 18 are both worse under pressure, and his total
-  pressure WPA is +0.22 wins (−0.15 without his best match).
-
-The explanation is that the plain stats are not situation-adjusted and Impact is, but the reader is left to
-work that out.
-
-**Fix:** (a) one sentence converting Impact to runs ("+10 Impact per 100 balls is about N runs per 100 balls
-in an average situation"); (b) replace or supplement the pressure / routine columns with a par-adjusted
-figure using the centring cells you already have ("SR +14 v par on pressure balls", "economy −0.9 v par").
-
-Second issue, same section: for bowlers the rating is 82% level and 2% shift, and Figure 6 shows every bowler
-on the diagonal. The bowling list is "best bowlers overall". That is a legitimate finding (the data shows no
-real spread in bowlers' shifts), but it is buried in a table footnote. State it as a finding.
+**Fix (30 min):** in the bowlers' components table, add raw pressure Impact (unshrunk) beside the shrunk
+pressure level, and label the shrunk one "Pressure level (estimate)". Add one sentence under the bowling list
+on page 1: "For bowlers the data cannot separate pressure form from usual form, so this list ranks the best
+bowlers on high-stakes balls largely through their overall level." No ranking changes.
 
 ## 3. Fair comparisons: 7.5
 
-Good: empirical-Bayes shrinkage with k values shown, an eligibility funnel, measured tier offsets kept
-separate from judgment weights, recency weights, Impact Player era handled through par.
+Good: empirical-Bayes shrinkage with k on the page, the eligibility funnel, measured tier offsets kept apart
+from judgment weights, recency weights, par by competition and season.
 
-**Biggest weakness: no floor on IPL evidence for an IPL auction list.** Mohammad Nawaz is the #9 bowler
-with 0 IPL pressure balls and Finn Allen the #9 batter with 38. Their ratings rest on one constant T20I
-offset (+4.6 batters, +1.5 bowlers) that treats every full-member T20I alike. The IPL-only variant (V9)
-changes 3 batters and 4 bowlers, one of the three largest changes among the 12 variants.
+**Biggest weakness: the high-variance flag misses the picks that rest least on IPL cricket.** One constant
+offset (+4.6 batters, +1.5 bowlers) covers every full-member T20I. The picks most exposed to it are Nawaz
+(0 IPL pressure balls), Allen (38) and Ngidi (71). None carries the ⚑, yet the text calls Ngidi "the least
+supported bowling pick". The flag rule and the prose disagree.
 
-**Fix:** add an "IPL-only rank" column next to "Chase-only rank" (V9 is already computed) and a
-"low IPL evidence" flag on the front page. Decide separately whether to add a minimum such as 60 IPL
-pressure balls; it is currently a rejected alternative (D38), so it needs a decision-log entry either way.
-Also state the direction of the offset in words ("T20I batting is worth 4.6 less than the same Impact in the
-IPL"); "taken off every ball" leaves the sign unclear.
+**Fix (30 min):** add "fewer than 75 IPL pressure balls" to the ⚑ rule (75 is already the time split's
+per-period minimum). It flags exactly those three. Add an "IPL-only rank" column (variant V9, already
+computed) next to "Chase-only rank". Presentation only; no ranking change.
 
-## 4. Evidence for the top 10: 6.5
+## 4. Evidence for the top 10: 7.5
 
-Good: every pick has rank interval, sample, plain stats, a reason, and a component breakdown.
+Good: a rank interval and top-10 share for every pick, runs against par, a "why" line for every pick, and
+section 4.3 answering "where is X?" without hand-picking the names.
 
-**Biggest weakness: the tables never answer the judge's first question, "where is X?"** There is no
-Suryakumar (18th), Travis Head (17th), Jaiswal, Buttler, Pooran, Arshdeep, Chahal, Varun (12th) or
-Kuldeep (16th), and no explanation. The brief says "not reputation alone"; the strongest way to show that is
-to name the reputations the data overruled, and why.
+**Biggest weakness: the order invites "why him and not him?" questions the tables don't answer.** Four pairs
+show the same rating with different ranks (Allen and Kohli 56.0, Iyer and Inglis 55.1, Ngidi and Bhuvneshwar
+55.0, Nawaz and Ellis 54.0). The #11 batter, Russell, is top 10 in 40% of resamples, more than #9 Iyer (39%).
+The report says places 9-10 are coin-flips, but only in section 5.1.
 
-**Fix:** a "Ten names you might expect" table: rank, pressure level, shift, top-10 share, and a one-line
-reason. All of it is in `outputs/ratings_*.csv` and the bootstrap files.
+**Fix (15 min):** show ratings to two decimals on page 1 and in Tables 3-4. Add one line under the lists:
+"Places 8-12 in each list cannot be told apart statistically; the order is the point estimate. Next in line:
+Russell (retired from the IPL) and Abrar Ahmed (Pakistan)."
 
-Also in this section: some rows argue against their own pick. Lungi Ngidi (#8) has pressure WPA of −0.64
-wins, is 102nd of 109 on consistency, concedes 8.97 on pressure balls and has 71 IPL pressure balls. The
-brief asks for players who deliver "most consistently". Harry Brook (#11) is top 10 in 34% of resamples,
-more than Russell at #10 (31%). Neither is explained beyond "marginal".
+## 5. Reliability and limitations: 8.5
 
-## 5. Reliability and limitations: 8
+The strongest section: match bootstrap, a time split with a noise ceiling and now four variants, 13
+sensitivity variants, and a frank limitations list.
 
-The best section. Match bootstrap with rank intervals, a time split reported with a noise ceiling, twelve
-variants, and a limitations list that hides nothing.
+**Biggest weakness: the report's own baselines beat the rating, and the only answer given is "we did not
+retune".** For bowlers, plain usual level predicts the next period at 0.33 against the rating's 0.19; for
+batters, raw pressure Impact (0.18) and the usual death-overs SR (0.20) beat the rating (0.03). A judge will
+ask why the rating is better than the simpler measures it is tested against.
 
-**Biggest weakness: the time split says more than the text admits.** For batters the rating predicts the
-next period at +0.01, and the "usual approach" the report dismisses on page 1 does better (0.23). For
-bowlers the usual approach (0.31) also edges the rating (0.25). Raw shift (0.22) beats shrunk pressure
-level (0.00) for batters, which is the opposite of the 60/15 weighting. All of this is within noise at
-n = 60, but a judge reading Figure 8 sees the headline rating as the worst bar in the batting panel, and
-the brief is about an auction, which is a forecast.
+**Fix (20 min):** add three sentences to 5.2 making the case outright. The brief asks for a ranking of who
+delivered under pressure, a description, which the time split does not test. Choosing whichever of 11
+predictors scores best on about 60 players would be picking noise, since the intervals overlap. And state
+how many of the top 10 the best baseline would also pick, if that number is in `outputs/`.
 
-**Fix:** run the same time split on variants already built (V3 chase-only cut, V4 level only, V12 raw WPA)
-and add them to Figure 8. If chase-weighted pressure persists better for batters, that is the evidence for
-the ONE change below. If nothing persists, say so once in 5.2 and add the sentence that follows from it:
-"for batters, buy the level, not the clutch reputation".
+## 6. Clarity and reproducibility: 7.5
 
-## 6. Clarity and reproducibility: 7
+Good: a page 1 a judge can absorb in a minute, formulas with coefficients, a run order, a public repo link,
+and a decision log.
 
-Good: a front page a judge can absorb in a minute, one message per chart, a run order, a decision log.
+**Biggest weakness: too long and dense for a judge working through a large pile, with no glossary.** After
+page 1 come eight blocks (sections 1-6, with section 4 split in two, plus the appendix), each starting a new
+page. Tables are 7-8pt and the top-10 tables pack a
+4-line stats cell. The report coins several terms (Impact, LI, WPA, shift, k, pseudo-matches). "Impact" is
+easily confused with the IPL's Impact Player rule, which the report also mentions. Tables are numbered
+inconsistently (Table 1 in Appendix C, no Table 2, Tables 3-4, the rest unnumbered).
 
-**Biggest weakness: the repository link is an unfilled placeholder.** Appendix A reads
-"Code and decision log: {{REPO_URL}}". The reproducibility claim points nowhere, and it looks unfinished.
-Without the code, the WP model cannot be rebuilt from the text: the two regressions are described in
-words, with no formula or coefficients, and "expected-runs curve" is never defined.
+**Fix (30 min):** a 10-row glossary box at the start of section 2 (or the foot of page 1), with "Impact (not
+the IPL Impact Player rule)". Number every table in order. Print to PDF and check the page count and that
+Tables 3-4 are readable at A4.
 
-**Fix:** fill the link (or attach the code) and add a three-line formula box in 1.1 with the fitted
-coefficients. Also: body text is 9pt and the top-10 tables 7.2pt, which is hard going on a laptop.
+## 7. How convincing the picks are for RR: 6.5
 
-## 7. How convincing the picks are for RR: 5
+Good: RR's needs from its own pressure balls, where RR's players rank, routes to RR with availability notes,
+and an honest statement that the lists are not a shopping list.
 
-**Biggest weakness: section 6 is a lookup table, not an auction view.**
-- No availability. Bumrah, Kohli, Klaasen and Narine are unlikely to reach an auction. Nawaz and alternate
-  Abrar Ahmed are Pakistan players, who have not played in the IPL since 2008. Russell has, I believe,
-  retired from the IPL (verify). Brook, the first alternate, should be back in the 2027 pool after his ban
-  (verify). None of this is mentioned.
-- RR's own players are not ranked, though Parag (16th) and Archer (18th) appear in Figure 7.
-- 9 of 10 bowlers show "–" against RR need. There is no death-overs cell at all.
-- Sooryavanshi "fills" a need that RR has with him already in the side. Nathan Ellis is called a death
-  bowler and a fit for "middle-overs pace" in the same sentence (31% of his balls are in the middle).
+**Biggest weakness: section 6 never says what RR should do.** It ends with tables, and its own logic points to
+answers it doesn't state:
+- Retain Sooryavanshi (#1, top 10 in 99% of resamples, already at RR).
+- Middle-overs top-order batting need: Kohli, Inglis, Allen and Prabhsimran fit, all only if released.
+- Middle-overs pace need: only Ellis (CSK) fits in the top 15. Need fit is not assessed beyond rank 15, so
+  open-market names (Daryl Mitchell, Mahedi Hasan) cannot be matched to a need at all.
+- Bowling #9 Nawaz cannot be signed: a visible oddity in a list framed for an IPL auction.
 
-**Fix:** replace the two long tables with a half-page box: (a) where every current RR player ranks;
-(b) three or four realistic targets from the top 20, by need, each with an availability note;
-(c) one sentence that the lists are data-only and include players RR cannot sign. Remove the "fills" tag
-for the player already at RR.
+**Fix:** the ONE change below.
 
 ## Other things a judge will catch (minutes each)
 
-- Top-10 bowlers all have consistency below 50% (40 to 49). Without the pool rate beside it, "43%" for the
-  best bowler looks like a failure. Show it as a difference from the pool rate, and say why bowlers sit
-  below 50.
-- Consistency (25% nominal weight) is the sign of raw pressure WPA, which section 5.3 says is "dominated by
-  a handful of last-over balls". The report undermines one of its own components.
-- "Secure" is attached to two batters who also carry the high-variance flag (Sooryavanshi on one season,
-  Arya with a 1–29 interval). Say in the legend that "secure" means stable under resampling, not deep evidence.
-- Table numbering: Tables 3 and 4 in the body, Table 1 in the appendix, no Table 2, others unnumbered.
-- "Chase-only rank" in the bowler table means "defending a target". Rename the column.
-- Front-page finding 3 tells a skimming judge "the batting list is not a forecast". Keep the honesty in
-  section 5; lead the front page with what the method does establish.
+- The repo link reads "…/rr-superr-selector-." The trailing hyphen plus full stop looks like a typo. Drop the
+  full stop, or rename the repo and the link.
+- Section 6.1: "0 of them are death-overs cells" should read "none of them are".
+- Section 5.2: "+0.00 to +0.43" should read "0.00 to +0.43".
+- Page 1 shows Nawaz's team as "–"; show "Pakistan", as Table 4 does.
+- Section 5.3 names the #1 bowler's raw pressure WPA as −0.15 without his best match. Keep it (it's honest),
+  but add in the same sentence that his runs saved against par under pressure (+17) are positive.
+- Hazlewood's line says "dot % rises under pressure" while his runs saved against par are −2. Add the same
+  kind of explanation as Ngidi's: his place rests on wickets and level.
 
-## Would this make the top 16 of 10,000?
+## Would this make the top 16 out of 10,000?
 
-Not as it stands; it is borderline. On rigour it is very likely in the top 1 to 2%: few entrants will have a
-calibrated WP model, leverage, shrinkage, bootstrap intervals and a time split. But 16 of 10,000 is the top
-0.16%, and at that level reports are separated by whether a cricket analyst believes the lists and whether
-the RR section reads like advice. My estimate is a 10 to 20% chance now and perhaps 25 to 35% with the fixes
-below. This is a guess: I have not seen the field or the marking scheme.
-
-What holds it back, in order:
-1. A batting list that is mostly first-innings powerplay hitters, three of whom are below-median chasers.
-2. A batting rating that, by its own test, does not predict and is matched by the baseline it criticises.
-3. A handful of picks a cricket judge will query on sight (Ngidi, Nawaz, Russell, Arya at #2 on 184 balls).
-4. An RR section with no auction logic.
+Possibly; it is now a contender rather than a long shot. On rigour and honesty it is very likely in the top
+1%. Few entries will have a calibrated WP model with published coefficients, measured stakes, shrinkage,
+match bootstrap, a time split with a noise ceiling and 13 variants. The fixes removed the round-1 blockers:
+the batting list is now mostly chase-tested, the famous names are accounted for, and the RR section has
+auction logic. What still separates it from a safe top-16 pick: a judge has to work hard to get to "so what
+should RR do?", and the bowling list's "pressure" label is softer than it looks. My estimate is 25-35% (round
+1: 10-20%). This is a guess; I have not seen the field or the marking scheme, and I am biased as the author of
+the fixes.
 
 ## The ONE change
 
-**Make chase pressure carry more of the batting rating than new-ball first-innings "pressure".**
+**Put a five-line "What this means for RR's 2027 auction" box on page 1, and back it by assessing need fit
+for every eligible player, not just ranks 1-15.**
 
-Today a first-innings ball at LI 1.1 counts the same as a chase ball at LI 2.2. Weight the two innings by
-their stakes when forming the pressure level (for example by median pressure LI, about 35 : 65), shrink each
-separately, keep the current version as a sensitivity variant, and log the decision before looking at who
-moves. Then re-run the time split. This fixes the definition (criterion 1), probably moves Arya, Patidar,
-Allen and Russell down and proven chasers up (criterion 4 and face validity), and may give the batting
-rating some persistence (criterion 5). It is more than an hour once the report is rebuilt; the one-hour
-version is the front-page chase-only rank described under criterion 1.
+Suggested lines, every name and number taken from `outputs/`:
+1. **Retain** Sooryavanshi: #1 batter, top 10 in 99% of resamples.
+2. **Middle-overs top-order batting** (RR 8th of 10): Kohli, Inglis and Allen fit, if released; the best
+   open-market option comes from the whole-pool need fit.
+3. **Middle-overs pace** (RR 8th of 10): Ellis fits, if released; the best open-market pace option comes from
+   the whole-pool fit.
+4. **Pay for level, not "clutch" reputation:** for bowlers, usual level predicts later pressure form best
+   (0.33); for batters, no measure does.
+5. **Data-only lists:** bowling #9 Nawaz cannot play in the IPL; the next eligible bowlers are named.
+
+This turns the lowest-scoring criterion (7) into a clear answer that a judge reads in the first minute. The
+data work is extending `08_rr_fit.py`'s role cards from ranks 1-15 to the eligible pool (phase shares and
+batting position already exist per ball), then writing a 5-row "best target per need, by route" table to
+`outputs/`. About an hour, with no ranking change.
 
 ## Top 5 fixes, in priority order
 
-1. Chase-weight the batting pressure level (the ONE change), or at minimum show chase-only rank on page 1.
-2. Add the "names you might expect" table and RR's own players' ranks.
-3. Rewrite section 6 as an auction box with availability notes (retained stars, Nawaz, Russell, Brook).
-4. Run the time split on existing variants, add to Figure 8, and reword front-page finding 3.
-5. Hygiene: fill `{{REPO_URL}}`, add the WP formula box, explain bowler consistency below 50%, fix the
-   Kohli and Bumrah rows with a par-adjusted plain metric, and explain or flag Ngidi.
+1. **The ONE change:** a page-1 "what RR should do" box, backed by need fit across the whole eligible pool.
+2. **Bowlers' pressure level** (criterion 2): add raw pressure Impact beside the shrunk level, relabel the
+   column, and add one sentence on page 1.
+3. **Section 1.4 contradiction** (criterion 1): rewrite its last two sentences; first-innings pressure is
+   defined by stakes, not behaviour.
+4. **Order and flags** (criteria 3 and 4): two-decimal ratings, a "places 8-12 are indistinguishable" line,
+   and the ⚑ rule extended to fewer than 75 IPL pressure balls (Nawaz, Allen, Ngidi).
+5. **Readability** (criteria 5 and 6): a glossary box, consistent table numbers, the three-sentence case in
+   5.2 for the rating over simpler baselines, and a PDF check at A4.
