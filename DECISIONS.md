@@ -390,6 +390,13 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   the chance range over 100 IPL balls (SD of runs per ball x 10) in the table note. Shows, e.g., Mustafizur
   -30 on 103 IPL pressure balls and Rashid +21 on 331. Why: the bowling list is the weaker half on IPL
   evidence; IPL readers should see each pick's IPL pressure record directly.
+- D61 (18 Nov, red-team round 4 fix 5, descriptive, no ranking change): 09 writes t20i_team_strength.csv
+  (each full member's win rate in completed full-member T20Is in the data) and t20i_opposition.csv (each
+  pick's share of full-member T20I pressure balls against the two weakest, Ireland 32.5% and Zimbabwe 27.5%;
+  the next, South Africa, is 40.7%, so the cut sits at the clear gap; Rashid Khan 42% against a pool 11%). 3.3 shows the share for picks with
+  >= 50 such balls against the pool share. 1.3 names the picks with >= 75% first-innings pressure balls.
+  Rejected: a re-rating without those matches (a new variant on deadline day; the descriptive check shows
+  whether it is needed).
 
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2) [CLOSED by D41]: First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected

@@ -352,6 +352,20 @@ def t_matchcons(disc: str) -> str:
     return table(df, "compact tiny", tuple(df.columns[2:]) + ("#",))
 
 
+def t_opposition() -> str:
+    """D61: picks with at least 50 full-member T20I pressure balls, share against the weakest full members."""
+    o = pd.read_csv(OUTPUTS / "t20i_opposition.csv")
+    o = o[(o["player_name"] != "eligible pool") & (o["t20i_pressure_balls"] >= 50)]
+    o = o.sort_values(["discipline", "rank"])
+    df = pd.DataFrame({
+        "List": o["discipline"].map({"bat": "Batting", "bowl": "Bowling"}),
+        "#": o["rank"].astype(int), "Player": [esc(x) for x in o["player_name"]],
+        "Full-member T20I pressure balls": o["t20i_pressure_balls"].astype(int),
+        "Against the two weakest %": o["vs_weakest_pct"].map("{:.0f}".format),
+    })
+    return table(df, "compact tiny", ("#", "Full-member T20I pressure balls", "Against the two weakest %"))
+
+
 def t_sensitivity() -> str:
     s = pd.read_csv(OUTPUTS / "sensitivity_summary.csv")
     piv = s.pivot(index="variant", columns="discipline", values="top10_overlap").reindex(s["variant"].drop_duplicates())
@@ -480,6 +494,7 @@ TABLES = {
     "rr_needs": lambda w: t_rr_needs(), "auction_bat": lambda w: t_auction("bat"),
     "auction_bowl": lambda w: t_auction("bowl"),
     "coverage": lambda w: t_coverage(), "reliance": lambda w: t_match_reliance(),
+    "opposition": lambda w: t_opposition(),
     "mc_bat": lambda w: t_matchcons("bat"), "mc_bowl": lambda w: t_matchcons("bowl"),
     "ctx_bat": lambda w: t_context("bat", "most_used"), "ctx_bowl": lambda w: t_context("bowl", "most_used"),
     "rr_own_bat": lambda w: t_context("bat", "rr"), "rr_own_bowl": lambda w: t_context("bowl", "rr"),

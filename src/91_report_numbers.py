@@ -313,6 +313,9 @@ def picks_table() -> pd.DataFrame:
         for flag in ("pressure", "routine"):
             x = g.xs(flag, level="flag") if flag in g.index.get_level_values("flag") else g.iloc[:0]
             t[f"ipl_{flag}_rae_per100"] = (100 * x["w_rae"] / x["w"]).reindex(t.index)
+        op = pd.read_csv(OUTPUTS / "t20i_opposition.csv")  # D61: share of T20I pressure balls vs the weakest two
+        op = op[(op["discipline"] == disc) & op["rank"].notna()].set_index("rank")["vs_weakest_pct"]
+        t["t20i_weak_pct"] = t["rank"].map(op)
         mc = pd.read_csv(OUTPUTS / "match_consistency.csv")  # D59: rank without his best pressure match
         mc = mc[mc["discipline"] == disc].set_index("rank")["rank_without_best_match"]
         t["mc_rank"] = t["rank"].map(mc)
@@ -335,6 +338,28 @@ def picks_table() -> pd.DataFrame:
 def names(xs) -> str:
     xs = list(xs)
     return xs[0] if len(xs) == 1 else ", ".join(xs[:-1]) + " and " + xs[-1]
+
+
+def opposition_numbers(N: dict, picks: pd.DataFrame) -> None:
+    """D61: the weakest full members and the pool's share of T20I pressure balls against them; D61 also names the
+    first-innings-heavy picks for 1.3."""
+    st = pd.read_csv(OUTPUTS / "t20i_team_strength.csv")
+    w = st[st["weakest"]]
+    N["opp.weak_names"] = names([f"{t} ({p:.0f}%)" for t, p in zip(w["team"], w["win_pct"])])
+    nxt = st[~st["weakest"]].iloc[-1]
+    N["opp.next_name"], N["opp.next_pct"] = nxt["team"], nxt["win_pct"]
+    N["opp.weak_short"] = names(list(w["team"]))
+    oo = pd.read_csv(OUTPUTS / "t20i_opposition.csv")
+    oo = oo[(oo["player_name"] != "eligible pool") & (oo["t20i_pressure_balls"] >= 50)]
+    mx = oo.loc[oo["vs_weakest_pct"].idxmax()]
+    N["opp.max_name"], N["opp.max_pct"] = mx["player_name"], mx["vs_weakest_pct"]
+    o = pd.read_csv(OUTPUTS / "t20i_opposition.csv")
+    for disc in ("bat", "bowl"):
+        N[f"opp.{disc}_pool_pct"] = o.loc[(o["discipline"] == disc) & (o["player_name"] == "eligible pool"),
+                                         "vs_weakest_pct"].iloc[0]
+    top = picks[picks["rank"] <= 10]
+    fi = top[top["pressure_share_inn1"] >= 0.75].sort_values(["discipline", "rank"])
+    N["fi.names"] = names([f"{n} ({100 * s:.0f}%)" for n, s in zip(fi["player_name"], fi["pressure_share_inn1"])])
 
 
 def ipl_rae_numbers(N: dict) -> None:
@@ -482,6 +507,7 @@ def main() -> None:
     stand_behind_numbers(N, picks)
     v14_numbers(N)
     ipl_rae_numbers(N)
+    opposition_numbers(N, picks)
     for k, v in list(N.items()):
         if isinstance(v, (np.integer,)):
             N[k] = int(v)

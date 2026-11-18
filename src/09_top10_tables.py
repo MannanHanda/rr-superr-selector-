@@ -191,6 +191,48 @@ def context_players(r: pd.DataFrame, disc: str) -> pd.DataFrame:
     return pd.concat(out).reset_index()
 
 
+WEAK_N = 2  # D61: the weakest full members by T20I win rate in the data (Ireland, Zimbabwe; next is 8 points higher)
+
+
+def team_strength() -> pd.DataFrame:
+    """D61: each full member's win rate in completed full-member T20Is in the data."""
+    m = pd.read_parquet(PROC / "matches.parquet")
+    f = m[(m["comp_tier"] == "T20I_full") & (m["status"] == "completed")]
+    rows = []
+    for side in ("home", "away"):
+        x = f[[f"{side}_team_id", f"{side}_team", "win_team_id"]].set_axis(["team_id", "team", "win_team_id"], axis=1)
+        rows.append(x.assign(won=(x["win_team_id"] == x["team_id"]).astype(int)))
+    t = pd.concat(rows).groupby(["team_id", "team"]).agg(played=("won", "size"), won=("won", "sum")).reset_index()
+    t["win_pct"] = 100 * t["won"] / t["played"]
+    t = t.sort_values("win_pct", ascending=False).reset_index(drop=True)
+    t["weakest"] = t.index >= len(t) - WEAK_N
+    return t
+
+
+def t20i_opposition(pms: pd.DataFrame, disc: str, r: pd.DataFrame, strength: pd.DataFrame) -> pd.DataFrame:
+    """D61: share of each pick's full-member T20I pressure balls faced against the weakest full members, against the
+    eligible pool's share. Descriptive; ranks unchanged."""
+    b = pd.read_parquet(PROC / "balls.parquet", columns=["match_id", "innings", "batting_team_id", "bowling_team_id"])
+    b = b.drop_duplicates(["match_id", "innings"])
+    opp_col = "bowling_team_id" if disc == "bat" else "batting_team_id"
+    s = pms[(pms["discipline"] == disc) & (pms["flag"] == "pressure") & (pms["comp_tier"] == "T20I_full")]
+    s = s.merge(b[["match_id", "innings", opp_col]], on=["match_id", "innings"], how="left")
+    weak = set(strength.loc[strength["weakest"], "team_id"])
+    s = s.assign(weak=s[opp_col].isin(weak))
+    g = s.groupby("player_id").apply(lambda x: pd.Series({"t20i_pressure_balls": x["n_balls"].sum(),
+                                                          "vs_weakest": x.loc[x["weak"], "n_balls"].sum()}))
+    pool = g.reindex(r.index).dropna()
+    rows = [{"discipline": disc, "rank": int(x["rank"]), "player_name": x["player_name"],
+             "t20i_pressure_balls": int(g.loc[pid, "t20i_pressure_balls"]) if pid in g.index else 0,
+             "vs_weakest_pct": 100 * g.loc[pid, "vs_weakest"] / g.loc[pid, "t20i_pressure_balls"]
+             if pid in g.index and g.loc[pid, "t20i_pressure_balls"] > 0 else float("nan")}
+            for pid, x in r[r["rank"] <= 10].iterrows()]
+    rows.append({"discipline": disc, "rank": None, "player_name": "eligible pool",
+                 "t20i_pressure_balls": int(pool["t20i_pressure_balls"].sum()),
+                 "vs_weakest_pct": 100 * pool["vs_weakest"].sum() / pool["t20i_pressure_balls"].sum()})
+    return pd.DataFrame(rows)
+
+
 def knockout_record(pms: pd.DataFrame, disc: str, r: pd.DataFrame) -> pd.DataFrame:
     """D55: pressure Impact in knockout matches (playoffs, semi-finals, finals), descriptive only. One row per
     top-10 pick, plus the picks pooled and the eligible pool pooled, each with one standard error of chance."""
@@ -320,7 +362,8 @@ def band_note(r: pd.DataFrame) -> str:
 
 
 def main() -> None:
-    checks, details, contexts, consist, kos, consist14 = [], [], [], [], [], []
+    checks, details, contexts, consist, kos, consist14, opps = [], [], [], [], [], [], []
+    strength = team_strength()
     pms = pd.read_parquet(PROC / "player_match_stats.parquet")
     ctx = match_context()
     for disc in ("bat", "bowl"):
@@ -336,6 +379,7 @@ def main() -> None:
         r14 = t14[["rank"]].join(r[["player_name"]])
         consist14.append(match_consistency(pms, disc, r14, p14))
         kos.append(knockout_record(pms, disc, r))
+        opps.append(t20i_opposition(pms, disc, r, strength))
         details.append(md)
         fin = final_table(pms, disc, r)
         fin.to_csv(OUTPUTS / f"final_top10_{FILE[disc]}.csv", index=False)
@@ -394,6 +438,11 @@ def main() -> None:
                    bool(m14["headline_reproduced"].all()) and len(m14) == 20))
     kor = pd.concat(kos, ignore_index=True)
     kor.to_csv(OUTPUTS / "knockout_record.csv", index=False, float_format="%.4f")
+    strength.to_csv(OUTPUTS / "t20i_team_strength.csv", index=False, float_format="%.2f")
+    opp = pd.concat(opps, ignore_index=True)
+    opp.to_csv(OUTPUTS / "t20i_opposition.csv", index=False, float_format="%.2f")
+    print("\nFull-member T20I pressure balls against the weakest full members (D61):")
+    print(opp.round(1).to_string(index=False))
     print("\nKnockout pressure record (D55, descriptive):")
     print(kor[["discipline", "group", "player_name", "ko_matches", "ko_pressure_balls",
                "ko_pressure_impact_per100", "chance_se_per100"]].round(1).to_string(index=False))
