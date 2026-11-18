@@ -328,6 +328,16 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   asks for the best performers under pressure, not recommendations to RR. The scripts still write rr_needs.csv,
   rr_fit.md and context_players.csv (08 role cards feed Tables 1-2); docs/availability_notes.csv is unused by the
   report. Rejected: reframing section 6 as squad fit (still a recommendation).
+- D52 (18 Nov, red-team round 3 fix 1, presentation only; no ranking change): 09 writes
+  match_consistency.csv: for each top-10 pick, the rank with his single best pressure match removed (best by
+  weighted pressure Impact; all his balls in that match dropped; everyone else unchanged; priors and k fixed,
+  as in the bootstrap), the share of his pressure matches (>= 3 pressure balls) with positive Impact against
+  the eligible average, and the best match's share of his total pressure Impact. Shown in 5.1 and one line on
+  page 1. Result: 6 of 10 batters stay top 10 (David 13th, Patidar 11th, Iyer and Inglis 15th drop); 9 of 10
+  bowlers (Nawaz 12th drops); positive-Impact match share above the pool for 10 of 10 batters (pool 55%) and
+  8 of 10 bowlers (pool 44%; Ngidi 30%, Nawaz at average). Why: the brief asks who delivers most
+  consistently; the report had no per-pick match-level answer. Rejected: re-defining the consistency
+  component on Impact on deadline day (re-ranks; reported alongside instead).
 
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2) [CLOSED by D41]: First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected

@@ -289,6 +289,17 @@ def picks_table() -> pd.DataFrame:
     return pd.concat(out, ignore_index=True)
 
 
+def match_consistency_numbers(N: dict) -> None:
+    """D52: picks that stay top 10 without their best pressure match, and picks above the pool's share of
+    pressure matches with positive Impact."""
+    mc = pd.read_csv(OUTPUTS / "match_consistency.csv")
+    for disc in ("bat", "bowl"):
+        t = mc[mc["discipline"] == disc]
+        N[f"mc.{disc}_stay"] = int((t["rank_without_best_match"] <= 10).sum())
+        N[f"mc.{disc}_above_pool"] = int((t["positive_impact_match_pct"] > t["pool_positive_impact_match_pct"]).sum())
+        N[f"mc.{disc}_pool_pct"] = t["pool_positive_impact_match_pct"].iloc[0]
+
+
 def chance_numbers(N: dict, picks: pd.DataFrame) -> None:
     """D50: how far raw pressure Impact moves by chance, and whether bowlers' gaps are wider than chance."""
     from scipy.stats import norm
@@ -366,6 +377,7 @@ def main() -> None:
     picks = picks_table()
     auction_numbers(N, picks)
     chance_numbers(N, picks)
+    match_consistency_numbers(N)
     for k, v in list(N.items()):
         if isinstance(v, (np.integer,)):
             N[k] = int(v)

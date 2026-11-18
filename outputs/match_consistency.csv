@@ -1,0 +1,21 @@
+discipline,rank,player_name,rank_without_best_match,best_match_id,pressure_matches,positive_impact_match_pct,pool_positive_impact_match_pct,best_match_share_pct,headline_reproduced
+bat,1,Vaibhav Sooryavanshi,1,50140,18,77.7778,55.3887,34.8552,True
+bat,2,Heinrich Klaasen,3,50362,27,81.4815,55.3887,23.1840,True
+bat,3,Priyansh Arya,8,40715,20,70.0000,55.3887,38.0368,True
+bat,4,Abhishek Sharma,5,31287,70,64.2857,55.3887,20.7579,True
+bat,5,Tim David,13,41507,33,57.5758,55.3887,45.5111,True
+bat,6,Finn Allen,7,54213,25,60.0000,55.3887,59.6112,True
+bat,7,Virat Kohli,8,50355,54,72.2222,55.3887,17.5584,True
+bat,8,Rajat Patidar,11,50371,24,75.0000,55.3887,41.0090,True
+bat,9,Shreyas Iyer,15,40766,43,65.1163,55.3887,38.7902,True
+bat,10,Josh Inglis,15,41506,26,69.2308,55.3887,38.7978,True
+bowl,1,Jasprit Bumrah,1,50351,44,45.4545,43.6312,,True
+bowl,2,Sunil Narine,2,40741,30,46.6667,43.6312,27.4864,True
+bowl,3,Mustafizur Rahman,5,32135,35,48.5714,43.6312,57.7971,True
+bowl,4,Lungi Ngidi,8,40745,20,30.0000,43.6312,,True
+bowl,5,Bhuvneshwar Kumar,8,50347,74,52.7027,43.6312,40.4668,True
+bowl,6,Rashid Khan,10,50138,50,62.0000,43.6312,44.5346,True
+bowl,7,Josh Hazlewood,8,40735,47,59.5745,43.6312,57.0549,True
+bowl,8,Krunal Pandya,8,30076,34,61.7647,43.6312,44.4870,True
+bowl,9,Mohammad Nawaz,12,45857,23,43.4783,43.6312,64.3155,True
+bowl,10,Nathan Ellis,10,50598,25,48.0000,43.6312,65.3862,True

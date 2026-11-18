@@ -191,6 +191,39 @@ def context_players(r: pd.DataFrame, disc: str) -> pd.DataFrame:
     return pd.concat(out).reset_index()
 
 
+def match_consistency(pms: pd.DataFrame, disc: str, r: pd.DataFrame) -> pd.DataFrame:
+    """D52: does each top-10 pick deliver match after match? (a) His rank with his single best pressure match
+    removed (by weighted pressure Impact; everyone else unchanged; priors and k held fixed, as in the bootstrap);
+    (b) the share of his pressure matches (>= 3 pressure balls) with positive Impact, against the pool average;
+    (c) his best match's share of his total pressure Impact."""
+    p = lr.Params()
+    ids = r.index
+    pool = lr.eb_pool(pms, disc)
+    base, eb = lr.rate(pms, disc, ids, pool, p)
+    s = pms[(pms["discipline"] == disc) & (pms["flag"] == "pressure")]
+    m = s.groupby(["player_id", "match_id"]).agg(n=("n_balls", "sum"), imp=("w_x_tot", "sum"))
+    pm_all = m[m["n"] >= lr.PRESSURE_MATCH_MIN_BALLS]
+    pos = (pm_all["imp"] > 0).groupby("player_id").mean()
+    pool_pos = pos.reindex(ids).mean()
+    rows = []
+    for pid, x in r[r["rank"] <= 10].iterrows():
+        pm = m.loc[pid]
+        best = pm["imp"].idxmax()
+        keep = ~((pms["discipline"] == disc) & (pms["player_id"] == pid) & (pms["match_id"] == best))
+        t, _ = lr.rate(pms[keep], disc, ids, pool, p, eb=eb)
+        total = pm["imp"].sum()
+        rows.append({
+            "discipline": disc, "rank": int(x["rank"]), "player_name": x["player_name"],
+            "rank_without_best_match": int(t.loc[pid, "rank"]), "best_match_id": int(best),
+            "pressure_matches": int((pm["n"] >= lr.PRESSURE_MATCH_MIN_BALLS).sum()),
+            "positive_impact_match_pct": 100 * pos.get(pid, float("nan")),
+            "pool_positive_impact_match_pct": 100 * pool_pos,
+            "best_match_share_pct": 100 * pm.loc[best, "imp"] / total if total > 0 else float("nan"),
+            "headline_reproduced": bool((base["rank"].reindex(ids) == r["rank"]).all()),
+        })
+    return pd.DataFrame(rows)
+
+
 def load(disc: str, pms: pd.DataFrame) -> pd.DataFrame:
     r = pd.read_csv(OUTPUTS / f"ratings_{FILE[disc]}.csv", index_col="player_id")
     b = pd.read_csv(OUTPUTS / f"bootstrap_ranks_{FILE[disc]}.csv", index_col="player_id")
@@ -256,7 +289,7 @@ def band_note(r: pd.DataFrame) -> str:
 
 
 def main() -> None:
-    checks, details, contexts = [], [], []
+    checks, details, contexts, consist = [], [], [], []
     pms = pd.read_parquet(PROC / "player_match_stats.parquet")
     ctx = match_context()
     for disc in ("bat", "bowl"):
@@ -264,6 +297,8 @@ def main() -> None:
         md = match_detail(pms, disc, r[r["rank"] <= 10], ctx)
         cp = context_players(r, disc)
         contexts.append(cp)
+        mc = match_consistency(pms, disc, r)
+        consist.append(mc)
         details.append(md)
         fin = final_table(pms, disc, r)
         fin.to_csv(OUTPUTS / f"final_top10_{FILE[disc]}.csv", index=False)
@@ -314,6 +349,14 @@ def main() -> None:
                    "chase_pressure_balls"]].round(2).to_string(index=False))
     pd.concat(details, ignore_index=True).to_csv(OUTPUTS / "top10_match_detail.csv", index=False, float_format="%.4f")
     pd.concat(contexts, ignore_index=True).to_csv(OUTPUTS / "context_players.csv", index=False, float_format="%.4f")
+    mcs = pd.concat(consist, ignore_index=True)
+    mcs.to_csv(OUTPUTS / "match_consistency.csv", index=False, float_format="%.4f")
+    checks.append(("Match consistency: headline ranks reproduced with priors fixed; 10 picks per list",
+                   f"{len(mcs)} rows", bool(mcs["headline_reproduced"].all()) and len(mcs) == 20))
+    print("\nWithout their best pressure match (D52):")
+    print(mcs[["discipline", "rank", "player_name", "rank_without_best_match", "pressure_matches",
+               "positive_impact_match_pct", "pool_positive_impact_match_pct", "best_match_share_pct"]]
+          .round(1).to_string(index=False))
     check_df = pd.DataFrame(checks, columns=["check", "value", "pass"])
     print()
     print(check_df.assign(**{"pass": check_df["pass"].map({True: "PASS", False: "FAIL"})}).to_string(index=False))

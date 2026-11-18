@@ -326,6 +326,21 @@ def t_context(disc: str, group: str) -> str:
     return table(df, "compact tiny ctx", num)
 
 
+def t_matchcons(disc: str) -> str:
+    """D52: does each pick deliver match after match?"""
+    c = pd.read_csv(OUTPUTS / "match_consistency.csv")
+    c = c[c["discipline"] == disc].sort_values("rank")
+    df = pd.DataFrame({
+        "#": c["rank"], "Player": [esc(x) for x in c["player_name"]],
+        "Rank without best match": [f"<b>{k}</b>" if k <= 10 else f'<span class="flag">{k}</span>'
+                                    for k in c["rank_without_best_match"]],
+        "Pressure matches": c["pressure_matches"],
+        "Positive-Impact matches %": c["positive_impact_match_pct"].map("{:.0f}".format),
+        "Best match's share %": c["best_match_share_pct"].map(lambda x: f"{x:.0f}" if pd.notna(x) else "&ndash;"),
+    })
+    return table(df, "compact tiny", tuple(df.columns[2:]) + ("#",))
+
+
 def t_sensitivity() -> str:
     s = pd.read_csv(OUTPUTS / "sensitivity_summary.csv")
     piv = s.pivot(index="variant", columns="discipline", values="top10_overlap").reindex(s["variant"].drop_duplicates())
@@ -454,6 +469,7 @@ TABLES = {
     "rr_needs": lambda w: t_rr_needs(), "auction_bat": lambda w: t_auction("bat"),
     "auction_bowl": lambda w: t_auction("bowl"),
     "coverage": lambda w: t_coverage(), "reliance": lambda w: t_match_reliance(),
+    "mc_bat": lambda w: t_matchcons("bat"), "mc_bowl": lambda w: t_matchcons("bowl"),
     "ctx_bat": lambda w: t_context("bat", "most_used"), "ctx_bowl": lambda w: t_context("bowl", "most_used"),
     "rr_own_bat": lambda w: t_context("bat", "rr"), "rr_own_bowl": lambda w: t_context("bowl", "rr"),
 }
