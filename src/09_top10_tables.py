@@ -191,6 +191,37 @@ def context_players(r: pd.DataFrame, disc: str) -> pd.DataFrame:
     return pd.concat(out).reset_index()
 
 
+def knockout_record(pms: pd.DataFrame, disc: str, r: pd.DataFrame) -> pd.DataFrame:
+    """D55: pressure Impact in knockout matches (playoffs, semi-finals, finals), descriptive only. One row per
+    top-10 pick, plus the picks pooled and the eligible pool pooled, each with one standard error of chance."""
+    ko = pd.read_parquet(PROC / "balls.parquet", columns=["match_id", "knock_out"]).drop_duplicates("match_id")
+    ko_ids = ko.loc[ko["knock_out"] == 1, "match_id"]
+    s = pms[(pms["discipline"] == disc) & (pms["flag"] == "pressure") & pms["match_id"].isin(ko_ids)]
+    g = s.groupby("player_id").agg(ko_matches=("match_id", "nunique"), ko_pressure_balls=("n_balls", "sum"),
+                                   w=("w", "sum"), w2=("w2", "sum"), wx=("w_x_tot", "sum"))
+    eb = pd.read_csv(OUTPUTS / "eb_params.csv").set_index(["discipline", "quantity"])
+    sigma2 = eb.loc[(disc, "D"), "sigma2"]
+
+    def row(label, x):
+        w, w2, wx = x["w"].sum(), x["w2"].sum(), x["wx"].sum()
+        return {"discipline": disc, "group": label, "ko_matches": int(x["ko_matches"].sum()),
+                "ko_pressure_balls": int(x["ko_pressure_balls"].sum()),
+                "ko_pressure_impact_per100": 100 * wx / w if w > 0 else float("nan"),
+                "chance_se_per100": 100 * (sigma2 / (w ** 2 / w2)) ** 0.5 if w > 0 else float("nan")}
+
+    top = r[r["rank"] <= 10]
+    rows = []
+    for pid, x in top.iterrows():
+        one = g.loc[[pid]] if pid in g.index else g.iloc[:0]
+        rows.append({**row("pick", one), "rank": int(x["rank"]), "player_name": x["player_name"]})
+    rows.append(row("picks_pooled", g.loc[g.index.intersection(top.index)]))
+    rows.append(row("pool_pooled", g.loc[g.index.intersection(r.index)]))
+    out = pd.DataFrame(rows)
+    out["players_with_ko_balls"] = [None] * (len(out) - 2) + [len(g.index.intersection(top.index)),
+                                                              len(g.index.intersection(r.index))]
+    return out
+
+
 def match_consistency(pms: pd.DataFrame, disc: str, r: pd.DataFrame) -> pd.DataFrame:
     """D52: does each top-10 pick deliver match after match? (a) His rank with his single best pressure match
     removed (by weighted pressure Impact; everyone else unchanged; priors and k held fixed, as in the bootstrap);
@@ -289,7 +320,7 @@ def band_note(r: pd.DataFrame) -> str:
 
 
 def main() -> None:
-    checks, details, contexts, consist = [], [], [], []
+    checks, details, contexts, consist, kos = [], [], [], [], []
     pms = pd.read_parquet(PROC / "player_match_stats.parquet")
     ctx = match_context()
     for disc in ("bat", "bowl"):
@@ -299,6 +330,7 @@ def main() -> None:
         contexts.append(cp)
         mc = match_consistency(pms, disc, r)
         consist.append(mc)
+        kos.append(knockout_record(pms, disc, r))
         details.append(md)
         fin = final_table(pms, disc, r)
         fin.to_csv(OUTPUTS / f"final_top10_{FILE[disc]}.csv", index=False)
@@ -351,6 +383,11 @@ def main() -> None:
     pd.concat(contexts, ignore_index=True).to_csv(OUTPUTS / "context_players.csv", index=False, float_format="%.4f")
     mcs = pd.concat(consist, ignore_index=True)
     mcs.to_csv(OUTPUTS / "match_consistency.csv", index=False, float_format="%.4f")
+    kor = pd.concat(kos, ignore_index=True)
+    kor.to_csv(OUTPUTS / "knockout_record.csv", index=False, float_format="%.4f")
+    print("\nKnockout pressure record (D55, descriptive):")
+    print(kor[["discipline", "group", "player_name", "ko_matches", "ko_pressure_balls",
+               "ko_pressure_impact_per100", "chance_se_per100"]].round(1).to_string(index=False))
     checks.append(("Match consistency: headline ranks reproduced with priors fixed; 10 picks per list",
                    f"{len(mcs)} rows", bool(mcs["headline_reproduced"].all()) and len(mcs) == 20))
     print("\nWithout their best pressure match (D52):")

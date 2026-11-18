@@ -1,0 +1,25 @@
+discipline,group,ko_matches,ko_pressure_balls,ko_pressure_impact_per100,chance_se_per100,rank,player_name,players_with_ko_balls
+bat,pick,2,40,32.9763,15.3103,1.0000,Vaibhav Sooryavanshi,
+bat,pick,2,25,2.4982,19.3662,2.0000,Heinrich Klaasen,
+bat,pick,4,20,-25.6748,22.6548,3.0000,Priyansh Arya,
+bat,pick,3,14,-67.5751,25.8791,4.0000,Abhishek Sharma,
+bat,pick,1,2,2.2928,68.4697,5.0000,Tim David,
+bat,pick,1,6,-25.0502,39.5310,6.0000,Finn Allen,
+bat,pick,5,64,14.9263,13.5861,7.0000,Virat Kohli,
+bat,pick,5,36,25.5446,18.8328,8.0000,Rajat Patidar,
+bat,pick,3,40,17.6870,15.4362,9.0000,Shreyas Iyer,
+bat,pick,3,42,8.9365,15.1349,10.0000,Josh Inglis,
+bat,picks_pooled,29,289,11.1198,6.3437,,,10.0000
+bat,pool_pooled,138,1369,2.8826,2.9007,,,59.0000
+bowl,pick,3,40,7.6048,15.5606,1.0000,Jasprit Bumrah,
+bowl,pick,1,7,-32.8800,36.4356,2.0000,Sunil Narine,
+bowl,pick,0,0,,,3.0000,Mustafizur Rahman,
+bowl,pick,0,0,,,4.0000,Lungi Ngidi,
+bowl,pick,4,43,12.0059,15.0793,5.0000,Bhuvneshwar Kumar,
+bowl,pick,4,21,-26.9725,21.7085,6.0000,Rashid Khan,
+bowl,pick,4,26,7.7391,18.5764,7.0000,Josh Hazlewood,
+bowl,pick,4,48,16.1458,15.9549,8.0000,Krunal Pandya,
+bowl,pick,3,16,58.9403,26.3466,9.0000,Mohammad Nawaz,
+bowl,pick,0,0,,,10.0000,Nathan Ellis,
+bowl,picks_pooled,23,201,10.3638,7.2262,,,7.0000
+bowl,pool_pooled,139,1355,-0.2692,2.8764,,,66.0000

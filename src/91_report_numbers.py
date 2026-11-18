@@ -128,6 +128,32 @@ def wp_numbers(N: dict) -> None:
     N["wp.state_4off1_n"] = int(lg.loc[("4", "1"), "balls"])
 
 
+def knockout_numbers(N: dict) -> None:
+    """D55: are balls in knockout matches higher-leverage? And the picks' pooled knockout record (from 09)."""
+    v = pd.read_parquet(PROC / "ball_values.parquet", columns=["match_id", "LI", "is_pressure"])
+    m = pd.read_parquet(PROC / "balls.parquet", columns=["match_id", "knock_out", "comp_tier"]).drop_duplicates("match_id")
+    d = v.merge(m, on="match_id", how="left", validate="m:1")
+    ko = d["knock_out"] == 1
+    km = m[m["match_id"].isin(d["match_id"]) & (m["knock_out"] == 1)]
+    N.update({
+        "ko.matches": len(km), "ko.ipl": int((km["comp_tier"] == "IPL").sum()),
+        "ko.t20i": int((km["comp_tier"] == "T20I_full").sum()), "ko.emerging": int((km["comp_tier"] == "Emerging").sum()),
+        "ko.mean_li": d.loc[ko, "LI"].mean(), "ko.mean_li_other": d.loc[~ko, "LI"].mean(),
+        "ko.pressure_pct": 100 * d.loc[ko, "is_pressure"].mean(), "ko.pressure_pct_other": 100 * d.loc[~ko, "is_pressure"].mean(),
+    })
+    k = pd.read_csv(OUTPUTS / "knockout_record.csv")
+    for disc in ("bat", "bowl"):
+        t = k[k["discipline"] == disc].set_index("group")
+        picks = k[(k["discipline"] == disc) & (k["group"] == "pick")]
+        N[f"ko.{disc}_picks_with"] = int((picks["ko_pressure_balls"] > 0).sum())
+        N[f"ko.{disc}_picks_min_balls"] = int(picks.loc[picks["ko_pressure_balls"] > 0, "ko_pressure_balls"].min())
+        N[f"ko.{disc}_picks_max_balls"] = int(picks["ko_pressure_balls"].max())
+        for g, tag in (("picks_pooled", "picks"), ("pool_pooled", "pool")):
+            N[f"ko.{disc}_{tag}_imp"] = t.loc[g, "ko_pressure_impact_per100"]
+            N[f"ko.{disc}_{tag}_se"] = t.loc[g, "chance_se_per100"]
+            N[f"ko.{disc}_{tag}_balls"] = int(t.loc[g, "ko_pressure_balls"])
+
+
 def leverage_numbers(N: dict) -> None:
     v = pd.read_parquet(PROC / "ball_values.parquet")
     b = pd.read_parquet(PROC / "balls.parquet", columns=["match_id", "innings", "innings_ball_num", "phase", "overid"])
@@ -398,6 +424,7 @@ def main() -> None:
     rating_numbers(N)
     time_split_numbers(N)
     wp_coefficients(N)
+    knockout_numbers(N)
     picks = picks_table()
     auction_numbers(N, picks)
     chance_numbers(N, picks)

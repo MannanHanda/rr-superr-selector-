@@ -350,6 +350,14 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   bowlers the pressure level, chase-only and IPL-only ranks rest mainly on usual level. Bumrah's line explains
   his pressure-ball record (fewer wickets, runs still saved against par); Rashid, Hazlewood and Ellis lines give
   their IPL-only rank. Why: the narrative listed caveats without saying what it is confident about.
+- D55 (18 Nov, red-team round 3 fix 4, no ranking change): match importance is not part of the pressure
+  definition, now said and evidenced in 1.3: balls in the 31 knockout matches with ball data have about the
+  same average LI as other balls (1.04 vs 1.00; IPL 1.00 vs 1.02) and a slightly higher pressure share (28% vs
+  25%), so knockout stakes already show up ball by ball where the match is close. 09 writes
+  knockout_record.csv (each pick's knockout pressure Impact with a chance range; picks pooled; pool pooled);
+  the report shows only the pooled figures because per-pick samples are 2-64 balls. Rejected: a knockout
+  weight on LI (no evidence that a knockout ball carries a bigger swing; 31 matches); per-pick knockout
+  figures in the report (noise that reads as evidence).
 
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2) [CLOSED by D41]: First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected
