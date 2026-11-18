@@ -40,7 +40,7 @@ OUT = ROOT / "reports" / "report.html"
 FILE = {"bat": "batters", "bowl": "bowlers"}
 TOKEN = re.compile(r"\{\{([A-Za-z0-9_.:\-]+)(?:\|([^}]*))?\}\}")
 KEEP: set = set()
-REPO_URL = "https://github.com/MannanHanda/rr-superr-selector"  # D49; change if the repo name differs
+REPO_URL = "https://github.com/MannanHanda/rr-superr-selector-"  # D49; change if the repo name differs
 
 
 # ---------------------------------------------------------------- formatting
