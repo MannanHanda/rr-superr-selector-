@@ -338,6 +338,12 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   8 of 10 bowlers (pool 44%; Ngidi 30%, Nawaz at average). Why: the brief asks who delivers most
   consistently; the report had no per-pick match-level answer. Rejected: re-defining the consistency
   component on Impact on deadline day (re-ranks; reported alongside instead).
+- D53 (18 Nov, red-team round 3 fix 2, wording only): Impact is defined everywhere as WPA divided by the
+  ball's leverage in WP points (li_raw, as built in D11); the glossary had said "WPA / LI", which differs by
+  a constant. Consistency is described as the share of pressure matches in which the player added win
+  probability, not "matches won". One statement on close places (8-12). The 3.1 chance range names the
+  weighted sample it was computed on. 3.3 states the T20I offset's direction in words. Appendix D summarises
+  D46-D53.
 
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2) [CLOSED by D41]: First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected

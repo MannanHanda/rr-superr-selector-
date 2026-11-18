@@ -298,6 +298,10 @@ def match_consistency_numbers(N: dict) -> None:
         N[f"mc.{disc}_stay"] = int((t["rank_without_best_match"] <= 10).sum())
         N[f"mc.{disc}_above_pool"] = int((t["positive_impact_match_pct"] > t["pool_positive_impact_match_pct"]).sum())
         N[f"mc.{disc}_pool_pct"] = t["pool_positive_impact_match_pct"].iloc[0]
+    o = pd.read_csv(OUTPUTS / "tier_offsets.csv")  # D53: offset direction stated in words
+    for disc in ("bat", "bowl"):
+        N[f"off.{disc}_t20i"] = 100 * o.loc[(o["discipline"] == disc) & (o["tier"] == "T20I_full"),
+                                           "applied_offset_per_ball"].sum()
 
 
 def chance_numbers(N: dict, picks: pd.DataFrame) -> None:
@@ -307,6 +311,7 @@ def chance_numbers(N: dict, picks: pd.DataFrame) -> None:
     for disc in ("bat", "bowl"):
         r = pd.read_csv(OUTPUTS / f"ratings_{FILE[disc]}.csv")
         N[f"eb.{disc}_P_se_median"] = 100 * np.sqrt(eb.loc[(disc, "D"), "sigma2"] / r["n_P"].median())
+        N[f"eb.{disc}_nP_median"] = r["n_P"].median()  # D53: effective pressure balls after weights
         N[f"eb.{disc}_D_tau2"] = eb.loc[(disc, "D"), "tau2"]
     b1 = picks[(picks["discipline"] == "bowl") & (picks["rank"] == 1)].iloc[0]
     N["eb.bowl1_expected_gaps"] = N["pool.bowl"] * 2 * norm.sf(abs(b1["P_gap_se"]))
