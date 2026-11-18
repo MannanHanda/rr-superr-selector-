@@ -408,6 +408,11 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   one-line-per-term key; only section 1 is forced onto a new page (page 8 was ~85% empty); 5.3 names V14
   among the bowlers' biggest changes (rank correlation 0.80); 3.4 and the limitations point to the 3.3
   opposition check; Appendix D summarises D46-D63.
+- D65 (18 Nov, red-team round 5 fix 4, no ranking change): variant V15 re-rates without full-member T20Is
+  against the two weakest full members (Ireland, Zimbabwe; lib_rating.team_strength, moved from 09, and
+  Params.drop_t20i_teams; batting/bowling team ids added to BALL_COLS). Keeps 9/10 batters (Inglis 11th) and
+  8/10 bowlers (Rashid 17th, Nawaz 13th; Mustafizur 7th). Shown in 3.3 and Rashid's line. The headline
+  keeps every tier, as decided (D20, D38). Core picks are now counted over 15 variants (8 bat, 9 bowl).
 
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2) [CLOSED by D41]: First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected

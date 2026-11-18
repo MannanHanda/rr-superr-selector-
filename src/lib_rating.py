@@ -39,7 +39,7 @@ IPL_SHORT = {"Rajasthan Royals": "RR", "Punjab Kings": "PBKS", "Sunrisers Hydera
 
 BALL_COLS = ["match_id", "innings", "innings_ball_num", "overid", "phase", "comp_tier", "year", "striker_id", "bowler_id",
              "is_ball_faced", "is_legal", "striker_out", "is_bowler_wicket", "batter_runs", "bowler_runs",
-             "is_dot_faced", "is_four", "is_six"]
+             "is_dot_faced", "is_four", "is_six", "batting_team_id", "bowling_team_id"]
 
 
 @dataclass(frozen=True)
@@ -62,11 +62,29 @@ class Params:
     stake_weight: bool = True           # D45: weight pressure balls by their innings' median pressure LI
     split_shift: bool = False           # D56: True (variant V14) shrinks the shift's run and wicket parts
                                         # separately, as the usual level is; headline keeps one total shift
-                                        # (V13 = False, equal innings weight)
+    drop_t20i_teams: tuple | None = None  # D65 (V15): drop full-member T20Is involving these team ids
 
 
 def variant(**kw) -> Params:
     return replace(Params(), **kw)
+
+
+WEAK_N = 2  # D61: the weakest full members by T20I win rate in the data (Ireland, Zimbabwe; next is 8 points higher)
+
+
+def team_strength() -> pd.DataFrame:
+    """D61: each full member's win rate in completed full-member T20Is in the data (shared by 07 and 09)."""
+    m = pd.read_parquet(PROC / "matches.parquet")
+    f = m[(m["comp_tier"] == "T20I_full") & (m["status"] == "completed")]
+    rows = []
+    for side in ("home", "away"):
+        x = f[[f"{side}_team_id", f"{side}_team", "win_team_id"]].set_axis(["team_id", "team", "win_team_id"], axis=1)
+        rows.append(x.assign(won=(x["win_team_id"] == x["team_id"]).astype(int)))
+    t = pd.concat(rows).groupby(["team_id", "team"]).agg(played=("won", "size"), won=("won", "sum")).reset_index()
+    t["win_pct"] = 100 * t["won"] / t["played"]
+    t = t.sort_values("win_pct", ascending=False).reset_index(drop=True)
+    t["weakest"] = t.index >= len(t) - WEAK_N
+    return t
 
 
 # ---------------------------------------------------------------- ball level
@@ -203,6 +221,10 @@ def build_pms(d: pd.DataFrame, p: Params = Params()) -> tuple[pd.DataFrame, pd.D
         d = d[d["comp_tier"].isin(p.tiers)]
     if p.years is not None:
         d = d[d["year"].isin(p.years)]
+    if p.drop_t20i_teams:
+        drop = list(p.drop_t20i_teams)
+        d = d[~((d["comp_tier"] == "T20I_full")
+                & (d["batting_team_id"].isin(drop) | d["bowling_team_id"].isin(drop)))]
     d = d.assign(omega=d["comp_tier"].map(p.tier_weight)
                  * recency_weight(d["year"], p.anchor_year, p.half_life))
     if stake is not None:

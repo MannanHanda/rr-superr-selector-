@@ -191,24 +191,6 @@ def context_players(r: pd.DataFrame, disc: str) -> pd.DataFrame:
     return pd.concat(out).reset_index()
 
 
-WEAK_N = 2  # D61: the weakest full members by T20I win rate in the data (Ireland, Zimbabwe; next is 8 points higher)
-
-
-def team_strength() -> pd.DataFrame:
-    """D61: each full member's win rate in completed full-member T20Is in the data."""
-    m = pd.read_parquet(PROC / "matches.parquet")
-    f = m[(m["comp_tier"] == "T20I_full") & (m["status"] == "completed")]
-    rows = []
-    for side in ("home", "away"):
-        x = f[[f"{side}_team_id", f"{side}_team", "win_team_id"]].set_axis(["team_id", "team", "win_team_id"], axis=1)
-        rows.append(x.assign(won=(x["win_team_id"] == x["team_id"]).astype(int)))
-    t = pd.concat(rows).groupby(["team_id", "team"]).agg(played=("won", "size"), won=("won", "sum")).reset_index()
-    t["win_pct"] = 100 * t["won"] / t["played"]
-    t = t.sort_values("win_pct", ascending=False).reset_index(drop=True)
-    t["weakest"] = t.index >= len(t) - WEAK_N
-    return t
-
-
 def t20i_opposition(pms: pd.DataFrame, disc: str, r: pd.DataFrame, strength: pd.DataFrame) -> pd.DataFrame:
     """D61: share of each pick's full-member T20I pressure balls faced against the weakest full members, against the
     eligible pool's share. Descriptive; ranks unchanged."""
@@ -363,7 +345,7 @@ def band_note(r: pd.DataFrame) -> str:
 
 def main() -> None:
     checks, details, contexts, consist, kos, consist14, opps = [], [], [], [], [], [], []
-    strength = team_strength()
+    strength = lr.team_strength()
     pms = pd.read_parquet(PROC / "player_match_stats.parquet")
     ctx = match_context()
     for disc in ("bat", "bowl"):

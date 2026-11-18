@@ -79,9 +79,13 @@ VARIANTS = {
     "V12 level = raw WPA": dict(level="wpa"),
     "V13 innings weighted equally": dict(stake_weight=False),
     "V14 shift split runs/wickets": dict(split_shift=True),
+    # D65: full-member T20Is against the two weakest full members (by T20I win rate in the data) removed
+    "V15 no T20Is v weakest two": dict(drop_t20i_teams=tuple(int(x) for x in
+                                       lr.team_strength().query("weakest")["team_id"])),
 }
 # variants that change the ball-level build (pressure flags, weights, tiers) need new sufficient statistics
-REBUILD = {"pressure_q", "global_share", "half_life", "tiers", "tier_weight", "use_offsets", "stake_weight"}
+REBUILD = {"pressure_q", "global_share", "half_life", "tiers", "tier_weight", "use_offsets", "stake_weight",
+           "drop_t20i_teams"}
 
 
 # ---------------------------------------------------------------- 4.1 bootstrap

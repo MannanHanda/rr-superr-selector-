@@ -246,6 +246,7 @@ def rating_numbers(N: dict) -> None:
         N[f"sens.{disc}_v13_overlap"] = int(ss.loc[("V13 innings weighted equally", disc), "top10_overlap"])  # D45
         N[f"sens.{disc}_v14_overlap"] = int(ss.loc[("V14 shift split runs/wickets", disc), "top10_overlap"])  # D56
         N[f"sens.{disc}_v14_corr"] = float(ss.loc[("V14 shift split runs/wickets", disc), "spearman_vs_headline"])
+        N[f"sens.{disc}_v15_overlap"] = int(ss.loc[("V15 no T20Is v weakest two", disc), "top10_overlap"])  # D65
         sv = pd.read_csv(OUTPUTS / "sensitivity.csv")
         sv = sv[sv["discipline"] == disc].set_index("headline_rank")
         N[f"sens.{disc}1_v14_rank"] = int(sv.loc[1, "V14 shift split runs/wickets"])
@@ -306,6 +307,7 @@ def picks_table() -> pd.DataFrame:
         t = t.join(b[["rank_p5", "rank_p95", "share_top10"]]).join(s[["n_variants_top10"]])
         t["ipl_only_rank"] = s["V9 IPL balls only"].reindex(t.index)  # D50
         t["v14_rank"] = s["V14 shift split runs/wickets"].reindex(t.index)  # D57
+        t["v15_rank"] = s["V15 no T20Is v weakest two"].reindex(t.index)  # D65
         # D60: runs against par on IPL balls alone, pressure and routine (same definition as the all-tier figure)
         pm = pd.read_parquet(PROC / "player_match_stats.parquet", columns=["discipline", "player_id", "flag",
                                                                           "comp_tier", "w", "w_rae"])

@@ -355,8 +355,9 @@ variants in which they stay top 10.
 | V12 | level measured as raw WPA per 100 pressure balls instead of Impact |
 | V13 | both innings' pressure balls weighted equally (no stake weight; the headline before D45) |
 | V14 | pressure shift's run and wicket parts shrunk separately, as the usual level is (D56) |
+| V15 | full-member T20Is against the two weakest full members (by T20I win rate in the data) removed (D65) |
 
-Report the players who stay top 10 in at least 10 of 14 variants as "core picks" and name the ones who do not.
+Report the players who stay top 10 in at least 10 of 15 variants as "core picks" and name the ones who do not.
 
 ---
 
@@ -409,7 +410,7 @@ Tables
 - **T1** Data coverage and exclusions. **T2** Eligibility funnel (players left after each rule).
 - **T3 / T4** Top-10 batters / bowlers: rating, rank interval, P̂, usual level, shift, consistency, pressure
   balls and matches, WPA, SR or economy, dot %, boundary %, dismissal rate (pressure vs routine).
-- **T5** Sensitivity: rank of each top-10 player under V1–V14. **T6** Tier offsets and weights.
+- **T5** Sensitivity: rank of each top-10 player under V1–V15. **T6** Tier offsets and weights.
 - **T7** RR needs and which pick fills each.
 
 ---
