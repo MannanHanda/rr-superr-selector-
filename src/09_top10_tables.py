@@ -11,7 +11,8 @@ Outputs (outputs/): top10_batters.md, top10_bowlers.md   T3 / T4: top 20 shown, 
                     top10_match_detail.csv                three best / worst pressure matches per pick (D43)
                     final_top10_batters.csv, final_top10_bowlers.csv   the submission lists
                     context_players.csv   D46: the 10 eligible players with the most IPL 2025-26 balls
-                                          outside each top 10, and every eligible RR player
+                                          outside each top 10, and every eligible RR player; D47: the 8
+                                          best-ranked eligible players with no IPL 2026 team
 
 Confidence band (D39) from the share of 1,000 match resamples in which the player is top 10:
 secure >= 80%, probable 50-80%, marginal < 50%. Order inside a band is the point estimate only.
@@ -142,6 +143,7 @@ def final_table(pms: pd.DataFrame, disc: str, r: pd.DataFrame) -> pd.DataFrame:
 
 
 CONTEXT_N = 10  # most-used IPL 2025-26 players shown outside each top 10 (D46)
+NO_TEAM_N = 8   # best-ranked eligible players with no IPL 2026 team (D47)
 COMPONENTS = {"P_hat": "pressure level", "D_hat": "shift", "C_hat": "consistency"}
 
 
@@ -165,8 +167,9 @@ def context_players(r: pd.DataFrame, disc: str) -> pd.DataFrame:
     gap = pd.DataFrame({c: w[c] * (r[f"z_{c}"] - tenth[f"z_{c}"]) for c in COMPONENTS})
     most_used = r[r["rank"] > 10].sort_values("ipl_recent_balls", ascending=False).head(CONTEXT_N).index
     rr = r[r["ipl_2026_team"] == "Rajasthan Royals"].sort_values("rank").index
+    no_team = r[r["ipl_2026_team"].isna()].sort_values("rank").head(NO_TEAM_N).index
     out = []
-    for group, ids in (("most_used", most_used), ("rr", rr)):
+    for group, ids in (("most_used", most_used), ("rr", rr), ("no_team", no_team)):
         t = r.loc[ids]
         out.append(pd.DataFrame({
             "discipline": disc, "group": group, "rank": t["rank"].astype(int), "player_name": t["player_name"],

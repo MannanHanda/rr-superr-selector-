@@ -17,6 +17,14 @@ player_id,discipline,group,rank,player_name,ipl_2026_team,team_short,ipl_recent_
 4409,bat,rr,69,Sam Curran,Rajasthan Royals,RR,84,48.7078,0.0050,marginal,0.2994,64,1.1094,31,48.7184,82,77,175,pressure level,-5.4276,105
 3297,bat,rr,72,Shimron Hetmyer,Rajasthan Royals,RR,233,48.5347,0.0040,marginal,-0.2814,73,-0.0558,44,50.9214,50,70,131,pressure level,-5.8686,105
 152,bat,rr,73,Ravindra Jadeja,Rajasthan Royals,RR,419,48.5150,0.0000,marginal,-0.8793,77,3.6490,6,50.2128,59,74,199,pressure level,-6.3228,105
+1318,bat,no_team,11,Andre Russell,none,,102,54.8679,0.3950,marginal,8.2503,8,-0.5576,55,50.5893,57,67,103,consistency,-0.8827,105
+6280,bat,no_team,13,Harry Brook,none,,0,54.5290,0.3670,marginal,7.4855,10,-0.6941,59,51.8780,37,20,28,consistency,-0.6192,105
+4106,bat,no_team,28,Daryl Mitchell,none,,0,51.6919,0.0410,marginal,3.1566,33,0.9675,33,52.8111,24,40,48,pressure level,-3.2574,105
+2921,bat,no_team,35,Fakhar Zaman,none,,0,50.9987,0.0200,marginal,1.1540,53,4.5278,2,54.1377,10,39,0,pressure level,-4.7784,105
+838,bat,no_team,37,Glenn Maxwell,none,,49,50.9722,0.1140,marginal,2.8979,38,-0.2800,48,51.2051,46,31,116,pressure level,-3.4536,105
+88,bat,no_team,51,Faf du Plessis,none,,163,49.6380,0.0010,marginal,2.4783,41,-1.9538,75,47.5158,96,17,347,pressure level,-3.7728,105
+3489,bat,no_team,54,Salman Agha,none,,0,49.5472,0.0100,marginal,0.2706,66,1.6184,20,52.5436,27,42,0,pressure level,-5.4492,105
+1481,bat,no_team,56,Kusal Perera,none,,0,49.4147,0.0070,marginal,0.8963,56,-0.7348,60,51.3704,41,49,0,pressure level,-4.9740,105
 5944,bowl,most_used,63,Mohammed Siraj,Gujarat Titans,GT,714,49.5484,0.0000,marginal,-0.1507,63,-0.0724,13,42.9337,78,63,602,pressure level,-4.1292,109
 6464,bowl,most_used,29,Arshdeep Singh,Punjab Kings,PBKS,668,51.8122,0.0230,marginal,2.5545,29,-0.7953,97,44.4186,39,28,502,pressure level,-2.0412,109
 3298,bowl,most_used,16,Jofra Archer,Rajasthan Royals,RR,633,53.1441,0.2010,marginal,4.3336,16,-1.0431,104,44.4283,37,20,246,pressure level,-0.6678,109
@@ -35,3 +43,11 @@ player_id,discipline,group,rank,player_name,ipl_2026_team,team_short,ipl_recent_
 6806,bowl,rr,90,Tushar Deshpande,Rajasthan Royals,RR,330,47.3611,0.0000,marginal,-2.9720,90,-0.3956,56,43.1646,70,85,282,pressure level,-6.3072,109
 7312,bowl,rr,92,Nandre Burger,Rajasthan Royals,RR,261,46.9389,0.0000,marginal,-3.8934,94,-0.1901,28,44.4083,40,101,135,pressure level,-7.0182,109
 4409,bowl,rr,100,Sam Curran,Rajasthan Royals,RR,72,46.1388,0.0000,marginal,-4.3285,98,-0.4888,71,42.3839,90,59,166,pressure level,-7.3542,109
+2490,bowl,no_team,9,Mohammad Nawaz,none,,0,54.0486,0.4060,marginal,5.4005,9,-0.4231,61,44.2929,47,3,0,consistency,-0.0810,109
+5979,bowl,no_team,11,Abrar Ahmed,none,,0,53.7687,0.3310,marginal,5.3522,10,-0.8208,98,43.4426,64,9,0,consistency,-0.2540,109
+305,bowl,no_team,14,Ravichandran Ashwin,none,,186,53.3607,0.2180,marginal,5.7004,6,-1.3556,109,40.5765,108,8,332,consistency,-0.8373,109
+5837,bowl,no_team,17,Mahedi Hasan,none,,0,53.0537,0.1920,marginal,3.8456,17,-0.4326,63,45.3104,24,29,0,pressure level,-1.0446,109
+6450,bowl,no_team,21,Mujeeb Ur Rahman,none,,12,52.5545,0.1330,marginal,2.2454,31,0.3903,1,48.2203,1,19,0,pressure level,-2.2800,109
+7364,bowl,no_team,22,Haris Rauf,none,,0,52.4097,0.1220,marginal,3.1269,21,-0.6247,86,45.0370,27,40,0,pressure level,-1.5996,109
+4658,bowl,no_team,23,Nasum Ahmed,none,,0,52.2787,0.1210,marginal,3.2129,20,-0.5315,77,43.9871,51,76,0,pressure level,-1.5330,109
+2687,bowl,no_team,27,Roston Chase,none,,0,51.9075,0.1060,marginal,2.9062,24,-0.6081,84,43.3918,65,60,0,pressure level,-1.7700,109

@@ -369,6 +369,38 @@ def rr_lines(disc: str) -> str:
     return table(df, "compact tiny rr", ("#",))
 
 
+def t_auction(disc: str) -> str:
+    """D47: picks in ranks 1-15 that fill an RR need (not already at RR), plus the best-ranked eligible players
+    with no IPL 2026 team, with how each could reach RR. Notes outside the data: docs/availability_notes.csv."""
+    notes = pd.read_csv(ROOT / "docs" / "availability_notes.csv").set_index("player_name")["note"]
+    p = PICKS[(PICKS["discipline"] == disc) & PICKS["fit_cells"].notna() & (PICKS["ipl_2026_team"] != "Rajasthan Royals")]
+    c = pd.read_csv(OUTPUTS / "context_players.csv")
+    c = c[(c["discipline"] == disc) & (c["group"] == "no_team")]
+    rows = []
+    for _, r in p.iterrows():
+        rows.append({"rank": int(r["rank"]), "name": r["player_name"], "share": r["share_top10"],
+                     "team": r["team_short"] if isinstance(r["team_short"], str) and r["team_short"] else "none",
+                     "need": r["fit_cells"]})
+    for _, r in c.iterrows():
+        if r["player_name"] not in {x["name"] for x in rows}:
+            fit = PICKS.loc[(PICKS["discipline"] == disc) & (PICKS["player_name"] == r["player_name"]), "fit_cells"]
+            rows.append({"rank": int(r["rank"]), "name": r["player_name"], "share": r["share_top10"], "team": "none",
+                         "need": fit.iloc[0] if len(fit) and isinstance(fit.iloc[0], str) else None})
+    out = []
+    for x in sorted(rows, key=lambda x: x["rank"]):
+        if x["team"] != "none":
+            route = f"contracted to {esc(x['team'])}: only if released"
+        elif x["name"] in notes.index:
+            route = f'<span class="flag">{esc(notes[x["name"]])}</span>'
+        else:
+            route = "no IPL 2026 team: in the auction pool if he registers"
+        out.append({"#": x["rank"], "Player": esc(x["name"]), "Top-10 share %": f"{100 * x['share']:.0f}",
+                    "RR need he fits": f"<b>{esc(x['need'])}</b>" if x["need"] else "&ndash;", "Route to RR": route})
+    df = pd.DataFrame(out)
+    df["#"] = [f"<span class=muted>{k}</span>" if k > 10 else str(k) for k in df["#"]]
+    return table(df, "compact tiny rr", ("#", "Top-10 share %"))
+
+
 def t_coverage() -> str:
     c = pd.read_csv(OUTPUTS / "report_coverage.csv")
     cols = {"completed": "Completed", "tie_super_over": "Tied", "no_result": "No result", "abandoned": "Abandoned",
@@ -401,7 +433,8 @@ TABLES = {
     "effective": lambda w: t_effective(), "eb": lambda w: t_eb(), "eligibility": lambda w: t_eligibility(),
     "funnel": lambda w: t_funnel(), "tiers": lambda w: t_tiers(), "recency": lambda w: t_recency(),
     "sensitivity": lambda w: t_sensitivity(), "timesplit": lambda w: t_timesplit(),
-    "rr_needs": lambda w: t_rr_needs(), "rr_bat": lambda w: rr_lines("bat"), "rr_bowl": lambda w: rr_lines("bowl"),
+    "rr_needs": lambda w: t_rr_needs(), "auction_bat": lambda w: t_auction("bat"),
+    "auction_bowl": lambda w: t_auction("bowl"),
     "coverage": lambda w: t_coverage(), "reliance": lambda w: t_match_reliance(),
     "ctx_bat": lambda w: t_context("bat", "most_used"), "ctx_bowl": lambda w: t_context("bowl", "most_used"),
     "rr_own_bat": lambda w: t_context("bat", "rr"), "rr_own_bowl": lambda w: t_context("bowl", "rr"),

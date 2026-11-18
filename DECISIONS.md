@@ -281,6 +281,16 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   (33%), Prabhsimran 14th; bowlers Noor Ahmad 12th (34%), Varun 13th; Gill 38th, Buttler 32nd, Siraj 63rd,
   Arshdeep 29th. RR: 8 batters and 8 bowlers eligible; only Sooryavanshi is in a top 10; next Jaiswal and
   Archer, both 16th. No ranking changed.
+- D47 (18 Nov, RT fix 3): Section 6 becomes an auction view: a three-point summary (who is contracted
+  elsewhere; the open market; RR's needs), the needs table with the count of usable cells (no death-overs cell
+  is usable, stated), RR's own players (D46), and a route-to-RR table per list: ranks 1-15 that fit an RR
+  need (not already at RR) plus the 8 best-ranked eligible players with no IPL 2026 team (09 writes them to
+  context_players.csv, group no_team). Availability facts that are not in the data pack (Pakistan players,
+  IPL retirements, a reported ban) live in docs/availability_notes.csv, shown in red and labelled as from
+  public reports. Why: the red-team read found section 6 was a lookup table with no auction logic, and that
+  several high-ranked players cannot be signed. Rejected: moving or removing such players in the ranking (Q1:
+  data-only ranking); guessing retentions (unknowable before the retention deadline). The 15-row role-card
+  tables are dropped from the report; role cards stay in outputs/rr_fit.md. No ranking changed.
 
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2) [CLOSED by D41]: First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected

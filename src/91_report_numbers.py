@@ -281,6 +281,43 @@ def picks_table() -> pd.DataFrame:
     return pd.concat(out, ignore_index=True)
 
 
+def ordinal(n: int) -> str:
+    n = int(round(n))
+    return f"{n}{'th' if 10 <= n % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')}"
+
+
+def auction_numbers(N: dict, picks: pd.DataFrame) -> None:
+    """D47: numbers for the auction view in section 6."""
+    m08 = module("08_rr_fit")
+    nd = pd.read_csv(OUTPUTS / "rr_needs.csv")
+    cells = nd.drop_duplicates(["discipline", "phase", "role"])
+    rr = nd[nd["team"] == m08.RR]
+    need = rr[rr["usable"] & rr["rank"].isin(m08.NEED_RANKS)]
+    N["rr.cells_total"], N["rr.cells_usable"] = len(cells), int(cells["usable"].sum())
+    N["rr.death_usable"] = int(cells.loc[cells["phase"] == "death", "usable"].sum())
+    N["rr.n_needs"] = len(need)
+    N["rr.needs_txt"] = "; ".join(
+        f"{x.phase} overs, {x.role} {'batting' if x.discipline == 'bat' else 'bowling'} ({ordinal(x.rank)} of 10)"
+        for x in need.itertuples())
+    notes = pd.read_csv(ROOT / "docs" / "availability_notes.csv").set_index("player_name")["note"]
+    cx = pd.read_csv(OUTPUTS / "context_players.csv")
+    for disc in ("bat", "bowl"):
+        top = picks[(picks["discipline"] == disc) & (picks["rank"] <= 10)]
+        N[f"auc.{disc}_top10_elsewhere"] = int(top["status"].str.startswith("at another franchise").sum())
+        N[f"auc.{disc}_top10_no_team"] = int((top["status"] == "no IPL 2026 team").sum())
+        nt = cx[(cx["discipline"] == disc) & (cx["group"] == "no_team")]
+        N[f"auc.{disc}_no_team_n"] = len(nt)
+        N[f"auc.{disc}_no_team_barred"] = int(nt["player_name"].isin(notes.index).sum())
+        op = nt[~nt["player_name"].isin(notes.index)].iloc[0]
+        N[f"auc.{disc}_open_name"], N[f"auc.{disc}_open_rank"] = op["player_name"], int(op["rank"])
+        N[f"auc.{disc}_open_share"] = 100 * op["share_top10"]
+        fit = picks[(picks["discipline"] == disc) & picks["fit_cells"].notna()
+                    & (picks["status"] != "already at RR")]
+        N[f"auc.{disc}_fit_n"] = len(fit)
+    N["auc.no_team_barred"] = N["auc.bat_no_team_barred"] + N["auc.bowl_no_team_barred"]
+    N["auc.no_team_n"] = N["auc.bat_no_team_n"] + N["auc.bowl_no_team_n"]
+
+
 def main() -> None:
     N: dict = {}
     params(N)
@@ -291,6 +328,7 @@ def main() -> None:
     rating_numbers(N)
     time_split_numbers(N)
     picks = picks_table()
+    auction_numbers(N, picks)
     for k, v in list(N.items()):
         if isinstance(v, (np.integer,)):
             N[k] = int(v)

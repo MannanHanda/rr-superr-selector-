@@ -293,14 +293,25 @@ Rating: 50 = average eligible player; higher is better. Team = IPL 2026 franchis
 <!-- ============================================================ 6. RR -->
 <section class="main" id="s6">
 <h2>6. How each pick strengthens RR <span class="brief">Optional extra</span></h2>
-<p>We rank purely on the data; nobody is moved up or down for being at RR or likely to be retained. This section describes fit. RR's own IPL 2025&ndash;26 pressure-ball record is compared with the other nine teams in each phase &times; role cell; a cell counts only if every team has enough pressure balls in it, and a <b>need</b> is a cell where RR rank in the bottom three. Two seasons is a small sample, so read this as indicative.</p>
+<p>We rank purely on the data; nobody is moved up or down for being at RR, likely to be retained, or able to be signed. This section turns the lists into an auction view.</p>
+<div class="box"><ol>
+  <li><b>The lists say who delivers, not who is for sale.</b> {{auc.bat_top10_elsewhere|int}} of the 10 batters and {{auc.bowl_top10_elsewhere|int}} of the 10 bowlers were contracted to other franchises in 2026. IPL 2027 follows the 2025 mega-auction, so it is expected to be a smaller auction: most of these players reach it only if their franchise releases them.</li>
+  <li><b>The open market is thinner than the lists suggest.</b> Of the {{auc.no_team_n|int}} best-ranked eligible players with no IPL 2026 team ({{auc.bat_no_team_n|int}} batters, {{auc.bowl_no_team_n|int}} bowlers), {{auc.no_team_barred|int}} have a known bar to signing (Pakistan players, IPL retirements, a reported ban). The best-ranked without one are {{auc.bat_open_name}} ({{auc.bat_open_rank|ord}} of {{pool.bat|int}} batters) and {{auc.bowl_open_name}} ({{auc.bowl_open_rank|ord}} of {{pool.bowl|int}} bowlers).</li>
+  <li><b>RR's gaps, from its own pressure balls:</b> {{rr.needs_txt}}. The players in ranks 1&ndash;15 who fit them, and how each could reach RR, are in the last two tables.</li>
+</ol></div>
+
+<h3>6.1 Where RR are short under pressure</h3>
+<p class="small">RR's IPL 2025&ndash;26 pressure-ball record compared with the other nine teams in each phase &times; role cell. A cell counts only if every team has enough pressure balls in it; a <b>need</b> is a usable cell where RR rank in the bottom three. {{rr.cells_usable|int}} of {{rr.cells_total|int}} cells are usable, and {{rr.death_usable|int}} of them are death-overs cells: too few death-overs pressure balls per team in two seasons to judge, so the death overs are not assessed. Read this as indicative.</p>
 {{table:rr_needs}}
-<h4>Where RR's own players rank</h4>
+
+<h3>6.2 Where RR's own players rank</h3>
 <p class="small">{{ctx.rr_bat_n|int}} RR batters and {{ctx.rr_bowl_n|int}} RR bowlers (IPL 2026 squad) are eligible. {{ctx.rr_bat_top10|int}} batter and {{ctx.rr_bowl_top10|int}} bowlers are in a top 10. The next best are {{ctx.rr_bat_next_name}} ({{ctx.rr_bat_next_rank|ord}} of {{pool.bat|int}} batters, top 10 in {{ctx.rr_bat_next_share|.0f}}% of resamples) and {{ctx.rr_bowl_next_name}} ({{ctx.rr_bowl_next_rank|ord}} of {{pool.bowl|int}} bowlers, {{ctx.rr_bowl_next_share|.0f}}%).</p>
 <div class="two"><div>{{table:rr_own_bat}}</div><div>{{table:rr_own_bowl}}</div></div>
-<p class="small">A pick "fills" a need if his role matches the cell (batting position group, or pace / spin) and a substantial share of his recent balls fall in that phase. Picks already at RR: {{top10.bat_rr|int}} batter, {{top10.bowl_rr|int}} bowlers.</p>
-<h4>Batters (ranks 11&ndash;15 in grey are the alternates)</h4>{{table:rr_bat}}
-<h4>Bowlers</h4>{{table:rr_bowl}}
+
+<h3>6.3 Routes to RR</h3>
+<p class="small">Players in ranks 1&ndash;15 who fit an RR need (role matches the cell, and at least 30% of their 2025&ndash;26 balls fall in that phase), and the {{auc.bat_no_team_n|int}} best-ranked eligible players in each list with no IPL 2026 team. Notes in red are from public reports, not the data pack (<code>docs/availability_notes.csv</code>). Need fit is assessed for ranks 1&ndash;15 only.</p>
+<h4>Batters</h4>{{table:auction_bat}}
+<h4>Bowlers</h4>{{table:auction_bowl}}
 </section>
 
 <!-- ============================================================ APPENDIX -->
@@ -373,7 +384,7 @@ bowl|Rashid Khan|{{bowl6.chase_pressure_rank|ord}} in the pool when defending a 
 bowl|Josh Hazlewood|New-ball bowler whose dot % rises under pressure; {{bowl7.chase_pressure_rank|ord}} when defending a target.
 bowl|Krunal Pandya|Economy {{bowl8.pressure_economy|.2f}} on pressure balls against {{bowl8.routine_economy|.2f}} routine, all in the IPL; {{bowl8.C_rank|ord}} on consistency.
 bowl|Mohammad Nawaz|Middle-overs spinner, {{bowl9.chase_pressure_rank|ord}} when defending; no IPL balls, all evidence from T20Is.
-bowl|Nathan Ellis|Death bowler whose economy holds under pressure; fits RR's middle-overs pace need. Marginal.
+bowl|Nathan Ellis|Economy holds under pressure. Mainly a death bowler, but enough of his balls come in the middle overs to fit RR's middle-overs pace need. Marginal.
 </script>
 </body>
 </html>
