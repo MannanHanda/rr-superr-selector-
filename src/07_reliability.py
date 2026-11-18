@@ -375,6 +375,34 @@ def main() -> None:
 
     # 4.2 time split, 4.4 sensitivity (both rebuild sufficient statistics from ball level)
     d = lr.load_balls()
+
+    # D57: the same stability checks for the V14 lists (shift split into runs and wickets)
+    p14 = lr.variant(split_shift=True)
+    pi14 = lr.variant(split_shift=True, tiers=("IPL",))
+    vpi = lr.build_pms(d, pi14)[0]
+    head14, eb14 = {}, {}
+    for disc in ("bat", "bowl"):
+        head14[disc], eb14[disc] = lr.rate(pms, disc, rated[disc], lr.eb_pool(pms, disc), p14)
+    boot14, _ = bootstrap(pms, rated, eb14, p14)
+    v14_rows = []
+    for disc in ("bat", "bowl"):
+        sums = lr.player_sums(vpi, disc)
+        ids = rated[disc].intersection(sums.index[(sums["P_w"] > 0) & (sums["R_w"] > 0)])
+        ipl = lr.rate(vpi, disc, ids, lr.eb_pool(vpi, disc), pi14)[0]["rank"]
+        top = head14[disc][head14[disc]["rank"] <= 10]
+        share = (boot14[disc] <= 10).mean()
+        for pid, x in top.iterrows():
+            v14_rows.append({"discipline": disc, "v14_rank": int(x["rank"]),
+                             "player_name": head[disc].loc[pid, "player_name"],
+                             "headline_rank": int(head[disc].loc[pid, "rank"]),
+                             "share_top10": float(share[pid]),
+                             "ipl_only_rank": ipl.get(pid, np.nan)})
+    v14 = pd.DataFrame(v14_rows).sort_values(["discipline", "v14_rank"])
+    v14["confidence"] = np.select([v14["share_top10"] >= 0.8, v14["share_top10"] >= 0.5],
+                                  ["secure", "probable"], "marginal")
+    v14.to_csv(OUTPUTS / "v14_stability.csv", index=False, float_format="%.4f")
+    print("\nV14 lists (shift split into runs and wickets, D57):")
+    print(v14.round(2).to_string(index=False))
     ts, ceil = time_split(d)
     ts.to_csv(OUTPUTS / "time_split.csv", index=False, float_format="%.4f")
     ceil.to_csv(OUTPUTS / "time_split_ceiling.csv", index=False, float_format="%.4f")

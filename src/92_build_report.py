@@ -188,6 +188,7 @@ def t_components(disc: str) -> str:
         "1st-inns share %": p["pressure_share_inn1_pct"].map("{:.0f}".format),
         "Chase-only rank": p["chase_pressure_rank"].map("{:.0f}".format),
         "IPL-only rank": p["ipl_only_rank"].map(lambda x: f"{x:.0f}" if pd.notna(x) else "&ndash;"),
+        "V14 rank": p["v14_rank"].map(lambda x: f"{x:.0f}" if pd.notna(x) else "&ndash;"),
         "Variants top 10": p["n_variants_top10"].map(lambda x: f"{x:.0f}/{N['p.n_variants']:.0f}"),
     })
     return table(df, "compact comp", tuple(df.columns[2:]) + ("#",))

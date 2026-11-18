@@ -222,12 +222,12 @@ def knockout_record(pms: pd.DataFrame, disc: str, r: pd.DataFrame) -> pd.DataFra
     return out
 
 
-def match_consistency(pms: pd.DataFrame, disc: str, r: pd.DataFrame) -> pd.DataFrame:
+def match_consistency(pms: pd.DataFrame, disc: str, r: pd.DataFrame, p: lr.Params | None = None) -> pd.DataFrame:
     """D52: does each top-10 pick deliver match after match? (a) His rank with his single best pressure match
     removed (by weighted pressure Impact; everyone else unchanged; priors and k held fixed, as in the bootstrap);
     (b) the share of his pressure matches (>= 3 pressure balls) with positive Impact, against the pool average;
-    (c) his best match's share of his total pressure Impact."""
-    p = lr.Params()
+    (c) his best match's share of his total pressure Impact. p = None means the headline method."""
+    p = p or lr.Params()
     ids = r.index
     pool = lr.eb_pool(pms, disc)
     base, eb = lr.rate(pms, disc, ids, pool, p)
@@ -320,7 +320,7 @@ def band_note(r: pd.DataFrame) -> str:
 
 
 def main() -> None:
-    checks, details, contexts, consist, kos = [], [], [], [], []
+    checks, details, contexts, consist, kos, consist14 = [], [], [], [], [], []
     pms = pd.read_parquet(PROC / "player_match_stats.parquet")
     ctx = match_context()
     for disc in ("bat", "bowl"):
@@ -330,6 +330,11 @@ def main() -> None:
         contexts.append(cp)
         mc = match_consistency(pms, disc, r)
         consist.append(mc)
+        # D57: the same test for the V14 list (shift split into runs and wickets)
+        p14 = lr.variant(split_shift=True)
+        t14, _ = lr.rate(pms, disc, r.index, lr.eb_pool(pms, disc), p14)
+        r14 = t14[["rank"]].join(r[["player_name"]])
+        consist14.append(match_consistency(pms, disc, r14, p14))
         kos.append(knockout_record(pms, disc, r))
         details.append(md)
         fin = final_table(pms, disc, r)
@@ -383,6 +388,10 @@ def main() -> None:
     pd.concat(contexts, ignore_index=True).to_csv(OUTPUTS / "context_players.csv", index=False, float_format="%.4f")
     mcs = pd.concat(consist, ignore_index=True)
     mcs.to_csv(OUTPUTS / "match_consistency.csv", index=False, float_format="%.4f")
+    m14 = pd.concat(consist14, ignore_index=True)
+    m14.to_csv(OUTPUTS / "match_consistency_v14.csv", index=False, float_format="%.4f")
+    checks.append(("V14 match consistency: V14 ranks reproduced; 10 picks per list", f"{len(m14)} rows",
+                   bool(m14["headline_reproduced"].all()) and len(m14) == 20))
     kor = pd.concat(kos, ignore_index=True)
     kor.to_csv(OUTPUTS / "knockout_record.csv", index=False, float_format="%.4f")
     print("\nKnockout pressure record (D55, descriptive):")

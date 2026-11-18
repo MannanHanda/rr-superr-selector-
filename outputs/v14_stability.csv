@@ -1,0 +1,21 @@
+discipline,v14_rank,player_name,headline_rank,share_top10,ipl_only_rank,confidence
+bat,1,Vaibhav Sooryavanshi,1,0.9900,1.0000,secure
+bat,2,Abhishek Sharma,4,0.8690,7.0000,secure
+bat,3,Tim David,5,0.7960,13.0000,probable
+bat,4,Heinrich Klaasen,2,0.8280,2.0000,secure
+bat,5,Virat Kohli,7,0.6370,4.0000,probable
+bat,6,Andre Russell,11,0.5740,9.0000,probable
+bat,7,Priyansh Arya,3,0.5630,3.0000,probable
+bat,8,Rajat Patidar,8,0.4870,8.0000,marginal
+bat,9,Harry Brook,13,0.5040,73.0000,probable
+bat,10,Josh Inglis,10,0.4870,6.0000,marginal
+bowl,1,Sunil Narine,2,0.9420,2.0000,secure
+bowl,2,Rashid Khan,6,0.8960,39.0000,secure
+bowl,3,Krunal Pandya,8,0.6560,7.0000,probable
+bowl,4,Mujeeb Ur Rahman,21,0.6690,,probable
+bowl,5,Nathan Ellis,10,0.5020,18.0000,probable
+bowl,6,Mohammad Nawaz,9,0.4060,,marginal
+bowl,7,Josh Hazlewood,7,0.4350,14.0000,marginal
+bowl,8,Bhuvneshwar Kumar,5,0.4260,6.0000,marginal
+bowl,9,Jasprit Bumrah,1,0.3770,1.0000,marginal
+bowl,10,Harpreet Brar,20,0.3160,16.0000,marginal

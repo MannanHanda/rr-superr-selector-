@@ -304,6 +304,7 @@ def picks_table() -> pd.DataFrame:
         t = picks.join(cards[[c for c in cards.columns if c not in picks.columns]])
         t = t.join(b[["rank_p5", "rank_p95", "share_top10"]]).join(s[["n_variants_top10"]])
         t["ipl_only_rank"] = s["V9 IPL balls only"].reindex(t.index)  # D50
+        t["v14_rank"] = s["V14 shift split runs/wickets"].reindex(t.index)  # D57
         # D50: one standard error of chance on raw pressure Impact (per 100 balls), and the gap to usual level
         eb = pd.read_csv(OUTPUTS / "eb_params.csv").set_index(["discipline", "quantity"])
         t["P_raw_se"] = 100 * np.sqrt(eb.loc[(disc, "D"), "sigma2"] / t["n_P"])
@@ -323,6 +324,18 @@ def picks_table() -> pd.DataFrame:
 def names(xs) -> str:
     xs = list(xs)
     return xs[0] if len(xs) == 1 else ", ".join(xs[:-1]) + " and " + xs[-1]
+
+
+def v14_numbers(N: dict) -> None:
+    """D57: the V14 lists' stability, next to the headline's."""
+    v = pd.read_csv(OUTPUTS / "v14_stability.csv")
+    m = pd.read_csv(OUTPUTS / "match_consistency_v14.csv")
+    for disc in ("bat", "bowl"):
+        t = v[v["discipline"] == disc]
+        for band in ("secure", "probable", "marginal"):
+            N[f"v14.{disc}_{band}"] = int((t["confidence"] == band).sum())
+        N[f"v14.{disc}_ipl_top10"] = int((t["ipl_only_rank"] <= 10).sum())
+        N[f"v14.{disc}_stay"] = int((m.loc[m["discipline"] == disc, "rank_without_best_match"] <= 10).sum())
 
 
 def stand_behind_numbers(N: dict, picks: pd.DataFrame) -> None:
@@ -439,6 +452,7 @@ def main() -> None:
     chance_numbers(N, picks)
     match_consistency_numbers(N)
     stand_behind_numbers(N, picks)
+    v14_numbers(N)
     for k, v in list(N.items()):
         if isinstance(v, (np.integer,)):
             N[k] = int(v)

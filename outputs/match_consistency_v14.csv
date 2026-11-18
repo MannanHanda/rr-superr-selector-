@@ -1,0 +1,21 @@
+discipline,rank,player_name,rank_without_best_match,best_match_id,pressure_matches,positive_impact_match_pct,pool_positive_impact_match_pct,best_match_share_pct,headline_reproduced
+bat,1,Vaibhav Sooryavanshi,1,50140,18,77.7778,55.3887,34.8552,True
+bat,2,Abhishek Sharma,3,31287,70,64.2857,55.3887,20.7579,True
+bat,3,Tim David,6,41507,33,57.5758,55.3887,45.5111,True
+bat,4,Heinrich Klaasen,5,50362,27,81.4815,55.3887,23.1840,True
+bat,5,Virat Kohli,7,50355,54,72.2222,55.3887,17.5584,True
+bat,6,Andre Russell,11,14128,10,70.0000,55.3887,44.1970,True
+bat,7,Priyansh Arya,14,40715,20,70.0000,55.3887,38.0368,True
+bat,8,Rajat Patidar,14,50371,24,75.0000,55.3887,41.0090,True
+bat,9,Harry Brook,14,40039,20,50.0000,55.3887,62.6341,True
+bat,10,Josh Inglis,14,41506,26,69.2308,55.3887,38.7978,True
+bowl,1,Sunil Narine,1,40741,30,46.6667,43.6312,27.4864,True
+bowl,2,Rashid Khan,2,50138,50,62.0000,43.6312,44.5346,True
+bowl,3,Krunal Pandya,4,30076,34,61.7647,43.6312,44.4870,True
+bowl,4,Mujeeb Ur Rahman,5,55559,22,68.1818,43.6312,24.1638,True
+bowl,5,Nathan Ellis,21,50598,25,48.0000,43.6312,65.3862,True
+bowl,6,Mohammad Nawaz,13,45857,23,43.4783,43.6312,64.3155,True
+bowl,7,Josh Hazlewood,15,40735,47,59.5745,43.6312,57.0549,True
+bowl,8,Bhuvneshwar Kumar,15,50347,74,52.7027,43.6312,40.4668,True
+bowl,9,Jasprit Bumrah,11,50351,44,45.4545,43.6312,,True
+bowl,10,Harpreet Brar,23,40760,18,55.5556,43.6312,46.8131,True

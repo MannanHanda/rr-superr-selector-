@@ -371,6 +371,13 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   was seen) and report the split as variant V14 (lib_rating Params.split_shift; also in the time split). The
   report now says players differ in run-scoring/run-saving under pressure but not in wickets. Rejected:
   adopting the split on deadline day (less robust lists, no gain out of sample).
+- D57 (18 Nov, red-team round 4 fix 1, no ranking change): the V14 lists get the same stability checks as the
+  headline, written by the pipeline (07: v14_stability.csv, bootstrap bands and IPL-only rank; 09:
+  match_consistency_v14.csv). Bowlers under V14: 2 secure / 3 probable / 5 marginal (headline 2/5/3), 4 of 10
+  survive losing their best match (headline 9), 4 of 10 top 10 on IPL balls alone (headline 6). Batters: 3/5/2
+  (headline 2/5/3), 5 survive (6), 8 IPL (8). 3.1 now gives the full reason for one shift (real but small run
+  signal; no forecast gain; less stable bowling list); Tables 1-2 show each pick's V14 rank; finding 3 is one
+  claim; Ngidi's and Mustafizur's lines give their V14 rank.
 
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2) [CLOSED by D41]: First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected
