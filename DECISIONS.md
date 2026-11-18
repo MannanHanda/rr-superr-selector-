@@ -401,6 +401,9 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   ranking leans on level, where the bowling doubts appear: short, noisy pressure records (chance ranges)
   and the time split (usual level 0.33 vs raw pressure Impact 0.14 for 2025-26 pressure form). Page-1
   legend gets the same clause.
+- D63 (18 Nov, red-team round 5 fix 2, wording only): Rashid's line explains his IPL-only rank (39th):
+  his routine IPL overs are at par (-1 runs per 100; IPL-only usual level 50th of 86), and the rating
+  leans on level, although he saves +21 per 100 on IPL pressure balls.
 
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2) [CLOSED by D41]: First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected
