@@ -397,6 +397,10 @@ Numbers marked [proto] come from a throwaway prototype run in the design session
   >= 50 such balls against the pool share. 1.3 names the picks with >= 75% first-innings pressure balls.
   Rejected: a re-rating without those matches (a new variant on deadline day; the descriptive check shows
   whether it is needed).
+- D62 (18 Nov, red-team round 5 fix 1, wording only): Table 2's note now gives the reason the bowling
+  ranking leans on level, where the bowling doubts appear: short, noisy pressure records (chance ranges)
+  and the time split (usual level 0.33 vs raw pressure Impact 0.14 for 2025-26 pressure form). Page-1
+  legend gets the same clause.
 
 ## Open questions (Phase 2)
 - Q3 (14 Nov, P2) [CLOSED by D41]: First-innings pressure balls are 77% powerplay, 21% middle, 1% death (spec 1.4 expected

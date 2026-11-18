@@ -114,7 +114,7 @@
 </div>
 <p class="small">Confidence: <span class="conf secure">secure</span> = in the top 10 in at least {{p.secure_pct|.0f}}% of {{p.n_boot|int}} match resamples;
 <span class="conf probable">probable</span> = {{p.probable_pct|.0f}}&ndash;{{p.secure_pct|.0f}}%; <span class="conf marginal">marginal</span> = below {{p.probable_pct|.0f}}%.
-Rating: 50 = average eligible player; higher is better. Team = IPL 2026 franchise (else national side). Places 8&ndash;12 in each list cannot be told apart statistically; the order is the point estimate. Next in line: #11 {{boot.bat_name_11}} (top 10 in {{boot.bat_share_11|.0f}}% of resamples) and #11 {{boot.bowl_name_11}} ({{boot.bowl_share_11|.0f}}%). For bowlers the overall pressure shift cannot be told apart from chance, so the bowling list ranks largely on level (3.1).</p>
+Rating: 50 = average eligible player; higher is better. Team = IPL 2026 franchise (else national side). Places 8&ndash;12 in each list cannot be told apart statistically; the order is the point estimate. For bowlers the overall pressure shift cannot be told apart from chance, so the bowling list ranks largely on level, which predicts a bowler's next two seasons under pressure better than his past pressure record does (3.1, 5.2).</p>
 
 <h3>The method in four lines</h3>
 <ol>
@@ -132,7 +132,7 @@ Rating: 50 = average eligible player; higher is better. Team = IPL 2026 franchis
   <li><b>Under pressure, level matters more than nerve.</b> Players do differ in how their run-scoring and run-saving hold up under pressure (not in wickets), but the differences are small next to chance and barely carry over: rated on 2022&ndash;24, a bowler's usual level is the best guide to his 2025&ndash;26 pressure form ({{ts.bowl_ulevel|.2f}}), and no measure we tried predicts batters' later pressure form clearly, so the batting list records who has delivered (5.2).</li>
 </ol>
 </div>
-<p class="small"><b>What we stand behind.</b> {{sb.names90}} are top 10 in at least 90% of {{p.n_boot|int}} match resamples. {{sens.bat_core|int}} batters and {{sens.bowl_core|int}} bowlers are top 10 under at least {{p.core_min|int}} of {{p.n_variants|int}} versions of the method. {{sb.bat_chase_names}} are also top 10 when chasing; {{sb.bat_allchecks_names}} pass every check (secure or probable, top 10 when chasing, still top 10 without their best match). {{sb.bat_ipl_top10|int}} of the 10 batters and {{sb.bowl_ipl_top10|int}} of the 10 bowlers are also top 10 on IPL balls alone; the others lean on T20I evidence, flagged (&#9873;) where it is thin. <b>Less sure:</b> {{conf.bat_marginal|int}} batters and {{conf.bowl_marginal|int}} bowlers are marginal, and {{sb.bat_drop_names}} (batting) and {{sb.bowl_drop_names}} (bowling) drop out of the top 10 without their best pressure match.</p>
+<p class="small"><b>What we stand behind.</b> {{sb.names90}} are top 10 in at least 90% of {{p.n_boot|int}} match resamples. {{sens.bat_core|int}} batters and {{sens.bowl_core|int}} bowlers are top 10 under at least {{p.core_min|int}} of {{p.n_variants|int}} versions of the method. {{sb.bat_allchecks_names}} pass every check (secure or probable, top 10 when chasing, still top 10 without their best match). {{sb.bat_ipl_top10|int}} of the 10 batters and {{sb.bowl_ipl_top10|int}} of the 10 bowlers are also top 10 on IPL balls alone; the others lean on T20I evidence, flagged (&#9873;) where it is thin. <b>Less sure:</b> {{conf.bat_marginal|int}} batters and {{conf.bowl_marginal|int}} bowlers are marginal, and {{sb.bat_drop_names}} (batting) and {{sb.bowl_drop_names}} (bowling) drop out of the top 10 without their best pressure match.</p>
 
 <!-- ============================================================ 1. PRESSURE -->
 <section class="main" id="s1">
@@ -277,7 +277,7 @@ Rating: 50 = average eligible player; higher is better. Team = IPL 2026 franchis
 
 <section class="main" id="s4b">
 <h3>Table 2. Top 10 bowlers</h3>
-<p class="small">For bowlers, pressure level, chase-only rank and IPL-only rank all rest mainly on usual level, because bowlers' overall pressure shifts are within chance (3.1). The pressure-specific evidence is in the raw pressure Impact, the runs saved against par and the plain stats.</p>
+<p class="small"><b>How to read the bowlers' table.</b> A bowler's pressure-ball record is short (a median of {{pool.bowl_median_pressure_balls|int}} pressure balls) and noisy: by chance alone, raw pressure Impact moves about &plusmn;{{eb.bowl_P_se_median|.1f}} per 100 balls over a typical sample, and runs against par about &plusmn;{{ipl.bowl_rae_se100|.0f}} per 100 over 100 balls. Rated on 2022&ndash;24, a bowler's usual level predicts his 2025&ndash;26 pressure form better ({{ts.bowl_ulevel|.2f}}) than his own past pressure record does (raw pressure Impact, {{ts.bowl_raw|.2f}}; 5.2). So the ranking leans on level: pressure level, chase-only rank and IPL-only rank all rest mainly on it. The pressure-specific columns (raw pressure Impact, runs saved against par, IPL only, V14 rank) show where a pick's pressure record is weak; read them with their chance ranges.</p>
 <div class="tablewrap">{{table:top10_bowl}}</div>
 <h4>Rating components (Impact per 100 balls; consistency %, eligible bowlers' average {{cons.bowl_pool|.0f}}%). "Chase-only rank" for bowlers = when defending a target.</h4>
 {{table:comp_bowl}}
